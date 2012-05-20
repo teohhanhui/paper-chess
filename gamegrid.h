@@ -1,11 +1,11 @@
-#ifndef GRIDITEM_H
-#define GRIDITEM_H
+#ifndef GAMEGRID_H
+#define GAMEGRID_H
 
 #include <QDeclarativeItem>
 
 class Stroke;
 
-class GridItem : public QDeclarativeItem
+class GameGrid : public QDeclarativeItem
 {
     Q_OBJECT
     Q_PROPERTY(int rows READ rows WRITE setRows)
@@ -13,8 +13,8 @@ class GridItem : public QDeclarativeItem
     Q_PROPERTY(Stroke *stroke READ stroke)
 
 public:
-    explicit GridItem(QDeclarativeItem *parent = 0);
-    ~GridItem();
+    explicit GameGrid(QDeclarativeItem *parent = 0);
+    ~GameGrid();
 
     int rows() const;
     void setRows(int rows);
@@ -37,4 +37,4 @@ private:
     Stroke *m_stroke;
 };
 
-#endif // GRIDITEM_H
+#endif // GAMEGRID_H

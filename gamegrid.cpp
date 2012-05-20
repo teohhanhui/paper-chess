@@ -1,11 +1,11 @@
-#include "griditem.h"
+#include "gamegrid.h"
 #include <QLineF>
 #include <QPainter>
 #include <QRectF>
 #include <QVarLengthArray>
 #include "stroke.h"
 
-GridItem::GridItem(QDeclarativeItem *parent)
+GameGrid::GameGrid(QDeclarativeItem *parent)
     : QDeclarativeItem(parent)
     , m_rows(1)
     , m_columns(1)
@@ -16,17 +16,17 @@ GridItem::GridItem(QDeclarativeItem *parent)
     connect(m_stroke, SIGNAL(widthChanged()), SLOT(strokeLines()));
 }
 
-GridItem::~GridItem()
+GameGrid::~GameGrid()
 {
     delete m_stroke;
 }
 
-int GridItem::rows() const
+int GameGrid::rows() const
 {
     return m_rows;
 }
 
-void GridItem::setRows(const int rows)
+void GameGrid::setRows(const int rows)
 {
     if (rows != m_rows) {
         m_rows = rows;
@@ -34,12 +34,12 @@ void GridItem::setRows(const int rows)
     }
 }
 
-int GridItem::columns() const
+int GameGrid::columns() const
 {
     return m_columns;
 }
 
-void GridItem::setColumns(const int columns)
+void GameGrid::setColumns(const int columns)
 {
     if (columns != m_columns) {
         m_columns = columns;
@@ -47,26 +47,26 @@ void GridItem::setColumns(const int columns)
     }
 }
 
-Stroke *GridItem::stroke() const
+Stroke *GameGrid::stroke() const
 {
     return m_stroke;
 }
 
-void GridItem::strokeLines()
+void GameGrid::strokeLines()
 {
     update();
 }
 
-void GridItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void GameGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     QRectF rect = boundingRect();
-    qreal gridSize = qMin(rect.width() / m_columns, rect.height() / m_rows);
+    qreal gridSize = qMin(rect.width() / (m_columns + 2), rect.height() / (m_rows + 2));
     qreal width = m_columns * gridSize;
     qreal height = m_rows * gridSize;
     qreal left = rect.left() + (rect.width() - width) / 2;
-    qreal right = left + width;
+    qreal right = left + width + 1;
     qreal top = rect.top() + (rect.height() - height) / 2;
-    qreal bottom = top + height;
+    qreal bottom = top + height + 1;
 
     QVarLengthArray<QLineF, 100> lines;
 
@@ -74,16 +74,6 @@ void GridItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
         lines.append(QLineF(x, top, x, bottom));
     for (qreal y = top; y <= bottom; y += gridSize)
         lines.append(QLineF(left, y, right, y));
-
-    /*
-    qDebug() << "Width: " << width;
-    qDebug() << "Height: " << height;
-    qDebug() << "Left: " << left;
-    qDebug() << "Right: " << right;
-    qDebug() << "Top: " << top;
-    qDebug() << "Bottom: " << bottom;
-    qDebug() << "No. of lines: " << lines.size();
-    */
 
     bool oldAA = painter->testRenderHint(QPainter::Antialiasing);
     bool oldSmooth = painter->testRenderHint(QPainter::SmoothPixmapTransform);
