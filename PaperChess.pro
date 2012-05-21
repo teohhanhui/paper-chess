@@ -32,7 +32,9 @@ symbian:TARGET.CAPABILITY += NetworkServices
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
     stroke.cpp \
-    gamegrid.cpp
+    gamegrid.cpp \
+    dot.cpp \
+    line.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -40,4 +42,6 @@ qtcAddDeployment()
 
 HEADERS += \
     stroke.h \
-    gamegrid.h
+    gamegrid.h \
+    dot.h \
+    line.h
