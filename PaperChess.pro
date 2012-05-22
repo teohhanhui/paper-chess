@@ -34,7 +34,8 @@ SOURCES += main.cpp \
     stroke.cpp \
     gamegrid.cpp \
     dot.cpp \
-    line.cpp
+    line.cpp \
+    engine.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -44,7 +45,8 @@ HEADERS += \
     stroke.h \
     gamegrid.h \
     dot.h \
-    line.h
+    line.h \
+    engine.h
 
 OTHER_FILES += \
     qml/ScorePage.qml \

@@ -18,7 +18,11 @@ int Dot::getY(){
     return dot_y;
 }
 
-int setStatus(int currStatus){
+int Dot::getStatus(){
+    return status;
+}
+
+int Dot::setStatus(int currStatus){
     //TO-DO
     //set status of dot
     if(currStatus == 1){

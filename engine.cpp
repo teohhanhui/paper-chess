@@ -8,11 +8,11 @@ Engine::Engine(QObject *parent):QObject(parent){
 }
 
 int surroundCheck(vector<Dot> chain, int player){
-    Dot first, last;
+
     int counter, fX, fY, lX, lY;
-    first = chain[0];
-    fX = first.getX();
-    fY = first.getY();
+
+    fX = chain[0].getX();
+    fY = chain[0].getY();
     counter = 0;
     for(vector<Dot>::iterator ite = chain.begin(); ite != chain.end(); ++ite){
         if(((*ite).getPlayer() != player) && ((*ite).getStatus() != 1)){
@@ -20,9 +20,9 @@ int surroundCheck(vector<Dot> chain, int player){
         }
         counter++;
     }
-    last = chain[counter];
-    lX = last.getX();
-    lY = last.getY();
+
+    lX = chain[counter].getX();
+    lY = chain[counter].getY();
     if((fX == lX) && (fY == lY)){
         return 1;
     }
@@ -31,7 +31,7 @@ int surroundCheck(vector<Dot> chain, int player){
     }
 }
 
-int captureDot(vector<Dot> surroundingDots){
+/*int captureDot(vector<Dot> surroundingDots){
     int captured, mX, mY, smX, smY, currX, currY;
 
     for(vector<Dot>::iterator ite = surroundingDots.begin(); ite != surroundingDots.end(); ++ite){
@@ -42,4 +42,4 @@ int captureDot(vector<Dot> surroundingDots){
 Dot searchDot(vector<Dot> playerDots, Dot target){
 
 }
-
+*/

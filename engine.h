@@ -3,6 +3,7 @@
 #include "dot.h"
 #include <QObject>
 #include <vector>
+using namespace std;
 class Engine : public QObject{
 public:
     explicit Engine(QObject *parent = 0);
@@ -10,7 +11,7 @@ public:
 
     /*iterates through surround chain & check dot status & dot player
     returns 1 for surround if able, 0 if fail*/
-    Q_INVOKABLE int surroundCheck(vector<Dot> chain, int player);
+    int surroundCheck(vector<Dot> chain, int player);
 
     /*check number of captured dots, returns number of dots captured
     idea of calculating captured dots: with limits of MAX x, MAX y, MIN x, MIN y
@@ -21,7 +22,7 @@ public:
             increment counter if captured a dot.
             repeat from MIN y to MAX y
     */
-    Q_INVOKABLE int captureDot(vector<Dot> surroundingDots);
+    int captureDot(vector<Dot> surroundingDots);
 
     Dot searchDot(vector<Dot> playerDots, Dot target);
 
