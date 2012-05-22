@@ -29,14 +29,13 @@ int surroundCheck(vector<Dot> chain, int player){
     else{
         return 0;
     }
-
 }
 
 int captureDot(vector<Dot> surroundingDots){
-    int captured, mX, mY, smX, smY;
+    int captured, mX, mY, smX, smY, currX, currY;
 
     for(vector<Dot>::iterator ite = surroundingDots.begin(); ite != surroundingDots.end(); ++ite){
-        mX
+
     }
 }
 
