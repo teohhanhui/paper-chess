@@ -8,7 +8,7 @@ public:
     explicit Engine(QObject *parent = 0);
 
 
-    /*iterates through surround chain & check if can surround
+    /*iterates through surround chain & check dot status & dot player
     returns 1 for surround if able, 0 if fail*/
     Q_INVOKABLE int surroundCheck(vector<Dot> chain, int player);
 
@@ -24,7 +24,6 @@ public:
     Q_INVOKABLE int captureDot(vector<Dot> surroundingDots);
 
     Dot searchDot(vector<Dot> playerDots, Dot target);
-
 
 private:
     vector<Dot> player1Dots;
