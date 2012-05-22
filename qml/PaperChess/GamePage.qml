@@ -2,84 +2,170 @@
 import QtQuick 1.1
 import CustomComponents 1.0
 
-Rectangle {
+Page {
     id: page
-
-    color: "beige"
 
     Image {
         anchors.fill: parent
 
-        source: "paper_texture.png"
+        source: "images/paper_texture.png"
         fillMode: Image.Tile
     }
 
-    Flickable {
-        id: flicky
-
+    Column {
         anchors.fill: parent
 
-        contentWidth: width
-        contentHeight: height
+        //spacing: 5
 
-        GameGrid {
-            id: gameGrid
+        Flickable {
+            id: flicky
 
-            anchors.fill: parent
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
 
-            rows: 40
-            columns: 20
-            stroke.color: "slategray"
-            stroke.width: 1
+            height: parent.height - toolbar.height
+
+            contentWidth: width
+            contentHeight: height
+
+            GameGrid {
+                id: gameGrid
+
+                anchors.fill: parent
+
+                rows: 40
+                columns: 20
+                stroke.color: "slategray"
+                stroke.width: 1
+            }
+
+            PinchArea {
+                id: pinchy
+
+                anchors.fill: parent
+
+                pinch.minimumScale: 1.0
+                pinch.maximumScale: 5.0
+                pinch.dragAxis: Pinch.NoDrag
+
+                property real contentScale: 1.0
+                property real initialScale
+
+                onPinchStarted: {
+                    initialScale = contentScale
+                }
+
+                onPinchUpdated: {
+                    var newScale = initialScale * pinch.scale
+
+                    if (newScale < pinchy.pinch.minimumScale)
+                        newScale = pinchy.pinch.minimumScale
+
+                    if (newScale > pinchy.pinch.maximumScale)
+                        newScale = pinchy.pinch.maximumScale
+
+                    contentScale = newScale
+                    flicky.resizeContent(flicky.width * newScale, flicky.height * newScale, pinch.center)
+                }
+
+                onPinchFinished: {
+                    flicky.returnToBounds()
+                }
+            }
+
+            MouseArea {
+                id: touchy
+
+                anchors.fill: parent
+
+                onPressAndHold: {
+                    //
+                }
+
+                onDoubleClicked: {
+                    flicky.contentWidth = flicky.width
+                    flicky.contentHeight = flicky.height
+                }
+            }
         }
 
-        PinchArea {
-            id: pinchy
+        Flow {
+            id: toolbar
 
-            anchors.fill: parent
+            Button {
+                color: "transparent"
+                labelText: qsTr("Menu")
 
-            pinch.minimumScale: 1.0
-            pinch.maximumScale: 5.0
-            pinch.dragAxis: Pinch.NoDrag
-
-            property real contentScale: 1.0
-            property real initialScale
-
-            onPinchStarted: {
-                initialScale = contentScale
-            }
-
-            onPinchUpdated: {
-                var newScale = initialScale * pinch.scale
-
-                if (newScale < pinchy.pinch.minimumScale)
-                    newScale = pinchy.pinch.minimumScale
-
-                if (newScale > pinchy.pinch.maximumScale)
-                    newScale = pinchy.pinch.maximumScale
-
-                contentScale = newScale
-                flicky.resizeContent(flicky.width * newScale, flicky.height * newScale, pinch.center)
-            }
-
-            onPinchFinished: {
-                flicky.returnToBounds()
+                onClicked: overlayMenu.state = "shown"
             }
         }
+    }
 
-        MouseArea {
-            id: touchy
+    Column {
+        id: overlayMenu
 
-            anchors.fill: parent
-
-            onPressAndHold: {
-                //
-            }
-
-            onDoubleClicked: {
-                flicky.contentWidth = flicky.width
-                flicky.contentHeight = flicky.height
-            }
+        anchors {
+            centerIn: parent
         }
+        opacity: 0
+        visible: false
+
+        Button {
+            labelText: "Main Menu"
+
+            onClicked: pageRequested("mainMenuPage")
+        }
+
+        states: [
+            State {
+                name: "shown"
+                PropertyChanges {
+                    target: overlayMenu
+                    visible: true
+                    opacity: 1
+                }
+            },
+            State {
+                name: "hidden"
+                PropertyChanges {
+                    target: overlayMenu
+                    opacity: 0
+                    visible: false
+                }
+            }
+        ]
+
+        transitions: [
+            Transition {
+                from: "*"
+                to: "shown"
+                SequentialAnimation {
+                    PropertyAction {
+                        properties: "visible"
+                    }
+                    NumberAnimation {
+                        properties: "opacity"
+                        easing.type: Easing.InQuad
+                        duration: 200
+                    }
+                }
+            },
+            Transition {
+                from: "shown"
+                to: "hidden"
+                SequentialAnimation {
+                    NumberAnimation {
+                        properties: "opacity"
+                        easing: Easing.OutQuad
+                        duration: 200
+                    }
+                    PropertyAction {
+                        properties: "visible"
+                    }
+                }
+            }
+        ]
     }
 }

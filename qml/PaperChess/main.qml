@@ -4,47 +4,47 @@ import QtQuick 1.1
 Rectangle {
     id: base
 
-    BackCoverPage {
-        id: backCoverPage
-
-        width: parent.width
-        height: parent.height
-        visible: false
-    }
-
     GamePage {
         id: gamePage
 
         width: parent.width
         height: parent.height
         visible: false
+
+        onPageRequested: {
+            if (pageName === "newGamePage") {
+                newGamePage.state = "shown"
+                //
+            }
+        }
     }
 
-    FrontCoverPage {
-        id: frontCoverPage
+    NewGamePage {
+        id: newGamePage
 
         width: parent.width
         height: parent.height
 
-        transitions:
-            Transition {
-                from: ""
-                to: "hidden"
-                SequentialAnimation {
-                    PropertyAction {
-                        target: gamePage
-                        property: "visible"
-                        value: true
-                    }
-                    NumberAnimation {
-                        properties: "x"
-                        easing.type: Easing.OutElastic
-                        duration: 1000
-                    }
-                    PropertyAction {
-                        property: "visible"
-                    }
-                }
+        onPageRequested: {
+            if (pageName === "gamePage") {
+                gamePage.visible = true
+                newGamePage.state = "hiddenLeft"
             }
+        }
+    }
+
+    ScorePage {
+        id: scorePage
+
+        width: parent.width
+        height: parent.height
+        visible: false
+    }
+
+    SplashScreen {
+        id: splash
+
+        width: parent.width
+        height: parent.height
     }
 }

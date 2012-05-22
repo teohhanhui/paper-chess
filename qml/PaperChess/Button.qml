@@ -4,20 +4,23 @@ import QtQuick 1.1
 Rectangle {
     id: button
 
-    width: label.width
-    height: label.height
-
-    property string labelText: qsTr("Button")
-    property color labelColor: "black"
-    property color labelHoverColor: labelColor
+    property alias labelText: label.text
+    property alias labelFont: label.font
+    property alias labelColor: label.normalColor
+    property alias labelHoverColor: label.hoverColor
 
     signal clicked()
+
+    width: label.width
+    height: label.height
 
     Text {
         id: label
 
-        text: labelText
-        color: labelColor
+        property color normalColor
+        property color hoverColor
+
+        color: normalColor
     }
 
     MouseArea {
@@ -30,11 +33,11 @@ Rectangle {
         }
 
         onEntered: {
-            label.color = labelHoverColor
+            label.color = label.hoverColor
         }
 
         onExited: {
-            label.color = labelColor
+            label.color = label.normalColor
         }
     }
 }

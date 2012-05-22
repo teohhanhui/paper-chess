@@ -45,3 +45,17 @@ HEADERS += \
     gamegrid.h \
     dot.h \
     line.h
+
+OTHER_FILES += \
+    qml/ScorePage.qml \
+    qml/Page.qml \
+    qml/NewGamePage.qml \
+    qml/main.qml \
+    qml/GamePage.qml \
+    qml/CoverPage.qml \
+    qml/Button.qml \
+    images/paper_texture.png \
+    images/cover.jpg \
+    fonts/CabinSketch-Regular.ttf \
+    fonts/CabinSketch-Bold.ttf \
+    qml/splash.qml

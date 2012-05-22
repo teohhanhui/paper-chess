@@ -4,15 +4,11 @@ import QtQuick 1.1
 CoverPage {
     id: page
 
-    states:
-        State {
-            name: "hidden"
-            PropertyChanges {
-                target: page
-                x: -width
-                visible: false
-            }
-        }
+    FontLoader {
+        id: sketchFont
+
+        source: "fonts/CabinSketch-Regular.ttf"
+    }
 
     Button {
         id: startButton
@@ -23,11 +19,12 @@ CoverPage {
 
         color: "transparent"
         labelText: qsTr("Start") + " >>"
+        labelFont {
+            family: sketchFont.name
+        }
         labelColor: "black"
         labelHoverColor: "#454343" // graphite
 
-        onClicked: {
-            page.state = "hidden"
-        }
+        onClicked: pageRequested("gamePage")
     }
 }

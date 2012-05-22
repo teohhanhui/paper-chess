@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- Converted with SVG Converter - Version 0.9.5 (Compiled Mon May 30 09:08:51 2011) - Copyright (C) 2011 Nokia -->
+<svg xmlns="http://www.w3.org/2000/svg" width="300" version="1.1" height="300" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" id="svg3416">
+ <defs id="defs3418">
+  <linearGradient id="linearGradient3857" y1="8.0107002" x1="47.9995" y2="960" gradientUnits="userSpaceOnUse" x2="47.9995">
+   <stop offset="0" style="stop-color:#FFDB62" id="stop6363"/>
+   <stop offset="0.1393" style="stop-color:#FAD15C" id="stop6365"/>
+   <stop offset="0.3741" style="stop-color:#EDB74D" id="stop6367"/>
+   <stop offset="0.4848" style="stop-color:#E6A844" id="stop6369"/>
+   <stop offset="1" style="stop-color:#C96B25" id="stop6371"/>
+  </linearGradient>
+  <linearGradient gradientTransform="matrix(0.4587156,0,0,0.31250001,45.04724,706.18108)" id="linearGradient3414" y1="8.0107002" y2="960" x1="47.9995" x2="47.9995" gradientUnits="userSpaceOnUse">
+   <stop offset="0" style="stop-color:#FFDB62" id="stop6363"/>
+   <stop offset="0.1393" style="stop-color:#FAD15C" id="stop6365"/>
+   <stop offset="0.3741" style="stop-color:#EDB74D" id="stop6367"/>
+   <stop offset="0.4848" style="stop-color:#E6A844" id="stop6369"/>
+   <stop offset="1" style="stop-color:#C96B25" id="stop6371"/>
+  </linearGradient>
+ </defs>
+ <metadata id="metadata3421"/>
+ <g id="layer1" transform="translate(-45.047241,-706.18109)">
+  <rect width="300" x="45.047241" y="706.18109" height="300" style="fill:url(#linearGradient3414);fill-opacity:1;fill-rule:nonzero;stroke:none" id="rect3850"/>
+ </g>
+</svg>
