@@ -1,15 +1,15 @@
 #ifndef LINE_H
 #define LINE_H
-
+#include "dot.h"
 class Line{
 public:
-    Line(dot begin, dot end);
-    dot getBegin();
-    dot getEnd();
+    Line(Dot begin, Dot end);
+    Dot getBegin();
+    Dot getEnd();
 
 private:
-    dot begin;
-    dot end;
+    Dot begin;
+    Dot end;
 
 };
 
