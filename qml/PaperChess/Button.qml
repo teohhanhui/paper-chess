@@ -4,8 +4,8 @@ import QtQuick 1.1
 Rectangle {
     id: button
 
-    property alias labelText: label.text
-    property alias labelFont: label.font
+    property alias text: label.text
+    property alias font: label.font
     property alias labelColor: label.normalColor
     property alias labelHoverColor: label.hoverColor
 

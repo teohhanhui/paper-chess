@@ -28,7 +28,7 @@ CoverPage {
             }
 
             Image {
-                id: logoText
+                id:logoText
 
                 anchors.horizontalCenter: parent.horizontalCenter
 
@@ -40,46 +40,37 @@ CoverPage {
 
         Item {
             width: parent.width
-            height: logoText.height * 2
+            height: page.height / 8
         }
 
         Flow {
-            id: newGameMenu
+            id: menu
 
             anchors.horizontalCenter: parent.horizontalCenter
 
             flow: page.width > page.height ? Flow.LeftToRight : Flow.TopToBottom
-            spacing: flow === Flow.LeftToRight ? 10 * baseFontSize : 2 * baseFontSize
+            spacing: flow === Flow.LeftToRight ? 20 * baseFontSize : 4 * baseFontSize
 
-            Column {
-                spacing: player1TextField.height * 0.4
+            Button {
+                id: playButton
 
-                CoverTextField {
-                    id: player1TextField
-
-                    labelText: "Name"
-                    defaultText: "Player 1"
-                    maximumLength: 18
-                    labelFontSize: 8 * baseFontSize
-                    textFontSize: 8 * baseFontSize
+                color: "transparent"
+                text: qsTr("Play")
+                font {
+                    family: handwritingFont.name
+                    pixelSize: 15 * baseFontSize
                 }
+                labelColor: "black"
+                labelHoverColor: "#454343" // graphite
 
-                CoverTextField {
-                    id: player2TextField
-
-                    labelText: "Name"
-                    defaultText: "Player 2"
-                    maximumLength: 18
-                    labelFontSize: 8 * baseFontSize
-                    textFontSize: 8 * baseFontSize
-                }
+                onClicked: pageRequested("newGamePage")
             }
 
             Button {
-                id: startButton
+                id: howToPlayButton
 
                 color: "transparent"
-                text: qsTr("Start")
+                text: qsTr("How To Play")
                 font {
                     family: handwritingFont.name
                     pixelSize: 13 * baseFontSize
@@ -87,22 +78,22 @@ CoverPage {
                 labelColor: "black"
                 labelHoverColor: "#454343" // graphite
 
-                onClicked: pageRequested("gamePage")
+                onClicked: pageRequested("howToPlayPage")
             }
 
             Button {
-                id: backButton
+                id: exitButton
 
                 color: "transparent"
-                text: qsTr("Back")
+                text: qsTr("Exit")
                 font {
                     family: handwritingFont.name
-                    pixelSize: 12 * baseFontSize
+                    pixelSize: 13 * baseFontSize
                 }
                 labelColor: "black"
                 labelHoverColor: "#454343" // graphite
 
-                onClicked: pageRequested("mainMenuPage")
+                onClicked: Qt.quit()
             }
         }
     }

@@ -4,6 +4,8 @@ import QtQuick 1.1
 Item {
     id: page
 
+    property int baseFontSize: Math.min(width, height) * 0.007
+
     signal pageRequested(string pageName)
 
     states: [

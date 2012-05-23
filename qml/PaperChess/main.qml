@@ -14,7 +14,6 @@ Rectangle {
         onPageRequested: {
             if (pageName === "newGamePage") {
                 newGamePage.state = "shown"
-                //
             }
         }
     }
@@ -24,11 +23,49 @@ Rectangle {
 
         width: parent.width
         height: parent.height
+        visible: false
 
         onPageRequested: {
             if (pageName === "gamePage") {
                 gamePage.visible = true
                 newGamePage.state = "hiddenLeft"
+            }
+            else if (pageName ==="mainMenuPage") {
+                mainMenuPage.state="shown"
+                newGamePage.state = "hiddenRight"
+            }
+        }
+    }
+
+    HowToPlayPage {
+        id:howToPlayPage
+
+        width: parent.width
+        height: parent.height
+        visible: false
+
+        onPageRequested: {
+            if(pageName === "mainMenuPage") {
+                mainMenuPage.state = "shown"
+                howToPlayPage.state = "hiddenRight"
+            }
+        }
+    }
+
+    MainMenuPage {
+        id:mainMenuPage
+
+        width: parent.width
+        height: parent.height
+
+        onPageRequested: {
+            if(pageName === "newGamePage") {
+                newGamePage.state = "shown"
+                mainMenuPage.state = "hiddenLeft"
+            }
+            else if(pageName === "howToPlayPage") {
+                howToPlayPage.state = "shown"
+                mainMenuPage.state = "hiddenLeft"
             }
         }
     }

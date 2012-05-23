@@ -15,8 +15,6 @@ Page {
     Column {
         anchors.fill: parent
 
-        //spacing: 5
-
         Flickable {
             id: flicky
 
@@ -67,6 +65,7 @@ Page {
                         newScale = pinchy.pinch.maximumScale
 
                     contentScale = newScale
+
                     flicky.resizeContent(flicky.width * newScale, flicky.height * newScale, pinch.center)
                 }
 
@@ -96,7 +95,7 @@ Page {
 
             Button {
                 color: "transparent"
-                labelText: qsTr("Menu")
+                text: qsTr("Menu")
 
                 onClicked: overlayMenu.state = "shown"
             }
@@ -113,7 +112,7 @@ Page {
         visible: false
 
         Button {
-            labelText: "Main Menu"
+            text: "Main Menu"
 
             onClicked: pageRequested("mainMenuPage")
         }

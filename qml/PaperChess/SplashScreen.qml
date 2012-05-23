@@ -4,6 +4,8 @@ import QtQuick 1.1
 Rectangle {
     id: screen
 
+    property int baseFontSize: Math.min(width, height) * 0.007
+
     Image {
         anchors.fill: parent
 
@@ -15,17 +17,18 @@ Rectangle {
 
         anchors.centerIn: parent
 
-        source: "images/splash_icon.svg"
+        source: "images/logo_icon.svg"
+        sourceSize.width: 100 * baseFontSize
     }
 
     Image {
         anchors {
             horizontalCenter: icon.horizontalCenter
             top: icon.bottom
-            margins: 10
+            margins: height / 2
         }
 
-        source: "images/splash_text.png"
+        source: "images/logo_text.png"
         sourceSize.width: icon.width * 1.1
         fillMode: Image.PreserveAspectFit
     }
@@ -33,13 +36,11 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
 
-        onClicked: {
-            screen.state = "hidden";
-        }
+        onClicked: screen.state = "hidden"
     }
 
     Timer {
-        interval: 2000
+        interval: 1500
         running: true
 
         onTriggered: {
