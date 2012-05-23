@@ -22,9 +22,11 @@ public:
             increment counter if captured a dot.
             repeat from MIN y to MAX y
     */
-    int captureDot(vector<Dot> surroundingDots);
+    int captureDot(vector<Dot> surroundingDots, int capturedPlayer);
 
-    Dot searchDot(vector<Dot> playerDots, Dot target);
+    int searchDot(vector<Dot> surroundDots, int x, int y);
+
+    void eatDot(vector<Dot> surroundDots, int x, int y);
 
 private:
     vector<Dot> player1Dots;

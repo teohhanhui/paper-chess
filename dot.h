@@ -8,7 +8,7 @@ public:
     int getStatus();
     int getX();
     int getY();
-    int setStatus(int currStatus);
+    void setStatus(int x, int y, int currStat);
 
 private:
     int player;

@@ -22,14 +22,10 @@ int Dot::getStatus(){
     return status;
 }
 
-int Dot::setStatus(int currStatus){
+void Dot::setStatus(int x, int y, int currStat){
     //TO-DO
-    //set status of dot
-    if(currStatus == 1){
-        currStatus = 0;
+    //set status of dot, target dot using coordinates
+    if(status == 1){
+        status = 0;
     }
-    else if(currStatus == 0){
-        currStatus = 1;
-    }
-    return currStatus;
 }
