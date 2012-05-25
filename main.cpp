@@ -3,6 +3,7 @@
 #include "qmlapplicationviewer.h"
 #include "stroke.h"
 #include "gamegrid.h"
+#include "engine.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -13,6 +14,10 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     QmlApplicationViewer viewer;
     viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
+
+    GameEngine gameEngine;
+    viewer.rootContext()->setContextProperty("gameEngine", &gameEngine);
+
     viewer.setMainQmlFile(QLatin1String("qml/PaperChess/main.qml"));
     viewer.showExpanded();
 

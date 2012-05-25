@@ -1,7 +1,9 @@
 #ifndef LINE_H
 #define LINE_H
+
 #include "dot.h"
-class Line{
+
+class Line {
 public:
     Line(Dot begin, Dot end);
     Dot getBegin();
@@ -10,7 +12,6 @@ public:
 private:
     Dot begin;
     Dot end;
-
 };
 
 #endif // LINE_H

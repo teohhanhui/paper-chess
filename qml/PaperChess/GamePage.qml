@@ -5,6 +5,9 @@ import CustomComponents 1.0
 Page {
     id: page
 
+    property string player1Name
+    property string player2Name
+
     Image {
         anchors.fill: parent
 
@@ -12,93 +15,125 @@ Page {
         fillMode: Image.Tile
     }
 
-    Column {
-        anchors.fill: parent
+    Item {
+        id: gamebar
 
-        Flickable {
-            id: flicky
+        height: 50
+        anchors {
+            left: parent.left
+            right: parent.right
+        }
 
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+        Rectangle {
+            anchors.fill: parent
 
-            height: parent.height - toolbar.height
+            color: "red"
+        }
 
-            contentWidth: width
-            contentHeight: height
+        Rectangle {
+            anchors.left: parent.left
 
-            GameGrid {
-                id: gameGrid
-
-                anchors.fill: parent
-
-                rows: 40
-                columns: 20
-                stroke.color: "slategray"
-                stroke.width: 1
-            }
-
-            PinchArea {
-                id: pinchy
-
-                anchors.fill: parent
-
-                pinch.minimumScale: 1.0
-                pinch.maximumScale: 5.0
-                pinch.dragAxis: Pinch.NoDrag
-
-                property real contentScale: 1.0
-                property real initialScale
-
-                onPinchStarted: {
-                    initialScale = contentScale
-                }
-
-                onPinchUpdated: {
-                    var newScale = initialScale * pinch.scale
-
-                    if (newScale < pinchy.pinch.minimumScale)
-                        newScale = pinchy.pinch.minimumScale
-
-                    if (newScale > pinchy.pinch.maximumScale)
-                        newScale = pinchy.pinch.maximumScale
-
-                    contentScale = newScale
-
-                    flicky.resizeContent(flicky.width * newScale, flicky.height * newScale, pinch.center)
-                }
-
-                onPinchFinished: {
-                    flicky.returnToBounds()
-                }
-            }
-
-            MouseArea {
-                id: touchy
-
-                anchors.fill: parent
-
-                onPressAndHold: {
-                    //
-                }
-
-                onDoubleClicked: {
-                    flicky.contentWidth = flicky.width
-                    flicky.contentHeight = flicky.height
-                }
+            Text {
+                text: player1Name
             }
         }
 
-        Flow {
-            id: toolbar
+        Rectangle {
+            anchors.right: parent.right
 
-            Button {
-                color: "transparent"
-                text: qsTr("Menu")
-
-                onClicked: overlayMenu.state = "shown"
+            Text {
+                text: player2Name
             }
+        }
+    }
+
+    Flickable {
+        id: flicky
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: gamebar.bottom
+            bottom: toolbar.top
+        }
+
+        contentWidth: width
+        contentHeight: height
+
+        GameGrid {
+            id: gameGrid
+
+            anchors.fill: parent
+
+            rows: 40
+            columns: 20
+            stroke.color: "slategray"
+            stroke.width: 1
+        }
+
+        PinchArea {
+            id: pinchy
+
+            anchors.fill: parent
+
+            pinch.minimumScale: 1.0
+            pinch.maximumScale: 5.0
+            pinch.dragAxis: Pinch.NoDrag
+
+            property real contentScale: 1.0
+            property real initialScale
+
+            onPinchStarted: {
+                initialScale = contentScale
+            }
+
+            onPinchUpdated: {
+                var newScale = initialScale * pinch.scale
+
+                if (newScale < pinchy.pinch.minimumScale)
+                    newScale = pinchy.pinch.minimumScale
+
+                if (newScale > pinchy.pinch.maximumScale)
+                    newScale = pinchy.pinch.maximumScale
+
+                contentScale = newScale
+
+                flicky.resizeContent(flicky.width * newScale, flicky.height * newScale, pinch.center)
+            }
+
+            onPinchFinished: {
+                flicky.returnToBounds()
+            }
+        }
+
+        MouseArea {
+            id: touchy
+
+            anchors.fill: parent
+
+            onPressAndHold: {
+                //
+            }
+
+            onDoubleClicked: {
+                flicky.contentWidth = flicky.width
+                flicky.contentHeight = flicky.height
+            }
+        }
+    }
+
+    Flow {
+        id: toolbar
+
+        anchors {
+            bottom: parent.bottom
+        }
+
+        Button {
+            color: "transparent"
+            text: qsTr("Menu")
+
+            onClicked: overlayMenu.state = "shown"
         }
     }
 

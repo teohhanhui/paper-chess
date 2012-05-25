@@ -12,8 +12,8 @@ Rectangle {
         visible: false
 
         onPageRequested: {
-            if (pageName === "newGamePage") {
-                newGamePage.state = "shown"
+            if (pageName === "mainMenuPage") {
+                mainMenuPage.state = "shown"
             }
         }
     }
@@ -29,6 +29,8 @@ Rectangle {
             if (pageName === "gamePage") {
                 gamePage.visible = true
                 newGamePage.state = "hiddenLeft"
+                gamePage.player1Name = newGamePage.player1Name
+                gamePage.player2Name = newGamePage.player2Name
             }
             else if (pageName ==="mainMenuPage") {
                 mainMenuPage.state="shown"

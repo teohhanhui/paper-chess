@@ -4,6 +4,9 @@ import QtQuick 1.1
 CoverPage {
     id: page
 
+    property alias player1Name: player1TextField.text
+    property alias player2Name: player2TextField.text
+
     FontLoader {
         id: handwritingFont
 
@@ -75,32 +78,20 @@ CoverPage {
                 }
             }
 
-            Button {
+            CoverButton {
                 id: startButton
 
-                color: "transparent"
                 text: qsTr("Start")
-                font {
-                    family: handwritingFont.name
-                    pixelSize: 13 * baseFontSize
-                }
-                labelColor: "black"
-                labelHoverColor: "#454343" // graphite
+                font.pixelSize: 13 * baseFontSize
 
                 onClicked: pageRequested("gamePage")
             }
 
-            Button {
+            CoverButton {
                 id: backButton
 
-                color: "transparent"
                 text: qsTr("Back")
-                font {
-                    family: handwritingFont.name
-                    pixelSize: 12 * baseFontSize
-                }
-                labelColor: "black"
-                labelHoverColor: "#454343" // graphite
+                font.pixelSize: 12 * baseFontSize
 
                 onClicked: pageRequested("mainMenuPage")
             }

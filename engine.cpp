@@ -1,71 +1,78 @@
-#include "dot.h"
-#include "line.h"
 #include "engine.h"
+#include <algorithm>
+#include "dotcoordinatespredicate.h"
 
 using namespace std;
-Engine::Engine(QObject *parent):QObject(parent){
 
+GameEngine::GameEngine(QObject *parent)
+    : QObject(parent)
+{
 }
 
-//placing dot
-bool Engine::placeDot(int x, int y) {
-    if (m_stage != PlaceDotStage){
+GameEngine::~GameEngine()
+{
+    for (vector<Dot *>::iterator it = m_dots.begin(); it != m_dots.end(); ++it) {
+        delete *it;
+    }
+}
+
+bool GameEngine::placeDot(int x, int y)
+{
+    if (m_stage != PlaceDotStage) {
         return false;
     }
-    Dot currentDot(m_currentPlayer, x, y, true);
-    m_dots.push_back(currentDot);
+
+    Dot *dot = new Dot(m_currentPlayer, x, y, true);
+    m_dots.push_back(dot);
 
     m_stage = ConnectingStage;
     return true;
 }
 
-bool Engine::connectDots(int x1, int y1, int x2, int y2){
-    Dot target_1;
-    Dot target_2;
-    if(m_stage != ConnectingStage){
-        //not in connecting stage
+bool GameEngine::connectDots(int x1, int y1, int x2, int y2)
+{
+    if (m_stage != ConnectingStage) {
         return false;
     }
-    target_1 = searchDot(m_dots, x1, y1);
-    target_2 = searchDot(m_dots, x2, y2);
 
-    if((target_1.getPlayer() == m_currentPlayer) && (target_2.getPlayer() == m_currentPlayer))
-    {
-        if(m_chain.empty()){
-            m_chain.push_back(target_1);
-            m_chain.push_back(target_2);
+    Dot *start = searchDot(m_dots, x1, y1);
+    Dot *end = searchDot(m_dots, x2, y2);
+
+    if ((start->getPlayer() == m_currentPlayer) && (end->getPlayer() == m_currentPlayer)) {
+        if (m_chain.empty()) {
+            m_chain.push_back(start);
+            m_chain.push_back(end);
             return true;
         }
-        else{
-            vector<Dot>::iterator ite;
-            //can only draw 1 direction
-            if(*find(m_chain.begin(),m_chain.end(),target_1) == target_1){
-                m_chain.push_back(target_1);
-                m_chain.push_back(target_2);
+        else {
+            // the start dot must be the previous end dot
+
+            vector<Dot *>::iterator ite = find(m_chain.begin(), m_chain.end(), start);
+
+            if (*ite == start) {
+                m_chain.push_back(start);
+                m_chain.push_back(end);
                 return true;
             }
         }
     }
-    else{
-        //wrong dots
-        return false;
-    }
+
+    return false;
 }
 
-
-
-bool Engine::chainCheck(){
-
+bool GameEngine::chainCheck()
+{
     int counter, fX, fY, lX, lY;
 
     //get coordinates for first dot
-    fX = m_chain[0].getX();
-    fY = m_chain[0].getY();
+    fX = m_chain[0]->getX();
+    fY = m_chain[0]->getY();
+
     counter = 0;
     //iterate through surround vector, check dots is from the same player & status of dot == 1
     //*** move to connectDots
-    for(vector<Dot>::iterator ite = chain.begin(); ite != chain.end(); ++ite){
-        if(((*ite).getPlayer() != m_currPlayer) && ((*ite).getStatus() != 1)){
+    for (vector<Dot *>::iterator it = m_chain.begin(); it != m_chain.end(); ++it) {
+        if (((*it)->getPlayer() != m_currentPlayer) && (*it)->isActive()) {
             return false;
         }
         counter++;
@@ -73,85 +80,84 @@ bool Engine::chainCheck(){
     //***
 
     //get the coordinates of the last dot
-    lX = m_chain[counter].getX();
-    lY = m_chain[counter].getY();
+    lX = m_chain[counter]->getX();
+    lY = m_chain[counter]->getY();
 
     //if last dot == first dot, chain is created
-    if((fX == lX) && (fY == lY)){
+    if((fX == lX) && (fY == lY)) {
         return true;
     }
-    else{
+    else {
         return false;
     }
 }
 
-int Engine::captureDot(vector<Dot> surroundingDots, int capturedPlayer){
+int GameEngine::captureDot(const vector<Dot *> surroundingDots, int capturedPlayer)
+{
     int captured=0, mX=0, mY=0, smX=0, smY=0, currX=0, currY=0;
     int rowct=0,colct=0;
-    //getting min max x & y
-    smX = surroundingDots[0].getX();
-    smY = surroundingDots[0].getY();
-    mX = surroundingDots[0].getX();
-    mY = surroundingDots[0].getY();
-    for(vector<Dot>::iterator ite = surroundingDots.begin(); ite != surroundingDots.end(); ++ite){
-        currX = (*ite).getX();
-        currY = (*ite).getY();
 
-        if(currX < smX){
+    //getting min max x & y
+    smX = surroundingDots[0]->getX();
+    smY = surroundingDots[0]->getY();
+    mX = surroundingDots[0]->getX();
+    mY = surroundingDots[0]->getY();
+
+    for (vector<Dot *>::const_iterator it = surroundingDots.begin(); it != surroundingDots.end(); ++it) {
+        currX = (*it)->getX();
+        currY = (*it)->getY();
+
+        if (currX < smX) {
             smX = currX;
         }
-        if(currY < smY){
+        if (currY < smY) {
             smY = currY;
         }
     }
-    for(vector<Dot>::iterator ite = surroundingDots.begin(); ite != surroundingDots.end(); ++ite){
-        currX = (*ite).getX();
-        currY = (*ite).getY();
 
-        if(currX > mX){
+    for (vector<Dot *>::const_iterator it = surroundingDots.begin(); it != surroundingDots.end(); ++it) {
+        currX = (*it)->getX();
+        currY = (*it)->getY();
+
+        if (currX > mX) {
             mX = currX;
         }
-        if(currY > mY){
+        if (currY > mY) {
             mY = currY;
         }
     }
+
     //calculate captured dots
-    for(rowct=smY;rowct<mY;rowct++){
-        for(colct=smX;colct<mX;colct++){
-            if(searchDot(surroundingDots, rowct, colct) == capturedPlayer){
-                eatDot(surroundingDots, rowct, colct);
+    for (rowct=smY;rowct<mY;rowct++) {
+        for (colct=smX;colct<mX;colct++) {
+            if (searchDot(surroundingDots, rowct, colct)->getPlayer() == capturedPlayer) {
+                eatDot(rowct, colct);
                 captured++;
             }
         }
     }
-    //flush chain vector
-    m_chain.clear();
 
-    //return results
+    m_chain.clear();
     return captured;
 }
 
-Dot Engine::searchDot(vector<Dot> dots, int x, int y){
-    Dot target;
-    int player=0;
-    for(vector<Dot>::iterator ite = dots.begin(); ite != dots.end(); ++ite){
-        if((*ite).getX() == x && (*ite).getY() == y){
-            player = (*ite).getPlayer();
-        }
+Dot *GameEngine::searchDot(const vector<Dot *> dots, int x, int y) const
+{
+    vector<Dot *>::const_iterator it = find_if(dots.begin(), dots.end(), DotCoordinatesPredicate(x, y));
+
+    if (it != dots.end()) {
+        return *it;
     }
-    if(player == m_currentPlayer){
-        return target;
+    else {
+        return 0;
     }
 }
 
-void Engine::eatDot(vector<Dot> playerDot, int x, int y){
-    int status=0;
-    for(vector<Dot>::iterator ite = playerDot.begin(); ite != playerDot.end(); ++ite){
-        if((*ite).getX() == x && (*ite).getY() == y){
-            status = (*ite).getStatus();
-            if(status == 1){
-                (*ite).setStatus(x, y, status);
-            }
-        }
+void GameEngine::eatDot(int x, int y)
+{
+    Dot *dot = searchDot(m_dots, x, y);
+
+    if (dot != 0) {
+        dot->deactivate();
     }
 }

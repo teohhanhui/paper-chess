@@ -49,7 +49,7 @@ CoverPage {
             wrapMode: Text.WordWrap
         }
 
-        Button {
+        CoverButton {
             id: backButton
 
             anchors {
@@ -57,14 +57,8 @@ CoverPage {
                 bottom: parent.bottom
             }
 
-            color: "transparent"
             text: qsTr("Back")
-            font {
-                family: handwritingFont.name
-                pixelSize: 12 * baseFontSize
-            }
-            labelColor: "black"
-            labelHoverColor: "#454343" // graphite
+            font.pixelSize: 12 * baseFontSize
 
             onClicked: pageRequested("mainMenuPage")
         }

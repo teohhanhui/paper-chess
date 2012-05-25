@@ -1,21 +1,20 @@
 #ifndef DOT_H
 #define DOT_H
 
-class Dot{
+class Dot {
 public:
-    Dot(int player, int dot_x, int dot_y, bool status);
-    int getPlayer();
-    int getStatus();
-    int getX();
-    int getY();
-    void setStatus(int x, int y, int currStat);
+    Dot(int player, int x, int y, bool active = true);
+    int getPlayer() const;
+    int getX() const;
+    int getY() const;
+    bool isActive() const;
+    void deactivate();
 
 private:
     int player;
-    int dot_x;//coordinates of dot
-    int dot_y;
-    int status;
-
+    int m_x;
+    int m_y;
+    int active;
 };
 
 #endif // DOT_H
