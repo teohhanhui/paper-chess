@@ -3,7 +3,7 @@
 
 class Dot{
 public:
-    Dot(int player, int dot_x, int dot_y, int status);
+    Dot(int player, int dot_x, int dot_y, bool status);
     int getPlayer();
     int getStatus();
     int getX();
