@@ -3,7 +3,7 @@
 #include "qmlapplicationviewer.h"
 #include "stroke.h"
 #include "gamegrid.h"
-#include "engine.h"
+#include "gameengine.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {

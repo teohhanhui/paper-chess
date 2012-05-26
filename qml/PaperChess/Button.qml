@@ -14,6 +14,8 @@ Rectangle {
     width: label.width
     height: label.height
 
+    color: "transparent"
+
     Text {
         id: label
 

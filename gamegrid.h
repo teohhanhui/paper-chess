@@ -26,10 +26,11 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-signals:
-
 public slots:
-    void strokeLines();
+    void drawGrid();
+    void drawChain();
+
+signals:
 
 private:
     int m_rows;

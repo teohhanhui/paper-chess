@@ -1,7 +1,8 @@
 #ifndef DOT_H
 #define DOT_H
 
-class Dot {
+class Dot
+{
 public:
     Dot(int player, int x, int y, bool active = true);
     int getPlayer() const;

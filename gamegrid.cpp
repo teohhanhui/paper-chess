@@ -12,8 +12,8 @@ GameGrid::GameGrid(QDeclarativeItem *parent)
     , m_stroke(new Stroke())
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-    connect(m_stroke, SIGNAL(colorChanged()), SLOT(strokeLines()));
-    connect(m_stroke, SIGNAL(widthChanged()), SLOT(strokeLines()));
+    connect(m_stroke, SIGNAL(colorChanged()), SLOT(drawGrid()));
+    connect(m_stroke, SIGNAL(widthChanged()), SLOT(drawGrid()));
 }
 
 GameGrid::~GameGrid()
@@ -26,7 +26,7 @@ int GameGrid::rows() const
     return m_rows;
 }
 
-void GameGrid::setRows(const int rows)
+void GameGrid::setRows(int rows)
 {
     if (rows != m_rows) {
         m_rows = rows;
@@ -39,7 +39,7 @@ int GameGrid::columns() const
     return m_columns;
 }
 
-void GameGrid::setColumns(const int columns)
+void GameGrid::setColumns(int columns)
 {
     if (columns != m_columns) {
         m_columns = columns;
@@ -52,13 +52,21 @@ Stroke *GameGrid::stroke() const
     return m_stroke;
 }
 
-void GameGrid::strokeLines()
+void GameGrid::drawGrid()
 {
     update();
 }
 
-void GameGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void GameGrid::drawChain()
 {
+    // draw the current chain
+}
+
+void GameGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
     QRectF rect = boundingRect();
     qreal gridSize = qMin(rect.width() / (m_columns + 2), rect.height() / (m_rows + 2));
     qreal width = m_columns * gridSize;

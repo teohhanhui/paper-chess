@@ -2,8 +2,6 @@
 import QtQuick 1.1
 
 Button {
-    color: "transparent"
-
     font.family: handwritingFont.name
 
     labelColor: "black"

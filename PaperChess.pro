@@ -35,8 +35,8 @@ SOURCES += main.cpp \
     gamegrid.cpp \
     dot.cpp \
     line.cpp \
-    engine.cpp \
-    dotcoordinatespredicate.cpp
+    dotcoordinatespredicate.cpp \
+    gameengine.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -47,19 +47,7 @@ HEADERS += \
     gamegrid.h \
     dot.h \
     line.h \
-    engine.h \
-    dotcoordinatespredicate.h
+    dotcoordinatespredicate.h \
+    gameengine.h
 
 OTHER_FILES += \
-    qml/ScorePage.qml \
-    qml/Page.qml \
-    qml/NewGamePage.qml \
-    qml/main.qml \
-    qml/GamePage.qml \
-    qml/CoverPage.qml \
-    qml/Button.qml \
-    images/paper_texture.png \
-    images/cover.jpg \
-    fonts/CabinSketch-Regular.ttf \
-    fonts/CabinSketch-Bold.ttf \
-    qml/splash.qml

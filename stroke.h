@@ -9,6 +9,7 @@ class Stroke : public QObject
     Q_OBJECT
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(qreal width READ width WRITE setWidth NOTIFY widthChanged)
+
 public:
     explicit Stroke(QObject *parent = 0);
 
