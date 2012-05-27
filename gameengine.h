@@ -3,15 +3,17 @@
 
 #include <QObject>
 #include <vector>
-#include "dot.h"
-#include "line.h"
+#include <deque>
+
+class Dot;
+class Line;
 
 class GameEngine : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int rows READ rows WRITE setRows)
-    Q_PROPERTY(int columns READ columns WRITE setColumns)
-    Q_PROPERTY(int turnLimit READ turnLimit WRITE setTurnLimit)
+    Q_PROPERTY(int rows READ rows)
+    Q_PROPERTY(int columns READ columns)
+    Q_PROPERTY(int turnLimit READ turnLimit)
 
 public:
     explicit GameEngine(QObject *parent = 0);
@@ -20,31 +22,43 @@ public:
     enum Stage {PlaceDotStage, ConnectingStage, EndStage};
 
     int rows() const;
-    void setRows(int rows);
-
     int columns() const;
-    void setColumns(int columns);
-
     int turnLimit() const;
-    void setTurnLimit(int turnLimit);
 
 public slots:
-    Q_INVOKABLE bool placeDot(int x, int y);
-    Q_INVOKABLE bool connectDots(int x1, int y1, int x2, int y2);
+    void newGame(int rows, int columns, int turnLimit);
+    bool placeDot(int x, int y);
+    bool connectDots(int x1, int y1, int x2, int y2);
 
 signals:
     void chainCompleted();
 
 private:
-    /* iterates through surround chain & check dot status & dot player
-     * returns 1 for surround if able, 0 if fail
+    /* Checks if the point at the specified coordinates is active.
+     * Returns true if the point is active, false otherwise.
      */
-    void checkChain();   
+    bool isPointActive(int x, int y) const;
+
+    /* Checks if any chain contains the specified dots.
+     * Returns true if the dots belong in any of the chains, false otherwise.
+     */
+    bool inChain(Dot *dot1, Dot *dot2) const;
+
+    /* Inserts the specified dots into a suitable chain.
+     * A new chain is created if no existing chain has one of the dots as an endpoint.
+     * Returns the chain where the dots were inserted.
+     */
+    std::deque<Dot *> &insertIntoChain(Dot *dot1, Dot *dot2);
+
+    /* Checks for a closed shape in which the chain is a part of.
+     * All existing lines and all chains may be used to make the connection.
+     */
+    void checkChain(std::deque<Dot *> &chain);
 
     /* Closes the chain using existing lines.
      * Returns true if the chain is successfully closed, false otherwise.
      */
-    bool closeGap(std::vector<Dot *> chain) const;
+    bool closeGap(std::deque<Dot *> chain) const;
 
     bool isOnEdge(const Dot *dot) const;
 
@@ -61,14 +75,15 @@ private:
      * 3. increment counter if captured a dot.
      * 4. repeat from MIN y to MAX y
      */
-    void captureArea(const std::vector<Dot *> surroundingDots);
+    void captureArea(const std::deque<Dot *> surroundingDots);
 
     void captureDot(int x, int y);
 
-    /* Finds a dot within the given vector with coordinates (x,y).
+    /* Finds a dot within the given container with coordinates (x,y).
      * Returns a pointer to the dot if found, a null pointer otherwise.
      */
-    Dot *findDot(const std::vector<Dot *> dots, int x, int y) const;
+    template <typename Container>
+    Dot *findDot(const Container &dots, int x, int y) const;
 
     /* Finds an existing line with the specified endpoints.
      * Returns a pointer to the line if found, a null pointer otherwise.
@@ -89,8 +104,10 @@ private:
     int m_columns;
     int m_turnLimit;
     std::vector<Dot *> m_dots;
-    std::vector<Dot *> m_chain;
     std::vector<Line *> m_lines;
+    std::vector<Dot *> m_chain;
+    std::vector<std::deque<Dot *> > m_chains;
+    std::vector<bool> m_pointActive;
     int m_currentPlayer;
     Stage m_stage;
 };

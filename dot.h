@@ -10,6 +10,7 @@ public:
     int getY() const;
     bool isActive() const;
     void deactivate();
+    bool isNeighbor(Dot *other) const;
 
 private:
     int m_player;
