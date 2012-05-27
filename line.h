@@ -6,13 +6,13 @@
 class Line
 {
 public:
-    Line(Dot &begin, Dot &end);
-    Dot &getBegin();
-    Dot &getEnd();
+    Line(Dot *endpoint1, Dot *endpoint2);
+    Dot *getEndpoint1() const;
+    Dot *getEndpoint2() const;
 
 private:
-    Dot &begin;
-    Dot &end;
+    Dot *m_endpoint1;
+    Dot *m_endpoint2;
 };
 
 #endif // LINE_H

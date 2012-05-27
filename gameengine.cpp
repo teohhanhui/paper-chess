@@ -1,6 +1,8 @@
 #include "gameengine.h"
 #include <algorithm>
+#include <stack>
 #include "dotcoordinatespredicate.h"
+#include "lineendpointspredicate.h"
 
 using namespace std;
 
@@ -129,7 +131,7 @@ void GameEngine::checkChain()
         surrounded = true;
     }
     else {
-        if (closeChain(surroundingDots)) {
+        if (closeGap(surroundingDots)) {
             completed = true;
             surrounded = true;
         }
@@ -147,6 +149,96 @@ void GameEngine::checkChain()
     }
 }
 
+bool GameEngine::closeGap(vector<Dot *> chain) const
+{
+    if (chain.size() < 2) {
+        return false;
+    }
+
+    Dot *startDot = chain[0];
+    Dot *endDot = chain[chain.size() - 1];
+
+    // check that the start and end dots are actually connected to something
+    if (findLine(startDot) == 0 || findLine(endDot) == 0) {
+        return false;
+    }
+
+    /*
+     * BEGIN: find path using an iterative DFS algorithm
+     */
+    stack<Dot *> unvisited;
+    vector<Dot *> visited;
+    vector<Dot *> resultPath;
+    vector<Dot *> connectedDots;
+    bool pathFound = false;
+    vector<Line *>::size_type totalLines = m_lines.size();
+    Dot *currentDot;
+    Dot *nextDot;
+    vector<Dot *>::const_iterator it;
+    vector<Dot *>::const_iterator end;
+
+    // push the start dot onto unvisited stack
+    unvisited.push(startDot);
+
+    // mark the start dot as visited
+    visited.push_back(startDot);
+
+    // add the start dot to the path
+    resultPath.push_back(startDot);
+
+    while (!pathFound && visited.size() < totalLines && !unvisited.empty()) {
+        currentDot = unvisited.top();
+
+        // find all dots connected to the current dot
+        connectedDots = findConnectedDots(currentDot);
+
+        end = connectedDots.end();
+
+        // check for the end dot
+        if (find(connectedDots.begin(), connectedDots.end(), endDot) != end) {
+            pathFound = true;
+        }
+        else {
+            // find the next dot to visit
+            for (it = connectedDots.begin(), nextDot = 0; nextDot == 0 && it != end; ++it) {
+                // check for a dot that has not been visited
+                if (find(visited.begin(), visited.end(), *it) == visited.end()) {
+                    nextDot = *it;
+                }
+            }
+
+            // check for dead end
+            if (nextDot == 0) {
+                // pop the current dot off the unvisited stack
+                unvisited.pop();
+
+                // remove the current dot from the path
+                resultPath.pop_back();
+            }
+            else {
+                // push the dot onto unvisited stack
+                unvisited.push(nextDot);
+
+                // mark the dot as visited
+                visited.push_back(nextDot);
+
+                // add the dot to the path
+                resultPath.push_back(nextDot);
+            }
+        }
+    }
+    /*
+     * END: find path using an iterative DFS algorithm
+     */
+
+    if (pathFound) {
+        // add dots from path to close the chain
+        chain.insert(chain.end(), resultPath.rbegin(), resultPath.rend());
+    }
+
+    return pathFound;
+}
+
 bool GameEngine::isOnEdge(const Dot *dot) const
 {
     if (dot == 0) {
@@ -155,13 +247,6 @@ bool GameEngine::isOnEdge(const Dot *dot) const
 
     return (dot->getX() == 0 || dot->getX() == m_columns
             || dot->getY() == 0 || dot->getY() == m_rows);
-}
-
-bool GameEngine::closeChain(vector<Dot *> chain) const
-{
-    vector<Line *> lines;
-
-    return true;
 }
 
 void GameEngine::linkChain()
@@ -173,7 +258,7 @@ void GameEngine::linkChain()
     for (it = m_chain.begin(); it != end; ++it) {
         next = it + 1;
         if (next != end) {
-            m_lines.push_back(new Line(**it, **next));
+            m_lines.push_back(new Line(*it, *next));
         }
     }
 
@@ -220,7 +305,7 @@ void GameEngine::captureArea(const vector<Dot *> surroundingDots)
     for (rowct=smY;rowct<mY;rowct++) {
         for (colct=smX;colct<mX;colct++) {
             if (findDot(surroundingDots, rowct, colct)->getPlayer() == capturedPlayer) {
-                eatDot(rowct, colct);
+                captureDot(rowct, colct);
                 captured++;
             }
         }
@@ -229,9 +314,19 @@ void GameEngine::captureArea(const vector<Dot *> surroundingDots)
     m_chain.clear();
 }
 
+void GameEngine::captureDot(int x, int y)
+{
+    Dot *dot = findDot(m_dots, x, y);
+
+    if (dot != 0) {
+        dot->deactivate();
+    }
+}
+
 Dot *GameEngine::findDot(const vector<Dot *> dots, int x, int y) const
 {
-    vector<Dot *>::const_iterator it = find_if(dots.begin(), dots.end(), DotCoordinatesPredicate(x, y));
+    DotCoordinatesPredicate pred(x, y);
+    vector<Dot *>::const_iterator it = find_if(dots.begin(), dots.end(), pred);
 
     if (it != dots.end()) {
         return *it;
@@ -241,11 +336,53 @@ Dot *GameEngine::findDot(const vector<Dot *> dots, int x, int y) const
     }
 }
 
-void GameEngine::eatDot(int x, int y)
+Line *GameEngine::findLine(const Dot *endpoint1, const Dot *endpoint2) const
 {
-    Dot *dot = findDot(m_dots, x, y);
+    LineEndpointsPredicate pred(endpoint1, endpoint2);
+    vector<Line *>::const_iterator it = find_if(m_lines.begin(), m_lines.end(), pred);
 
-    if (dot != 0) {
-        dot->deactivate();
+    if (it != m_lines.end()) {
+        return *it;
     }
+    else {
+        return 0;
+    }
+}
+
+vector<Line *> GameEngine::findLines(const Dot *endpoint) const
+{
+    vector<Line *> matches;
+    vector<Line *>::const_iterator it = m_lines.begin();
+    vector<Line *>::const_iterator end = m_lines.end();
+    LineEndpointsPredicate pred(endpoint);
+
+    while (it != end) {
+        it = find_if(it, end, pred);
+
+        if (it != end) {
+            matches.push_back(*it);
+            it++; // start checking from next element
+        }
+    }
+
+    return matches;
+}
+
+vector<Dot *> GameEngine::findConnectedDots(const Dot *dot) const
+{
+    vector<Dot *> connectedDots;
+    const vector<Line *> &lines = findLines(dot);
+    vector<Line *>::const_iterator it;
+    vector<Line *>::const_iterator end = lines.end();
+
+    for (it = lines.begin(); it != end; ++it) {
+        if ((*it)->getEndpoint1() != dot) {
+            connectedDots.push_back((*it)->getEndpoint1());
+        }
+        else {
+            connectedDots.push_back((*it)->getEndpoint2());
+        }
+    }
+
+    return connectedDots;
 }

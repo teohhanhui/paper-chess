@@ -39,14 +39,14 @@ private:
     /* iterates through surround chain & check dot status & dot player
      * returns 1 for surround if able, 0 if fail
      */
-    void checkChain();
-
-    bool isOnEdge(const Dot *dot) const;
+    void checkChain();   
 
     /* Closes the chain using existing lines.
      * Returns true if the chain is successfully closed, false otherwise.
      */
-    bool closeChain(std::vector<Dot *> chain) const;
+    bool closeGap(std::vector<Dot *> chain) const;
+
+    bool isOnEdge(const Dot *dot) const;
 
     void linkChain();
 
@@ -63,12 +63,27 @@ private:
      */
     void captureArea(const std::vector<Dot *> surroundingDots);
 
-    /* Finds an existing dot with coordinates (x,y).
+    void captureDot(int x, int y);
+
+    /* Finds a dot within the given vector with coordinates (x,y).
      * Returns a pointer to the dot if found, a null pointer otherwise.
      */
     Dot *findDot(const std::vector<Dot *> dots, int x, int y) const;
 
-    void eatDot(int x, int y);
+    /* Finds an existing line with the specified endpoints.
+     * Returns a pointer to the line if found, a null pointer otherwise.
+     */
+    Line *findLine(const Dot *endpoint1, const Dot *endpoint2 = 0) const;
+
+    /* Finds all existing lines containing the specified endpoint.
+     * Returns a vector of the lines found.
+     */
+    std::vector<Line *> findLines(const Dot *endpoint) const;
+
+    /* Finds all dots connected to the specified dot.
+     * Returns a vector of the dots found.
+     */
+    std::vector<Dot *> findConnectedDots(const Dot *dot) const;
 
     int m_rows;
     int m_columns;

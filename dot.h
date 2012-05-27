@@ -12,10 +12,10 @@ public:
     void deactivate();
 
 private:
-    int player;
+    int m_player;
     int m_x;
     int m_y;
-    int active;
+    int m_active;
 };
 
 #endif // DOT_H

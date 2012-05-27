@@ -36,7 +36,8 @@ SOURCES += main.cpp \
     dot.cpp \
     line.cpp \
     dotcoordinatespredicate.cpp \
-    gameengine.cpp
+    gameengine.cpp \
+    lineendpointspredicate.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -48,6 +49,7 @@ HEADERS += \
     dot.h \
     line.h \
     dotcoordinatespredicate.h \
-    gameengine.h
+    gameengine.h \
+    lineendpointspredicate.h
 
 OTHER_FILES += \

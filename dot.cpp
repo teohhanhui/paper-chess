@@ -1,17 +1,17 @@
 #include "dot.h"
 
 //creates a dot object
-Dot::Dot(int player, int x, int y, bool status)
-    : player(player)
+Dot::Dot(int player, int x, int y, bool active)
+    : m_player(player)
     , m_x(x)
     , m_y(y)
-    , active(status)
+    , m_active(active)
 {
 }
 
 int Dot::getPlayer() const
 {
-    return player;
+    return m_player;
 }
 
 int Dot::getX() const
@@ -26,12 +26,12 @@ int Dot::getY() const
 
 bool Dot::isActive() const
 {
-    return active;
+    return m_active;
 }
 
 void Dot::deactivate()
 {
-    if (active) {
-        active = false;
+    if (m_active) {
+        m_active = false;
     }
 }
