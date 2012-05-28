@@ -29,9 +29,11 @@ public slots:
     void newGame(int rows, int columns, int turnLimit);
     bool placeDot(int x, int y);
     bool connectDots(int x1, int y1, int x2, int y2);
+    void endTurn();
 
 signals:
     void chainCompleted();
+    void turnEnded(int currentPlayer);
 
 private:
     /* Checks if the point at the specified coordinates is active.

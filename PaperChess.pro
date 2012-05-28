@@ -1,6 +1,6 @@
 # Add more folders to ship with the application, here
-folder_01.source = qml/PaperChess
-folder_01.target = qml
+folder_01.source = qml
+folder_01.target =
 DEPLOYMENTFOLDERS = folder_01
 
 # Additional import path used to resolve QML modules in Creator's code model
@@ -30,26 +30,28 @@ symbian:TARGET.CAPABILITY += NetworkServices
 # CONFIG += qt-components
 
 # The .cpp file which was generated for your project. Feel free to hack it.
-SOURCES += main.cpp \
-    stroke.cpp \
-    gamegrid.cpp \
-    dot.cpp \
-    line.cpp \
-    dotcoordinatespredicate.cpp \
-    gameengine.cpp \
-    lineendpointspredicate.cpp
+SOURCES += src/main.cpp \
+    src/stroke.cpp \
+    src/board/gamegrid.cpp \
+    src/dot.cpp \
+    src/line.cpp \
+    src/dotcoordinatespredicate.cpp \
+    src/gameengine.cpp \
+    src/lineendpointspredicate.cpp \
+    src/board/gameboard.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
 qtcAddDeployment()
 
 HEADERS += \
-    stroke.h \
-    gamegrid.h \
-    dot.h \
-    line.h \
-    dotcoordinatespredicate.h \
-    gameengine.h \
-    lineendpointspredicate.h
+    src/stroke.h \
+    src/board/gamegrid.h \
+    src/dot.h \
+    src/line.h \
+    src/dotcoordinatespredicate.h \
+    src/gameengine.h \
+    src/lineendpointspredicate.h \
+    src/board/gameboard.h
 
 OTHER_FILES += \

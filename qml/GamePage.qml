@@ -17,8 +17,9 @@ Page {
     Image {
         anchors.fill: parent
 
-        source: "images/paper_texture.png"
-        fillMode: Image.Tile
+        source: "images/rainbow_gradient.svg"
+        sourceSize.width: parent.width
+        fillMode: Image.Stretch
     }
 
     Flickable {
@@ -34,14 +35,21 @@ Page {
         contentWidth: width
         contentHeight: height
 
-        GameGrid {
-            id: gameGrid
+        Image {
+            anchors.fill: parent
+
+            source: "images/paper_texture.png"
+            fillMode: Image.Tile
+        }
+
+        GameBoard {
+            id: gameBoard
 
             anchors.fill: parent
 
             rows: 40
             columns: 25
-            stroke {
+            gridStroke {
                 color: "slategray"
                 width: 1
             }
@@ -104,9 +112,7 @@ Page {
             left: parent.left
             right: parent.right
         }
-        smooth: true
 
-        radius:2.5
         gradient: Gradient {
             GradientStop { position: 0.0; color: "#d5a95e" }
             GradientStop { position: 1.0; color: "#b78530" }
@@ -115,31 +121,38 @@ Page {
         PlayerIndicator {
             id: player1Indicator
 
+            width: 40 * baseFontSize
             anchors {
                 left: parent.left
                 top: parent.top
                 bottom: parent.bottom
-                leftMargin: 5
             }
-            state:"active"
+            state: "active"
 
             playerName: player1Name
-            imageSource: "images/dot.svg"
+            playerMarkerSource: "images/dot.svg"
+            fontSize: 7 * baseFontSize
+            activeColor: stageBar.color
         }
 
         Rectangle {
            id: stepsBar
 
-           //property int steps:200
+           property int steps: 200
 
-           width: childrenRect.width
-           height: childrenRect.height
-           anchors.horizontalCenter: parent.horizontalCenter
+           height: parent.height * 0.5
+           anchors {
+               left: player1Indicator.right
+               right: player2Indicator.left
+           }
 
            color: "transparent"
 
            Text {
-               text: "Steps: " //+ steps
+               anchors.centerIn: parent
+
+               text: "Steps: " + stepsBar.steps
+               font.pixelSize: 6 * baseFontSize
            }
         }
 
@@ -153,28 +166,33 @@ Page {
                 bottom: parent.bottom
             }
 
-            color:"transparent"
+            //color: "#ffae1a"
+            color: Qt.rgba(255, 128, 0, 0.25)
+            //color: Qt.rgba(90, 65, 24, 0.25)
 
             Text {
                 anchors.centerIn: parent
 
                 text: "Place Dot"
+                font.pixelSize: 8 * baseFontSize
             }
         }
 
         PlayerIndicator {
             id: player2Indicator
 
+            width: 40 * baseFontSize
             anchors {
                 right: parent.right
                 top: parent.top
                 bottom: parent.bottom
-                rightMargin: 5
             }
             state: "inactive"
 
             playerName: player2Name
-            imageSource: "images/cross.svg"
+            playerMarkerSource: "images/cross.svg"
+            fontSize: 7 * baseFontSize
+            activeColor: stageBar.color
         }
     }
 
@@ -187,9 +205,7 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        smooth: true
 
-        radius: 2.5
         gradient: Gradient {
             GradientStop { position: 0.0; color: "#d5a95e" }
             GradientStop { position: 1.0; color: "#b78530" }
@@ -198,12 +214,12 @@ Page {
         Button {
             anchors {
                 left: parent.left
-                top: parent.top
                 bottom: parent.bottom
-                leftMargin: 5
+                margins: 2 * baseFontSize
             }
 
             text: qsTr("Menu")
+            font.pixelSize: 8 * baseFontSize
 
             onClicked: overlayMenu.state = "shown"
         }
@@ -213,12 +229,12 @@ Page {
 
             anchors {
                 right: parent.right
-                top: parent.top
                 bottom: parent.bottom
-                rightMargin: 5
+                margins: 2 * baseFontSize
             }
 
             text: qsTr("End Turn")
+            font.pixelSize: 8 * baseFontSize
 
             onClicked: {
                 if (player1Indicator.state === "active") {
@@ -243,7 +259,7 @@ Page {
             anchors.fill: parent
             opacity: 0.5
 
-            color: "grey"
+            color: "black"
 
             MouseArea {
                 anchors.fill: parent
@@ -252,8 +268,10 @@ Page {
         }
 
         Rectangle {
+            id: overlayMenuContent
+
             width: 50 * baseFontSize
-            height: 40 * baseFontSize
+            height: 50 * baseFontSize
             anchors.centerIn: parent
             smooth: true
 
@@ -298,8 +316,8 @@ Page {
         Rectangle {
             id: promptBox
 
-            width: 110 * baseFontSize
-            height: 55 * baseFontSize
+            width: 100 * baseFontSize
+            height: 60 * baseFontSize
             anchors.centerIn: parent
             smooth: true
             state: "hidden"
@@ -314,38 +332,55 @@ Page {
                 GradientStop { position: 1.0; color: "#b78530" }
             }
 
-            Column {
+            Item {
                 anchors {
                     fill: parent
-                    margins: 10 * baseFontSize
+                    margins: 5 * baseFontSize
                 }
 
                 Text {
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                    }
+
                     text: "Are you sure you want to exit?"
                     font {
                         family: handwritingFont.name
-                        pixelSize: 8 * baseFontSize
+                        pixelSize: 9 * baseFontSize
                     }
+                    wrapMode: Text.WordWrap
                 }
 
                 Button {
+                    anchors {
+                        left: parent.left
+                        bottom: parent.bottom
+                    }
+
                     text: "Yes"
                     font {
                         family: handwritingFont.name
-                        pixelSize: 8 * baseFontSize
+                        pixelSize: 9 * baseFontSize
                     }
 
                     onClicked: {
                         pageRequested("mainMenuPage")
                         overlayMenu.state = "hidden"
+                        promptBox.state = "hidden"
                     }
                 }
 
                 Button {
+                    anchors {
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+
                     text: "No"
                     font {
                         family: handwritingFont.name
-                        pixelSize: 8 * baseFontSize
+                        pixelSize: 9 * baseFontSize
                     }
 
                     onClicked: promptBox.state = "hidden"
@@ -355,6 +390,7 @@ Page {
             states: [
                 State {
                     name: "shown"
+
                     PropertyChanges {
                         target: promptBox
                         visible: true
@@ -363,10 +399,11 @@ Page {
                 },
                 State {
                     name: "hidden"
+
                     PropertyChanges {
                         target: promptBox
-                        visible: false
                         opacity: 0
+                        visible: false
                     }
                 }
             ]
@@ -375,10 +412,12 @@ Page {
                 Transition {
                     from: "hidden"
                     to: "shown"
+
                     SequentialAnimation {
                         PropertyAction {
                             properties: "visible"
                         }
+
                         NumberAnimation {
                             properties: "opacity"
                             easing.type: Easing.InQuad
@@ -389,12 +428,14 @@ Page {
                 Transition {
                     from: "shown"
                     to: "hidden"
+
                     SequentialAnimation {
                         NumberAnimation {
                             properties: "opacity"
                             easing.type: Easing.OutQuad
                             duration: 200
                         }
+
                         PropertyAction {
                             properties: "visible"
                         }
@@ -406,6 +447,12 @@ Page {
         states: [
             State {
                 name: "shown"
+
+                PropertyChanges {
+                    target: overlayMenuContent
+                    visible: true
+                }
+
                 PropertyChanges {
                     target: overlayMenu
                     visible: true
@@ -414,6 +461,7 @@ Page {
             },
             State {
                 name: "hidden"
+
                 PropertyChanges {
                     target: overlayMenu
                     opacity: 0
@@ -426,10 +474,17 @@ Page {
             Transition {
                 from: "hidden"
                 to: "shown"
+
                 SequentialAnimation {
+                    PropertyAction {
+                        target: overlayMenuContent
+                        properties: "visible"
+                    }
+
                     PropertyAction {
                         properties: "visible"
                     }
+
                     NumberAnimation {
                         properties: "opacity"
                         easing.type: Easing.InQuad
@@ -440,12 +495,14 @@ Page {
             Transition {
                 from: "shown"
                 to: "hidden"
+
                 SequentialAnimation {
                     NumberAnimation {
                         properties: "opacity"
                         easing.type: Easing.OutQuad
                         duration: 200
                     }
+
                     PropertyAction {
                         properties: "visible"
                     }

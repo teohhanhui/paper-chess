@@ -13,7 +13,7 @@ class GameGrid : public QDeclarativeItem
     Q_PROPERTY(Stroke *stroke READ stroke)
 
 public:
-    explicit GameGrid(QDeclarativeItem *parent = 0);
+    explicit GameGrid(int rows, int columns, QDeclarativeItem *parent = 0);
     ~GameGrid();
 
     int rows() const;

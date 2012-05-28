@@ -2,7 +2,7 @@
 #include <QtDeclarative>
 #include "qmlapplicationviewer.h"
 #include "stroke.h"
-#include "gamegrid.h"
+#include "board/gameboard.h"
 #include "gameengine.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
@@ -10,7 +10,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     QScopedPointer<QApplication> app(createApplication(argc, argv));
 
     qmlRegisterType<Stroke>("CustomComponents", 1, 0, "Stroke");
-    qmlRegisterType<GameGrid>("CustomComponents", 1, 0, "GameGrid");
+    qmlRegisterType<GameBoard>("CustomComponents", 1, 0, "GameBoard");
 
     QmlApplicationViewer viewer;
     viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
@@ -18,7 +18,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     GameEngine gameEngine;
     viewer.rootContext()->setContextProperty("gameEngine", &gameEngine);
 
-    viewer.setMainQmlFile(QLatin1String("qml/PaperChess/main.qml"));
+    viewer.setMainQmlFile(QLatin1String("qml/main.qml"));
     viewer.showExpanded();
 
     return app->exec();

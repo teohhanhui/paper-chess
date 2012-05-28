@@ -122,6 +122,12 @@ bool GameEngine::connectDots(int x1, int y1, int x2, int y2)
     return connected;
 }
 
+void GameEngine::endTurn()
+{
+    m_currentPlayer = m_currentPlayer == 1 ? 2 : 1;
+    emit turnEnded(m_currentPlayer);
+}
+
 bool GameEngine::isPointActive(int x, int y) const
 {
     return (m_pointActive[y * (m_columns + 1) + x]);

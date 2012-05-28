@@ -3,12 +3,12 @@
 #include <QPainter>
 #include <QRectF>
 #include <QVarLengthArray>
-#include "stroke.h"
+#include "../stroke.h"
 
-GameGrid::GameGrid(QDeclarativeItem *parent)
+GameGrid::GameGrid(int rows, int columns, QDeclarativeItem *parent)
     : QDeclarativeItem(parent)
-    , m_rows(1)
-    , m_columns(1)
+    , m_rows(rows)
+    , m_columns(columns)
     , m_stroke(new Stroke())
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);

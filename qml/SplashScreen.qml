@@ -9,7 +9,7 @@ Rectangle {
     Image {
         anchors.fill: parent
 
-        source: "images/splash_gradient.svg"
+        source: "images/orange_gradient.svg"
     }
 
     Image {

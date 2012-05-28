@@ -30,16 +30,10 @@ Rectangle {
 
         hoverEnabled: true
 
-        onClicked: {
-            button.clicked()
-        }
+        onClicked: button.clicked()
 
-        onEntered: {
-            label.color = label.hoverColor
-        }
+        onEntered: label.color = label.hoverColor
 
-        onExited: {
-            label.color = label.normalColor
-        }
+        onExited: label.color = label.normalColor
     }
 }
