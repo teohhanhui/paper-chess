@@ -17,6 +17,15 @@ Item {
                 visible: true
             }
         },
+        State{
+            name:"hidden"
+            PropertyChanges{
+            target:page
+            visible:false
+            }
+
+        },
+
         State {
             name: "hiddenLeft"
             PropertyChanges {
@@ -37,13 +46,13 @@ Item {
 
     transitions: [
         Transition {
-            from: "*"
-            to: "hiddenLeft, hiddenRight"
+            from: "shown"
+            to: "hidden"
             SequentialAnimation {
                 NumberAnimation {
                     properties: "x"
-                    easing.type: Easing.OutElastic
-                    duration: 1000
+                    easing.type: Easing.OutQuart
+                    duration: 600
                 }
                 PropertyAction {
                     properties: "visible"
@@ -51,7 +60,21 @@ Item {
             }
         },
         Transition {
-            from: "*"
+            from: "shown"
+            to: "hiddenLeft, hiddenRight"
+            SequentialAnimation {
+                NumberAnimation {
+                    properties: "x"
+                    easing.type: Easing.OutQuart
+                    duration: 600
+                }
+                PropertyAction {
+                    properties: "visible"
+                }
+            }
+        },
+        Transition {
+            from: "hiddenLeft, hiddenRight"
             to: "shown"
             SequentialAnimation {
                 PropertyAction {
@@ -59,8 +82,8 @@ Item {
                 }
                 NumberAnimation {
                     properties: "x"
-                    easing.type: Easing.OutElastic
-                    duration: 1000
+                    easing.type: Easing.InQuart
+                    duration: 600
                 }
             }
         }

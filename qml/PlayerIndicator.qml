@@ -12,7 +12,14 @@ Rectangle {
     Text {
         id: playerNameText
 
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors {
+            left:parent.left
+            right:parent.right
+            margins: 3 * baseFontSize
+        }
+
+
+        elide: Text.ElideRight
     }
 
     Item {

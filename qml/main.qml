@@ -9,11 +9,13 @@ Rectangle {
 
         width: parent.width
         height: parent.height
-        visible: false
+        state: "hidden"
 
         onPageRequested: {
             if (pageName === "mainMenuPage") {
                 mainMenuPage.state = "shown"
+                gamePage.state = "hidden"
+                newGamePage.state = "hidden"
             }
         }
     }
@@ -23,18 +25,18 @@ Rectangle {
 
         width: parent.width
         height: parent.height
-        visible: false
+        state: "hidden"
 
         onPageRequested: {
             if (pageName === "gamePage") {
-                gamePage.visible = true
+                gamePage.state = "shown"
                 newGamePage.state = "hiddenLeft"
                 gamePage.player1Name = newGamePage.player1Name
                 gamePage.player2Name = newGamePage.player2Name
             }
-            else if (pageName ==="mainMenuPage") {
+            else if (pageName === "mainMenuPage") {
                 mainMenuPage.state="shown"
-                newGamePage.state = "hiddenRight"
+                newGamePage.state = "hidden"
             }
         }
     }
@@ -44,12 +46,12 @@ Rectangle {
 
         width: parent.width
         height: parent.height
-        visible: false
+        state: "hidden"
 
         onPageRequested: {
             if(pageName === "mainMenuPage") {
                 mainMenuPage.state = "shown"
-                howToPlayPage.state = "hiddenRight"
+                howToPlayPage.state = "hidden"
             }
         }
     }
@@ -59,6 +61,8 @@ Rectangle {
 
         width: parent.width
         height: parent.height
+
+        state: "shown"
 
         onPageRequested: {
             if(pageName === "newGamePage") {

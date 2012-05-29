@@ -17,7 +17,7 @@ Page {
     Image {
         anchors.fill: parent
 
-        source: "images/rainbow_gradient.svg"
+        source: "images/wooden_texture.jpg"
         sourceSize.width: parent.width
         fillMode: Image.Stretch
     }
@@ -98,10 +98,32 @@ Page {
             }
 
             onDoubleClicked: {
-                flicky.contentWidth = flicky.width
-                flicky.contentHeight = flicky.height
+
+                if(flicky.state === "zoomedIn"){
+                    flicky.contentWidth = flicky.width
+                    flicky.contentHeight = flicky.height
+                }
+                else
+                {
+                    flicky.resizeContent( flicky.width * pinchy.pinch.maximumScale, flicky.height* pinchy.pinch.maximumScale, Qt.point(mouseX, mouseY))
+                }
+
+
             }
         }
+
+        states:[
+        State{
+                name:"zoomedIn"
+                when: flicky.contentWidth > flicky.width
+
+            },
+        State{
+                name:"zoomedOut"
+                when:flicky.contentWidth <= flicky.width
+            }
+
+        ]
     }
 
     Rectangle {
@@ -114,8 +136,8 @@ Page {
         }
 
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#d5a95e" }
-            GradientStop { position: 1.0; color: "#b78530" }
+            GradientStop { position: 1.0; color: "#d5a95e" }
+            GradientStop { position: 0.0; color: "#b78530" }
         }
 
         PlayerIndicator {
@@ -128,7 +150,7 @@ Page {
                 bottom: parent.bottom
             }
             state: "active"
-
+            radius:10
             playerName: player1Name
             playerMarkerSource: "images/dot.svg"
             fontSize: 7 * baseFontSize
@@ -182,6 +204,7 @@ Page {
             id: player2Indicator
 
             width: 40 * baseFontSize
+            radius:10
             anchors {
                 right: parent.right
                 top: parent.top
@@ -208,7 +231,7 @@ Page {
 
         gradient: Gradient {
             GradientStop { position: 0.0; color: "#d5a95e" }
-            GradientStop { position: 1.0; color: "#b78530" }
+            GradientStop { position: 0.5; color: "#b78530" }
         }
 
         Button {
