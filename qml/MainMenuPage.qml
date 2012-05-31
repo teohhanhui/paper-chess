@@ -51,29 +51,38 @@ CoverPage {
             flow: page.width > page.height ? Flow.LeftToRight : Flow.TopToBottom
             spacing: flow === Flow.LeftToRight ? 20 * baseFontSize : 4 * baseFontSize
 
-            CoverButton {
+            Button {
                 id: playButton
 
                 text: qsTr("Play")
-                font.pixelSize: 15 * baseFontSize
+                font {
+                    family: handwritingFont.name
+                    pixelSize: 15 * baseFontSize
+                }
 
                 onClicked: pageRequested("newGamePage")
             }
 
-            CoverButton {
+            Button {
                 id: howToPlayButton
 
                 text: qsTr("How To Play")
-                font.pixelSize: 13 * baseFontSize
+                font {
+                    family: handwritingFont.name
+                    pixelSize: 13 * baseFontSize
+                }
 
                 onClicked: pageRequested("howToPlayPage")
             }
 
-            CoverButton {
+            Button {
                 id: exitButton
 
                 text: qsTr("Exit")
-                font.pixelSize: 13 * baseFontSize
+                font {
+                    family: handwritingFont.name
+                    pixelSize: 13 * baseFontSize
+                }
 
                 onClicked: Qt.quit()
             }

@@ -6,8 +6,8 @@ Rectangle {
 
     property alias text: label.text
     property alias font: label.font
-    property alias labelColor: label.normalColor
-    property alias labelHoverColor: label.hoverColor
+    property alias labelColor: label.color
+    property alias labelActiveColor: label.activeColor
 
     signal clicked()
 
@@ -19,21 +19,28 @@ Rectangle {
     Text {
         id: label
 
-        property color normalColor
-        property color hoverColor
+        property color activeColor: "#454343" // graphite
 
-        color: normalColor
+        color: "black"
     }
 
     MouseArea {
+        id: mouseArea
+
         anchors.fill: parent
 
-        hoverEnabled: true
-
         onClicked: button.clicked()
-
-        onEntered: label.color = label.hoverColor
-
-        onExited: label.color = label.normalColor
     }
+
+    states: [
+        State {
+            name: "active"
+            when: mouseArea.containsMouse
+
+            PropertyChanges {
+                target: label
+                color: label.activeColor
+            }
+        }
+    ]
 }

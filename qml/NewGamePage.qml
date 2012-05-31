@@ -78,20 +78,26 @@ CoverPage {
                 }
             }
 
-            CoverButton {
+            Button {
                 id: startButton
 
                 text: qsTr("Start")
-                font.pixelSize: 13 * baseFontSize
+                font {
+                    family: handwritingFont.name
+                    pixelSize: 13 * baseFontSize
+                }
 
                 onClicked: pageRequested("gamePage")
             }
 
-            CoverButton {
+            Button {
                 id: backButton
 
                 text: qsTr("Back")
-                font.pixelSize: 12 * baseFontSize
+                font {
+                    family: handwritingFont.name
+                    pixelSize: 12 * baseFontSize
+                }
 
                 onClicked: pageRequested("mainMenuPage")
             }

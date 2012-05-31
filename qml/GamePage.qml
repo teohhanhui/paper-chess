@@ -1,6 +1,6 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 1.1
-import CustomComponents 1.0
+import PaperChess 1.0
 
 Page {
     id: page
@@ -47,12 +47,11 @@ Page {
 
             anchors.fill: parent
 
-            rows: 40
-            columns: 25
             gridStroke {
                 color: "slategray"
                 width: 1
             }
+            engine: gameEngine
         }
 
         PinchArea {
@@ -91,38 +90,47 @@ Page {
         MouseArea {
             id: touchy
 
+            property variant touchedPoint
+
             anchors.fill: parent
 
-            onPressAndHold: {
-                //
+            onClicked: {
+                touchy.touchedPoint = Qt.point(mouseX, mouseY)
+                clickTimer.restart()
             }
 
             onDoubleClicked: {
+                clickTimer.stop()
 
-                if(flicky.state === "zoomedIn"){
+                if (flicky.state === "zoomedIn") {
                     flicky.contentWidth = flicky.width
                     flicky.contentHeight = flicky.height
                 }
-                else
-                {
-                    flicky.resizeContent( flicky.width * pinchy.pinch.maximumScale, flicky.height* pinchy.pinch.maximumScale, Qt.point(mouseX, mouseY))
+                else {
+                    flicky.resizeContent(flicky.width * pinchy.pinch.maximumScale,
+                                         flicky.height* pinchy.pinch.maximumScale,
+                                         Qt.point(mouseX, mouseY))
                 }
+            }
 
+            Timer {
+                id: clickTimer
 
+                interval: gameEngine.doubleClickInterval
+
+                onTriggered: gameBoard.markPosition(touchy.touchedPoint)
             }
         }
 
-        states:[
-        State{
-                name:"zoomedIn"
+        states: [
+            State {
+                name: "zoomedIn"
                 when: flicky.contentWidth > flicky.width
-
             },
-        State{
-                name:"zoomedOut"
-                when:flicky.contentWidth <= flicky.width
+            State {
+                name: "zoomedOut"
+                when: flicky.contentWidth <= flicky.width
             }
-
         ]
     }
 
@@ -150,7 +158,7 @@ Page {
                 bottom: parent.bottom
             }
             state: "active"
-            radius:10
+
             playerName: player1Name
             playerMarkerSource: "images/dot.svg"
             fontSize: 7 * baseFontSize
@@ -158,9 +166,7 @@ Page {
         }
 
         Rectangle {
-           id: stepsBar
-
-           property int steps: 200
+           id: turnsLeftBar
 
            height: parent.height * 0.5
            anchors {
@@ -173,7 +179,7 @@ Page {
            Text {
                anchors.centerIn: parent
 
-               text: "Steps: " + stepsBar.steps
+               text: "Moves: " + gameEngine.turnsLeft
                font.pixelSize: 6 * baseFontSize
            }
         }
@@ -184,19 +190,18 @@ Page {
             anchors {
                 left: player1Indicator.right
                 right: player2Indicator.left
-                top: stepsBar.bottom
+                top: turnsLeftBar.bottom
                 bottom: parent.bottom
             }
 
-            //color: "#ffae1a"
             color: Qt.rgba(255, 128, 0, 0.25)
-            //color: Qt.rgba(90, 65, 24, 0.25)
 
             Text {
                 anchors.centerIn: parent
 
                 text: "Place Dot"
                 font.pixelSize: 8 * baseFontSize
+                color: "white"
             }
         }
 
@@ -204,7 +209,6 @@ Page {
             id: player2Indicator
 
             width: 40 * baseFontSize
-            radius:10
             anchors {
                 right: parent.right
                 top: parent.top
@@ -260,6 +264,8 @@ Page {
             font.pixelSize: 8 * baseFontSize
 
             onClicked: {
+                gameEngine.endTurn()
+
                 if (player1Indicator.state === "active") {
                     player1Indicator.state = "inactive"
                     player2Indicator.state = "active"
@@ -291,10 +297,8 @@ Page {
         }
 
         Rectangle {
-            id: overlayMenuContent
-
-            width: 50 * baseFontSize
-            height: 50 * baseFontSize
+            width: 60 * baseFontSize
+            height: 55 * baseFontSize
             anchors.centerIn: parent
             smooth: true
 
@@ -318,7 +322,7 @@ Page {
                     text: "Resume"
                     font {
                         family: handwritingFont.name
-                        pixelSize: 9 * baseFontSize
+                        pixelSize: 12 * baseFontSize
                     }
 
                     onClicked: overlayMenu.state = "hidden"
@@ -328,7 +332,7 @@ Page {
                     text: "End Game"
                     font {
                         family: handwritingFont.name
-                        pixelSize: 9 * baseFontSize
+                        pixelSize: 12 * baseFontSize
                     }
 
                     onClicked: promptBox.state = "shown"
@@ -370,7 +374,7 @@ Page {
                     text: "Are you sure you want to exit?"
                     font {
                         family: handwritingFont.name
-                        pixelSize: 9 * baseFontSize
+                        pixelSize: 10 * baseFontSize
                     }
                     wrapMode: Text.WordWrap
                 }
@@ -384,11 +388,11 @@ Page {
                     text: "Yes"
                     font {
                         family: handwritingFont.name
-                        pixelSize: 9 * baseFontSize
+                        pixelSize: 11 * baseFontSize
                     }
 
                     onClicked: {
-                        pageRequested("mainMenuPage")
+                        pageRequested("scorePage")
                         overlayMenu.state = "hidden"
                         promptBox.state = "hidden"
                     }
@@ -398,12 +402,14 @@ Page {
                     anchors {
                         right: parent.right
                         bottom: parent.bottom
+                        leftMargin: 10
+                        rightMargin: 10
                     }
 
                     text: "No"
                     font {
                         family: handwritingFont.name
-                        pixelSize: 9 * baseFontSize
+                        pixelSize: 11 * baseFontSize
                     }
 
                     onClicked: promptBox.state = "hidden"
@@ -472,11 +478,6 @@ Page {
                 name: "shown"
 
                 PropertyChanges {
-                    target: overlayMenuContent
-                    visible: true
-                }
-
-                PropertyChanges {
                     target: overlayMenu
                     visible: true
                     opacity: 1
@@ -499,11 +500,6 @@ Page {
                 to: "shown"
 
                 SequentialAnimation {
-                    PropertyAction {
-                        target: overlayMenuContent
-                        properties: "visible"
-                    }
-
                     PropertyAction {
                         properties: "visible"
                     }

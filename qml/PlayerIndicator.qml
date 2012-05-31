@@ -13,12 +13,12 @@ Rectangle {
         id: playerNameText
 
         anchors {
-            left:parent.left
-            right:parent.right
+            left: parent.left
+            right: parent.right
             margins: 3 * baseFontSize
         }
 
-
+        horizontalAlignment: Text.AlignHCenter
         elide: Text.ElideRight
     }
 

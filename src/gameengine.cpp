@@ -1,4 +1,6 @@
 #include "gameengine.h"
+#include <QApplication>
+#include <QCoreApplication>
 #include <algorithm>
 #include <stack>
 #include "dot.h"
@@ -10,6 +12,10 @@ using namespace std;
 
 GameEngine::GameEngine(QObject *parent)
     : QObject(parent)
+    , m_rows(0)
+    , m_columns(0)
+    , m_turnLimit(0)
+    , m_turn(0)
 {
 }
 
@@ -18,6 +24,17 @@ GameEngine::~GameEngine()
     for (vector<Dot *>::iterator it = m_dots.begin(); it != m_dots.end(); ++it) {
         delete *it;
     }
+}
+
+int GameEngine::doubleClickInterval() const
+{
+    QApplication *app = static_cast<QApplication *>(QCoreApplication::instance());
+
+    if (app != 0) {
+        return app->doubleClickInterval();
+    }
+
+    return DEFAULT_DOUBLE_CLICK_INTERVAL;
 }
 
 int GameEngine::rows() const
@@ -35,6 +52,11 @@ int GameEngine::turnLimit() const
     return m_turnLimit;
 }
 
+int GameEngine::turnsLeft() const
+{
+    return m_turnLimit - m_turn;
+}
+
 void GameEngine::newGame(int rows, int columns, int turnLimit)
 {
     m_rows = rows;
@@ -43,6 +65,9 @@ void GameEngine::newGame(int rows, int columns, int turnLimit)
 
     m_pointActive.clear();
     m_pointActive.insert(m_pointActive.begin(), (rows + 1) * (columns + 1), true);
+
+    emit gameStarted();
+    emit turnsLeftChanged(m_currentPlayer);
 }
 
 bool GameEngine::placeDot(int x, int y)
@@ -124,8 +149,9 @@ bool GameEngine::connectDots(int x1, int y1, int x2, int y2)
 
 void GameEngine::endTurn()
 {
+    m_turn++;
     m_currentPlayer = m_currentPlayer == 1 ? 2 : 1;
-    emit turnEnded(m_currentPlayer);
+    emit turnsLeftChanged(m_currentPlayer);
 }
 
 bool GameEngine::isPointActive(int x, int y) const

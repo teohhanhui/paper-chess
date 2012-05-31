@@ -11,19 +11,25 @@ class Line;
 class GameEngine : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int doubleClickInterval READ doubleClickInterval CONSTANT)
     Q_PROPERTY(int rows READ rows)
     Q_PROPERTY(int columns READ columns)
     Q_PROPERTY(int turnLimit READ turnLimit)
+    Q_PROPERTY(int turnsLeft READ turnsLeft NOTIFY turnsLeftChanged)
 
 public:
     explicit GameEngine(QObject *parent = 0);
     ~GameEngine();
 
+    static const int DEFAULT_DOUBLE_CLICK_INTERVAL = 400;
     enum Stage {PlaceDotStage, ConnectingStage, EndStage};
+
+    int doubleClickInterval() const;
 
     int rows() const;
     int columns() const;
     int turnLimit() const;
+    int turnsLeft() const;
 
 public slots:
     void newGame(int rows, int columns, int turnLimit);
@@ -32,8 +38,9 @@ public slots:
     void endTurn();
 
 signals:
+    void gameStarted();
     void chainCompleted();
-    void turnEnded(int currentPlayer);
+    void turnsLeftChanged(int currentPlayer);
 
 private:
     /* Checks if the point at the specified coordinates is active.
@@ -105,6 +112,7 @@ private:
     int m_rows;
     int m_columns;
     int m_turnLimit;
+    int m_turn;
     std::vector<Dot *> m_dots;
     std::vector<Line *> m_lines;
     std::vector<Dot *> m_chain;

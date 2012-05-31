@@ -48,19 +48,22 @@ CoverPage {
             lineHeight: 0.8
             wrapMode: Text.WordWrap
         }
+    }
 
-        CoverButton {
-            id: backButton
-
-            anchors {
-                left: parent.left
-                bottom: parent.bottom
-            }
-
-            text: qsTr("Back")
-            font.pixelSize: 12 * baseFontSize
-
-            onClicked: pageRequested("mainMenuPage")
+    Button {
+        anchors {
+            left: parent.left
+            bottom: parent.bottom
+            leftMargin: 5 * baseFontSize
+            bottomMargin: 2 * baseFontSize
         }
+
+        text: qsTr("Back")
+        font {
+            family: handwritingFont.name
+            pixelSize: 12 * baseFontSize
+        }
+
+        onClicked: pageRequested("mainMenuPage")
     }
 }

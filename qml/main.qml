@@ -12,10 +12,11 @@ Rectangle {
         state: "hidden"
 
         onPageRequested: {
-            if (pageName === "mainMenuPage") {
-                mainMenuPage.state = "shown"
+            if (pageName === "scorePage") {
+                scorePage.state = "shown"
                 gamePage.state = "hidden"
-                newGamePage.state = "hidden"
+                scorePage.player1Name = gamePage.player1Name
+                scorePage.player2Name = gamePage.player2Name
             }
         }
     }
@@ -29,13 +30,14 @@ Rectangle {
 
         onPageRequested: {
             if (pageName === "gamePage") {
+                gameEngine.newGame(40, 25, 200)
                 gamePage.state = "shown"
                 newGamePage.state = "hiddenLeft"
                 gamePage.player1Name = newGamePage.player1Name
                 gamePage.player2Name = newGamePage.player2Name
             }
             else if (pageName === "mainMenuPage") {
-                mainMenuPage.state="shown"
+                mainMenuPage.state = "shown"
                 newGamePage.state = "hidden"
             }
         }
@@ -49,9 +51,25 @@ Rectangle {
         state: "hidden"
 
         onPageRequested: {
-            if(pageName === "mainMenuPage") {
+            if (pageName === "mainMenuPage") {
                 mainMenuPage.state = "shown"
                 howToPlayPage.state = "hidden"
+            }
+        }
+    }
+
+    ScorePage {
+        id: scorePage
+
+        width: parent.width
+        height: parent.height
+        state: "hiddenRight"
+
+        onPageRequested: {
+            if (pageName === "mainMenuPage") {
+                mainMenuPage.state = "shown"
+                newGamePage.state = "shown"
+                scorePage.state = "hidden"
             }
         }
     }
@@ -65,23 +83,15 @@ Rectangle {
         state: "shown"
 
         onPageRequested: {
-            if(pageName === "newGamePage") {
+            if (pageName === "newGamePage") {
                 newGamePage.state = "shown"
                 mainMenuPage.state = "hiddenLeft"
             }
-            else if(pageName === "howToPlayPage") {
+            else if (pageName === "howToPlayPage") {
                 howToPlayPage.state = "shown"
                 mainMenuPage.state = "hiddenLeft"
             }
         }
-    }
-
-    ScorePage {
-        id: scorePage
-
-        width: parent.width
-        height: parent.height
-        visible: false
     }
 
     SplashScreen {
