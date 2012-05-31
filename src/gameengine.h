@@ -11,25 +11,26 @@ class Line;
 class GameEngine : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int doubleClickInterval READ doubleClickInterval CONSTANT)
     Q_PROPERTY(int rows READ rows)
     Q_PROPERTY(int columns READ columns)
     Q_PROPERTY(int turnLimit READ turnLimit)
     Q_PROPERTY(int turnsLeft READ turnsLeft NOTIFY turnsLeftChanged)
+    Q_PROPERTY(int currentPlayer READ currentPlayer)
+    Q_PROPERTY(Stage stage READ stage NOTIFY stageChanged)
+    Q_ENUMS(Stage)
 
 public:
     explicit GameEngine(QObject *parent = 0);
     ~GameEngine();
 
-    static const int DEFAULT_DOUBLE_CLICK_INTERVAL = 400;
-    enum Stage {PlaceDotStage, ConnectingStage, EndStage};
-
-    int doubleClickInterval() const;
+    enum Stage { PlaceDotStage, ConnectingStage, EndStage };
 
     int rows() const;
     int columns() const;
     int turnLimit() const;
     int turnsLeft() const;
+    int currentPlayer() const;
+    Stage stage() const;
 
 public slots:
     void newGame(int rows, int columns, int turnLimit);
@@ -40,7 +41,8 @@ public slots:
 signals:
     void gameStarted();
     void chainCompleted();
-    void turnsLeftChanged(int currentPlayer);
+    void turnsLeftChanged();
+    void stageChanged();
 
 private:
     /* Checks if the point at the specified coordinates is active.

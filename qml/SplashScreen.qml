@@ -9,7 +9,7 @@ Rectangle {
     Image {
         anchors.fill: parent
 
-        source: "images/orange_gradient.svg"
+        source: "qrc:/images/orange_gradient.svg"
     }
 
     Image {
@@ -17,7 +17,7 @@ Rectangle {
 
         anchors.centerIn: parent
 
-        source: "images/logo_icon.svg"
+        source: "qrc:/images/logo_icon.svg"
         sourceSize.width: 100 * baseFontSize
     }
 
@@ -28,7 +28,7 @@ Rectangle {
             margins: height / 2
         }
 
-        source: "images/logo_text.png"
+        source: "qrc:/images/logo_text.png"
         sourceSize.width: icon.width * 1.1
         fillMode: Image.PreserveAspectFit
     }

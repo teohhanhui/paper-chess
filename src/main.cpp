@@ -19,6 +19,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     GameEngine gameEngine;
     viewer.rootContext()->setContextProperty("gameEngine", &gameEngine);
 
+    int doubleClickInterval = app->doubleClickInterval();
+    viewer.rootContext()->setContextProperty("doubleClickInterval", doubleClickInterval);
+
     viewer.setMainQmlFile(QLatin1String("qml/main.qml"));
     viewer.showExpanded();
 
