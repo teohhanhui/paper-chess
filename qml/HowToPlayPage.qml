@@ -7,7 +7,7 @@ CoverPage {
     FontLoader {
         id: handwritingFont
 
-        source: "fonts/CoveredByYourGrace.ttf"
+        source: "qrc:/fonts/CoveredByYourGrace.ttf"
     }
 
     Item {

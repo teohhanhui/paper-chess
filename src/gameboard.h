@@ -3,8 +3,8 @@
 
 #include <QDeclarativeItem>
 #include <QVarLengthArray>
-#include <QPointF>
 #include <QPoint>
+#include <QtSvg/QSvgRenderer>
 
 class Stroke;
 class GameEngine;
@@ -13,6 +13,7 @@ class GameBoard : public QDeclarativeItem
 {
     Q_OBJECT
     Q_PROPERTY(GameEngine *engine READ engine WRITE setEngine)
+    Q_PROPERTY(QVariantList dotSources READ dotSources WRITE setDotSources)
     Q_PROPERTY(Stroke *gridStroke READ gridStroke)
 
 public:
@@ -21,6 +22,9 @@ public:
 
     GameEngine *engine() const;
     void setEngine(GameEngine *engine);
+
+    QVariantList dotSources() const;
+    void setDotSources(QVariantList &list);
 
     Stroke *gridStroke() const;
 
@@ -36,11 +40,15 @@ public slots:
 protected slots:
     void setUpBoard();
     void resizeGrid();
+    void beginTurn();
 
 private:
-    static const int SHAPE_CORNERS = 4;
+    QPointF findIntersection(int x, int y) const;
+
+    const QPoint m_invalidDot;
 
     GameEngine *m_engine;
+    QVariantList m_dotSources;
     Stroke *m_gridStroke;
     int m_gridRows;
     int m_gridColumns;
@@ -48,8 +56,8 @@ private:
     qreal m_gridSize;
     QRectF m_gridRect;
     QVarLengthArray<QLineF, 100> m_gridLines;
-    QPointF m_markedPoint;
     QPoint m_provisionalDot;
+    QSvgRenderer *m_dotSvgRenderers[2];
 };
 
 #endif // GAMEBOARD_H

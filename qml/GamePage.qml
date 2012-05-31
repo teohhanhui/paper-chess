@@ -12,13 +12,13 @@ Page {
     FontLoader {
         id: handwritingFont
 
-        source: "fonts/CoveredByYourGrace.ttf"
+        source: "qrc:/fonts/CoveredByYourGrace.ttf"
     }
     //load game page background image
     Image {
         anchors.fill: parent
 
-        source: "images/wooden_texture.jpg"
+        source: "qrc:/images/wooden_texture.jpg"
         sourceSize.width: parent.width
         fillMode: Image.Stretch
     }
@@ -39,7 +39,7 @@ Page {
         Image {
             anchors.fill: parent
 
-            source: "images/paper_texture.png"
+            source: "qrc:/images/paper_texture.png"
             fillMode: Image.Tile
         }
         //set up game engine
@@ -48,11 +48,15 @@ Page {
 
             anchors.fill: parent
 
+            engine: gameEngine
+            dotSources: [
+                player1Indicator.playerMarkerSource,
+                player2Indicator.playerMarkerSource
+            ]
             gridStroke {
                 color: "slategray"
                 width: 1
             }
-            engine: gameEngine
         }
         //pinch to zoom function
         PinchArea {
@@ -117,7 +121,7 @@ Page {
             Timer {
                 id: clickTimer
 
-                interval: gameEngine.doubleClickInterval
+                interval: doubleClickInterval
 
                 onTriggered: gameBoard.markPosition(touchy.touchedPoint)
             }
@@ -161,7 +165,7 @@ Page {
             state: "active"
 
             playerName: player1Name
-            playerMarkerSource: "images/dot.svg"
+            playerMarkerSource: "qrc:/images/dot.svg"
             fontSize: 7 * baseFontSize
             activeColor: stageBar.color
         }
@@ -198,9 +202,20 @@ Page {
             color: Qt.rgba(255, 128, 0, 0.25)
 
             Text {
+                function getStageName(stage) {
+                    switch(stage) {
+                    case GameEngine.PlaceDotStage:
+                        return "Place Dot"
+                    case GameEngine.ConnectingStage:
+                        return "Connect Dots"
+                    default:
+                        return ""
+                    }
+                }
+
                 anchors.centerIn: parent
 
-                text: "Place Dot"
+                text: getStageName(gameEngine.stage)
                 font.pixelSize: 8 * baseFontSize
                 color: "white"
             }
@@ -218,7 +233,7 @@ Page {
             state: "inactive"
 
             playerName: player2Name
-            playerMarkerSource: "images/cross.svg"
+            playerMarkerSource: "qrc:/images/cross.svg"
             fontSize: 7 * baseFontSize
             activeColor: stageBar.color
         }

@@ -7,7 +7,7 @@ Page {
 
         anchors.fill: parent
 
-        source: "images/cover.jpg"
+        source: "qrc:/images/cover.jpg"
         sourceSize.width: width
         fillMode: Image.PreserveAspectCrop
     }

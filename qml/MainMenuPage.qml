@@ -7,7 +7,7 @@ CoverPage {
     FontLoader {
         id: handwritingFont
 
-        source: "fonts/CoveredByYourGrace.ttf"
+        source: "qrc:/fonts/CoveredByYourGrace.ttf"
     }
 
     Column {
@@ -23,7 +23,7 @@ CoverPage {
 
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                source: "images/logo_icon.svg"
+                source: "qrc:/images/logo_icon.svg"
                 sourceSize.height: page.height / 3
             }
             //logo text
@@ -32,7 +32,7 @@ CoverPage {
 
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                source: "images/logo_text.png"
+                source: "qrc:/images/logo_text.png"
                 sourceSize.width: icon.width * 1.1
                 fillMode: Image.PreserveAspectFit
             }

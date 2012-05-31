@@ -11,7 +11,7 @@ CoverPage {
     FontLoader {
         id: handwritingFont
 
-        source: "fonts/CoveredByYourGrace.ttf"
+        source: "qrc:/fonts/CoveredByYourGrace.ttf"
     }
 
     Item {
@@ -30,7 +30,7 @@ CoverPage {
                 margins: 5 * baseFontSize
             }
 
-            source: "images/scoreboard_text.png"
+            source: "qrc:/images/scoreboard_text.png"
             sourceSize.height: height
             fillMode: Image.PreserveAspectFit
         }

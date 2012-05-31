@@ -1,6 +1,7 @@
 #include "gameengine.h"
 #include <QApplication>
 #include <QCoreApplication>
+#include <QDebug>
 #include <algorithm>
 #include <stack>
 #include "dot.h"
@@ -16,6 +17,7 @@ GameEngine::GameEngine(QObject *parent)
     , m_columns(0)
     , m_turnLimit(0)
     , m_turn(0)
+    , m_currentPlayer(0)
 {
 }
 
@@ -24,17 +26,6 @@ GameEngine::~GameEngine()
     for (vector<Dot *>::iterator it = m_dots.begin(); it != m_dots.end(); ++it) {
         delete *it;
     }
-}
-
-int GameEngine::doubleClickInterval() const
-{
-    QApplication *app = static_cast<QApplication *>(QCoreApplication::instance());
-
-    if (app != 0) {
-        return app->doubleClickInterval();
-    }
-
-    return DEFAULT_DOUBLE_CLICK_INTERVAL;
 }
 
 int GameEngine::rows() const
@@ -57,17 +48,31 @@ int GameEngine::turnsLeft() const
     return m_turnLimit - m_turn;
 }
 
+int GameEngine::currentPlayer() const
+{
+    return m_currentPlayer;
+}
+
+GameEngine::Stage GameEngine::stage() const
+{
+    return m_stage;
+}
+
 void GameEngine::newGame(int rows, int columns, int turnLimit)
 {
     m_rows = rows;
     m_columns = columns;
     m_turnLimit = turnLimit;
+    m_turn = 0;
+    m_currentPlayer = 0;
+    m_stage = PlaceDotStage;
 
     m_pointActive.clear();
     m_pointActive.insert(m_pointActive.begin(), (rows + 1) * (columns + 1), true);
 
     emit gameStarted();
-    emit turnsLeftChanged(m_currentPlayer);
+    emit turnsLeftChanged();
+    emit stageChanged();
 }
 
 bool GameEngine::placeDot(int x, int y)
@@ -88,8 +93,9 @@ bool GameEngine::placeDot(int x, int y)
 
     dot = new Dot(m_currentPlayer, x, y, true);
     m_dots.push_back(dot);
-
+    qDebug() << "Placed dot: " << dot->getX() << "," << dot->getY();
     m_stage = ConnectingStage;
+    emit stageChanged();
     return true;
 }
 
@@ -150,8 +156,10 @@ bool GameEngine::connectDots(int x1, int y1, int x2, int y2)
 void GameEngine::endTurn()
 {
     m_turn++;
-    m_currentPlayer = m_currentPlayer == 1 ? 2 : 1;
-    emit turnsLeftChanged(m_currentPlayer);
+    m_currentPlayer = m_currentPlayer == 0 ? 1 : 0;
+    m_stage = PlaceDotStage;
+    emit turnsLeftChanged();
+    emit stageChanged();
 }
 
 bool GameEngine::isPointActive(int x, int y) const
@@ -366,7 +374,7 @@ void GameEngine::captureArea(const deque<Dot *> surroundingDots)
 {
     int captured=0, mX=0, mY=0, smX=0, smY=0, currX=0, currY=0;
     int rowct=0,colct=0;
-    int capturedPlayer = m_currentPlayer == 1 ? 2 : 1;
+    int capturedPlayer = m_currentPlayer == 0 ? 1 : 0;
 
     //getting min max x & y
     smX = surroundingDots[0]->getX();

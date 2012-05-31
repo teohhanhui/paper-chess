@@ -14,13 +14,13 @@ Flow {
     FontLoader {
         id: printFont
 
-        source: "fonts/CantataOne-Regular.ttf"
+        source: "qrc:/fonts/CantataOne-Regular.ttf"
     }
 
     FontLoader {
         id: handwritingFont
 
-        source: "fonts/CoveredByYourGrace.ttf"
+        source: "qrc:/fonts/CoveredByYourGrace.ttf"
     }
 
     Text {
@@ -49,7 +49,7 @@ Flow {
                 bottom: input.bottom
             }
 
-            source: "images/dot_border.svg"
+            source: "qrc:/images/dot_border.svg"
             sourceSize.height: height
             fillMode: Image.TileHorizontally
         }
