@@ -3,16 +3,16 @@ import QtQuick 1.1
 
 CoverPage {
     id: page
-
+    //property alias to store player name rom textfield
     property alias player1Name: player1TextField.text
     property alias player2Name: player2TextField.text
-
+    //load font type
     FontLoader {
         id: handwritingFont
 
         source: "fonts/CoveredByYourGrace.ttf"
     }
-
+    //icon placement
     Column {
         anchors.centerIn: parent
 
@@ -40,7 +40,7 @@ CoverPage {
                 fillMode: Image.PreserveAspectFit
             }
         }
-
+        //for spacing
         Item {
             width: parent.width
             height: logoText.height * 2
@@ -53,7 +53,7 @@ CoverPage {
 
             flow: page.width > page.height ? Flow.LeftToRight : Flow.TopToBottom
             spacing: flow === Flow.LeftToRight ? 10 * baseFontSize : 2 * baseFontSize
-
+            //new game menu textfield
             Column {
                 spacing: player1TextField.height * 0.4
 

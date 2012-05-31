@@ -1,6 +1,7 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 1.1
 
+//page that output the score of the players
 CoverPage {
     id: page
 
@@ -34,7 +35,7 @@ CoverPage {
             fillMode: Image.PreserveAspectFit
         }
     }
-
+    //output players score
     Column {
         anchors {
             left: parent.left
@@ -62,7 +63,7 @@ CoverPage {
             }
         }
     }
-
+    //back to main menu button
     Button {
         anchors {
             left: parent.left

@@ -4,16 +4,17 @@ import PaperChess 1.0
 
 Page {
     id: page
-
+    //properties which store player 1 and player 2 name input
     property string player1Name
     property string player2Name
 
+    //font type
     FontLoader {
         id: handwritingFont
 
         source: "fonts/CoveredByYourGrace.ttf"
     }
-
+    //load game page background image
     Image {
         anchors.fill: parent
 
@@ -34,14 +35,14 @@ Page {
 
         contentWidth: width
         contentHeight: height
-
+        //load gameboard background image
         Image {
             anchors.fill: parent
 
             source: "images/paper_texture.png"
             fillMode: Image.Tile
         }
-
+        //set up game engine
         GameBoard {
             id: gameBoard
 
@@ -53,7 +54,7 @@ Page {
             }
             engine: gameEngine
         }
-
+        //pinch to zoom function
         PinchArea {
             id: pinchy
 
@@ -86,14 +87,14 @@ Page {
 
             onPinchFinished: flicky.returnToBounds()
         }
-
+        //mouseArea action
         MouseArea {
             id: touchy
 
             property variant touchedPoint
 
             anchors.fill: parent
-
+            //
             onClicked: {
                 touchy.touchedPoint = Qt.point(mouseX, mouseY)
                 clickTimer.restart()
@@ -112,7 +113,7 @@ Page {
                                          Qt.point(mouseX, mouseY))
                 }
             }
-
+            //set a timer to prevent double clicked
             Timer {
                 id: clickTimer
 
@@ -121,7 +122,7 @@ Page {
                 onTriggered: gameBoard.markPosition(touchy.touchedPoint)
             }
         }
-
+        //game board zoom states
         states: [
             State {
                 name: "zoomedIn"
@@ -133,7 +134,7 @@ Page {
             }
         ]
     }
-
+    //upper status bar
     Rectangle {
         id: gamebar
 
@@ -142,12 +143,12 @@ Page {
             left: parent.left
             right: parent.right
         }
-
+        //background gradient color
         gradient: Gradient {
             GradientStop { position: 1.0; color: "#d5a95e" }
             GradientStop { position: 0.0; color: "#b78530" }
         }
-
+        //player 1's turn indicator
         PlayerIndicator {
             id: player1Indicator
 
@@ -164,7 +165,7 @@ Page {
             fontSize: 7 * baseFontSize
             activeColor: stageBar.color
         }
-
+        //game steps status bar
         Rectangle {
            id: turnsLeftBar
 
@@ -183,7 +184,7 @@ Page {
                font.pixelSize: 6 * baseFontSize
            }
         }
-
+        //player's action status bar
         Rectangle {
             id: stageBar
 
@@ -204,7 +205,7 @@ Page {
                 color: "white"
             }
         }
-
+        //player 1's turn indicator
         PlayerIndicator {
             id: player2Indicator
 
@@ -222,7 +223,7 @@ Page {
             activeColor: stageBar.color
         }
     }
-
+    //bottom menu toolbar
     Rectangle {
         id: toolbar
 
@@ -237,7 +238,7 @@ Page {
             GradientStop { position: 0.0; color: "#d5a95e" }
             GradientStop { position: 0.5; color: "#b78530" }
         }
-
+        //menu button to show the the overlay menu
         Button {
             anchors {
                 left: parent.left
@@ -250,7 +251,7 @@ Page {
 
             onClicked: overlayMenu.state = "shown"
         }
-
+        //end player's turn button
         Button {
             id: endTurnButton
 
@@ -277,7 +278,7 @@ Page {
             }
         }
     }
-
+    //overlay menu to resume game or exit game
     Item {
         id: overlayMenu
 
@@ -339,7 +340,7 @@ Page {
                 }
             }
         }
-
+        //exit game confirm box
         Rectangle {
             id: promptBox
 
@@ -384,7 +385,7 @@ Page {
                         left: parent.left
                         bottom: parent.bottom
                     }
-
+                    //exit to main menu
                     text: "Yes"
                     font {
                         family: handwritingFont.name
@@ -397,7 +398,7 @@ Page {
                         promptBox.state = "hidden"
                     }
                 }
-
+                //resume game
                 Button {
                     anchors {
                         right: parent.right
