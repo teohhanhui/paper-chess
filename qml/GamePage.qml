@@ -160,7 +160,7 @@ Page {
             anchors {
                 left: parent.left
                 top: parent.top
-                bottom: parent.bottom
+                bottom: parent.bottom                
             }
             state: "active"
 
@@ -220,11 +220,11 @@ Page {
                 color: "white"
             }
         }
-        //player 1's turn indicator
+        //player 2's turn indicator
         PlayerIndicator {
             id: player2Indicator
 
-            width: 40 * baseFontSize
+            width: 35 * baseFontSize
             anchors {
                 right: parent.right
                 top: parent.top
@@ -270,6 +270,7 @@ Page {
         Button {
             id: endTurnButton
 
+            visible: gameEngine.stage === GameEngine.ConnectingStage
             anchors {
                 right: parent.right
                 bottom: parent.bottom
@@ -277,7 +278,7 @@ Page {
             }
 
             text: qsTr("End Turn")
-            font.pixelSize: 8 * baseFontSize
+            font.pixelSize: 8 * baseFontSize            
 
             onClicked: {
                 gameEngine.endTurn()
