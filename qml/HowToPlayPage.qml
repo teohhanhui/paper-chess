@@ -23,7 +23,7 @@ CoverPage {
             text: "How to Play"
             font {
                 family: handwritingFont.name
-                pixelSize: 16 * baseFontSize
+                pixelSize: 12 * baseFontSize
             }
         }
 
@@ -43,10 +43,48 @@ CoverPage {
                    </ol>"
             font {
                 family: handwritingFont.name
-                pixelSize: 12 * baseFontSize
+                pixelSize: 9 * baseFontSize
             }
             lineHeight: 0.8
             wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: title2
+
+            anchors {
+                top: content.bottom
+            }
+
+            color: "black"
+            text: "<br/>Game Control"
+            font {
+                family: handwritingFont.name
+                pixelSize: 12 * baseFontSize
+            }
+        }
+
+        Text {
+            id:gameControlContent
+
+            width: parent.width
+            anchors {
+                top: title2.bottom
+            }
+
+            color:"black"
+
+            text:"<ul>
+                     <li> Single tap to insert dot</li>
+                     <li> Double tap or pinch on any place to zoom</li>
+                  </ul>"
+            font {
+                family: handwritingFont.name
+                pixelSize: 9 * baseFontSize
+            }
+            lineHeight: 0.8
+            wrapMode: Text.WordWrap
+
         }
     }
 
@@ -61,7 +99,7 @@ CoverPage {
         text: qsTr("Back")
         font {
             family: handwritingFont.name
-            pixelSize: 12 * baseFontSize
+            pixelSize: 10 * baseFontSize
         }
 
         onClicked: pageRequested("mainMenuPage")
