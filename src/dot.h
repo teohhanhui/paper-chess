@@ -12,7 +12,7 @@ public:
     bool isValid() const;
     bool isActive() const;
     void deactivate();
-    bool isNeighbor(Dot *other) const;
+    bool isNeighbor(const Dot *other) const;
 
 private:
     int m_player;

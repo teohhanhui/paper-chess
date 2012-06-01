@@ -4,6 +4,7 @@
 #include <limits>
 #include "gameengine.h"
 #include "stroke.h"
+#include "line.h"
 
 GameBoard::GameBoard(QDeclarativeItem *parent)
     : QDeclarativeItem(parent)
@@ -87,7 +88,7 @@ bool GameBoard::hasPendingMoves() const
     case GameEngine::PlaceDotStage:
         return m_provisionalDot.isValid();
     case GameEngine::ConnectDotsStage:
-        return !m_provisionalChain.empty();
+        return (m_provisionalChain.size() > 1);
     default:
         return false;
     }
@@ -114,21 +115,43 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         painter->drawLines(m_gridLines.data(), m_gridLines.size());
     }
 
-    const std::vector<Dot *> &dots = m_engine->getDots();
-    std::vector<Dot *>::const_iterator it;
-    std::vector<Dot *>::const_iterator end = dots.end();
+    {
+        const QList<Dot *> &dots = m_engine->getDots();
+        QList<Dot *>::const_iterator it;
+        QList<Dot *>::const_iterator end = dots.end();
 
-    for (it = dots.begin(); it != end; ++it) {
-        const Dot &dot = **it;
-        const QImage &dotImage = m_dotImages[dot.player()];
-        QPointF intersection = findIntersection(dot.x(), dot.y());
-        QTransform gridDisplayTransform;
-        gridDisplayTransform.rotate(m_gridRotation);
-        intersection = gridDisplayTransform.map(intersection);
-        intersection -= QPointF(dotImage.width() / 2, dotImage.height() / 2);
+        for (it = dots.begin(); it != end; ++it) {
+            const Dot &dot = **it;
+            const QImage &dotImage = m_dotImages[dot.player()];
+            QPointF intersection = findIntersection(dot.x(), dot.y());
+            intersection = QTransform().rotate(m_gridRotation).map(intersection);
+            intersection -= QPointF(dotImage.width() / 2, dotImage.height() / 2);
 
-        painter->setRenderHints(QPainter::Antialiasing, true);
-        painter->drawImage(intersection, dotImage);
+            painter->drawImage(intersection, dotImage);
+        }
+    }
+
+    {
+        QVector<QLineF> displayLines;
+        QPointF points[2];
+        const QList<Line *> &lines = m_engine->getLines();
+        QList<Line *>::const_iterator it;
+        QList<Line *>::const_iterator end = lines.end();
+
+        for (it = lines.begin(); it != end; ++it) {
+            const Line &line = **it;
+            const Dot dots[2] = { *line.endpoint1(), *line.endpoint2() };
+
+            for (int i = 0; i < 2; ++i) {
+                points[i] = findIntersection(dots[i].x(), dots[i].y());
+                points[i] = QTransform().rotate(m_gridRotation).map(points[i]);
+            }
+
+            displayLines.append(QLineF(points[0], points[1]));
+        }
+
+        painter->setPen(QPen(Qt::black, m_gridStroke->width() * 2));
+        painter->drawLines(displayLines);
     }
 
     if (m_provisionalDot.isValid()) {
@@ -139,7 +162,6 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         intersection = gridDisplayTransform.map(intersection);
         intersection -= QPointF(dotImage.width() / 2, dotImage.height() / 2);
 
-        painter->setRenderHints(QPainter::Antialiasing, true);
         painter->drawImage(intersection, dotImage);
     }
 
@@ -193,25 +215,16 @@ void GameBoard::markPosition(QPoint point)
             }
         }
     }
-    qDebug() << "Dot: (" << dot.x() << "," << dot.y() << ")";
+
     switch (m_engine->stage()) {
     case GameEngine::PlaceDotStage:
-        m_provisionalDot = dot;
-        emit hasPendingMovesChanged();
+        if (m_engine->canPlaceDot(dot.x(), dot.y())) {
+            m_provisionalDot = dot;
+            emit hasPendingMovesChanged();
+        }
         break;
     case GameEngine::ConnectDotsStage:
-        if (m_provisionalChain.empty()) {
-            m_provisionalChain.push_back(dot);
-            emit hasPendingMovesChanged();
-        }
-        else if (dot.isNeighbor(&m_provisionalChain.front())) {
-            m_provisionalChain.push_front(dot);
-            emit hasPendingMovesChanged();
-        }
-        else if (dot.isNeighbor(&m_provisionalChain.back())) {
-            m_provisionalChain.push_back(dot);
-            emit hasPendingMovesChanged();
-        }
+        tryAddToChain(dot);
         break;
     default:
         break;
@@ -229,17 +242,22 @@ void GameBoard::acceptMove(bool accepted)
         if (accepted) {
             m_engine->placeDot(m_provisionalDot.x(), m_provisionalDot.y());
         }
+
         m_provisionalDot = Dot();
         break;
     case GameEngine::ConnectDotsStage:
         if (accepted) {
-            std::deque<Dot>::const_iterator it;
-            std::deque<Dot>::const_iterator last = m_provisionalChain.end() - 1;
+            QList<Dot>::const_iterator it;
+            QList<Dot>::const_iterator last = m_provisionalChain.end() - 1;
 
             for (it = m_provisionalChain.begin(); it != last; ++it) {
-                m_engine->connectDots((*it).x(), (*it).y(), (*(it + 1)).x(), (*(it + 1)).y());
+                const Dot dot1 = *it;
+                const Dot dot2 = *(it + 1);
+
+                m_engine->connectDots(dot1.x(), dot1.y(), dot2.x(), dot2.y());
             }
         }
+
         m_provisionalChain.clear();
         break;
     default:
@@ -330,6 +348,50 @@ void GameBoard::makeDotImages()
         dotPainter.setRenderHint(QPainter::Antialiasing, true);
         m_dotSvgRenderers[i]->render(&dotPainter);
         dotPainter.end();
+    }
+}
+
+void GameBoard::tryAddToChain(const Dot &dot)
+{
+    const Dot *existingDot = m_engine->getDotAt(dot.x(), dot.y());
+
+    // check if the dot exists, is active and belongs to the current player
+    if (existingDot == 0 || !existingDot->isActive() || existingDot->player() != dot.player()) {
+        return;
+    }
+
+    // check if there is already a chain
+    if (m_provisionalChain.empty()) {
+        m_provisionalChain.push_back(dot);
+        return;
+    }
+
+    const Dot &first = m_provisionalChain.front();
+    const Dot &last = m_provisionalChain.back();
+    const Dot *previousDot = 0;
+
+    if (dot.isNeighbor(&first)) {
+        previousDot = &first;
+    }
+    else if (dot.isNeighbor(&last)) {
+        previousDot = &last;
+    }
+    else {
+        m_provisionalChain.clear();
+        m_provisionalChain.push_back(dot);
+        emit hasPendingMovesChanged();
+        return;
+    }
+
+    if (m_engine->canConnectDots(dot.x(), dot.y(), previousDot->x(), previousDot->y())) {
+        if (previousDot == &first) {
+            m_provisionalChain.push_front(dot);
+        }
+        else if (previousDot == &last) {
+            m_provisionalChain.push_back(dot);
+        }
+
+        emit hasPendingMovesChanged();
     }
 }
 

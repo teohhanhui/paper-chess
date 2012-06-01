@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <vector>
-#include <deque>
 
 class Dot;
 class Line;
@@ -32,7 +31,12 @@ public:
     int currentPlayer() const;
     Stage stage() const;
 
-    const std::vector<Dot *> &getDots() const;
+    const Dot *getDotAt(int x, int y) const;
+    const QList<Dot *> &getDots() const;
+    const QList<Line *> &getLines() const;
+
+    bool canPlaceDot(int x, int y) const;
+    bool canConnectDots(int x1, int y1, int x2, int y2) const;
 
 signals:
     void gameStarted();
@@ -56,27 +60,27 @@ private:
     /* Checks if any chain contains the specified dots.
      * Returns true if the dots belong in any of the chains, false otherwise.
      */
-    bool inChain(Dot *dot1, Dot *dot2) const;
+    bool connectedInChain(Dot *dot1, Dot *dot2) const;
 
     /* Inserts the specified dots into a suitable chain.
      * A new chain is created if no existing chain has one of the dots as an endpoint.
      * Returns the chain where the dots were inserted.
      */
-    std::deque<Dot *> &insertIntoChain(Dot *dot1, Dot *dot2);
+    QList<Dot *> &insertIntoChain(Dot *dot1, Dot *dot2);
 
     /* Checks for a closed shape in which the chain is a part of.
      * All existing lines and all chains may be used to make the connection.
      */
-    void checkChain(std::deque<Dot *> &chain);
+    void checkChain(QList<Dot *> &chain);
 
     /* Closes the chain using existing lines.
      * Returns true if the chain is successfully closed, false otherwise.
      */
-    bool closeGap(std::deque<Dot *> chain) const;
+    bool closeGap(QList<Dot *> chain) const;
 
     bool isOnEdge(const Dot *dot) const;
 
-    void linkChain();
+    void linkChain(QList<Dot *> &chain);
 
     /* check number of captured dots, returns number of dots captured
      * idea of calculating captured dots: with limits of MAX x, MAX y, MIN x, MIN y
@@ -89,7 +93,7 @@ private:
      * 3. increment counter if captured a dot.
      * 4. repeat from MIN y to MAX y
      */
-    void captureArea(const std::deque<Dot *> surroundingDots);
+    void captureArea(const QList<Dot *> surroundingDots);
 
     void captureDot(int x, int y);
 
@@ -107,12 +111,12 @@ private:
     /* Finds all existing lines containing the specified endpoint.
      * Returns a vector of the lines found.
      */
-    std::vector<Line *> findLines(const Dot *endpoint) const;
+    QList<Line *> findLines(const Dot *endpoint) const;
 
     /* Finds all dots connected to the specified dot.
      * Returns a vector of the dots found.
      */
-    std::vector<Dot *> findConnectedDots(const Dot *dot) const;
+    QList<Dot *> findConnectedDots(const Dot *dot) const;
 
     int m_rows;
     int m_columns;
@@ -121,10 +125,10 @@ private:
     int m_currentPlayer;
     Stage m_stage;
     std::vector<bool> m_pointDisabled;
-    std::vector<Dot *> m_dots;
-    std::vector<Line *> m_lines;
-    std::vector<Dot *> m_chain;
-    std::vector<std::deque<Dot *> > m_chains;
+    QList<Dot *> m_dots;
+    QList<Line *> m_lines;
+    //std::vector<Dot *> m_chain;
+    QList<QList<Dot *> > m_chains;
 };
 
 #endif // GAMEENGINE_H

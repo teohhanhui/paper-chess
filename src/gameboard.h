@@ -4,8 +4,7 @@
 #include <QDeclarativeItem>
 #include <QVarLengthArray>
 #include <QtSvg/QSvgRenderer>
-#include <QPoint>
-#include <deque>
+#include <QList>
 #include "dot.h"
 
 class Stroke;
@@ -50,6 +49,7 @@ protected slots:
 private:
     void makeGrid();
     void makeDotImages();
+    void tryAddToChain(const Dot &dot);
     QPointF findIntersection(int x, int y) const;
 
     static const int NUM_PLAYERS = 2;
@@ -66,7 +66,7 @@ private:
     QSvgRenderer *m_dotSvgRenderers[NUM_PLAYERS];
     QImage m_dotImages[NUM_PLAYERS];
     Dot m_provisionalDot;
-    std::deque<Dot> m_provisionalChain;
+    QList<Dot> m_provisionalChain;
 };
 
 #endif // GAMEBOARD_H

@@ -1,6 +1,16 @@
 <?xml version="1.0"?>
 <!-- Converted with SVG Converter - Version 0.9.5 (Compiled Mon May 30 09:08:51 2011) - Copyright (C) 2011 Nokia -->
-<svg xmlns="http://www.w3.org/2000/svg" width="134.19" version="1.1" height="134.16" baseProfile="tiny" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg2987">
- <metadata id="metadata2992"/>
- <path stroke-dasharray="none" fill="#00F" fill-rule="nonzero" stroke="#c80022" id="rect3756" stroke-width="1" d="M28.969,0.5,0.5,28.969,38.625,67.094,0.5,105.19l28.469,28.469,38.125-38.125,38.125,38.125,28.469-28.469-38.125-38.094,38.125-38.125-28.47-28.471-38.126,38.125-38.125-38.125z" stroke-miterlimit="3.9000001"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="300" version="1.1" height="299.93" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" id="svg2">
+ <defs id="defs4">
+  <radialGradient cx="255.57" cy="193.73" gradientTransform="matrix(2.2585746,-0.02755431,0.02739702,2.2456814,-243.55387,-317.67481)" id="radialGradient3847" r="66.594" gradientUnits="userSpaceOnUse">
+   <stop offset="0" stop-color="#F00" id="stop3843"/>
+   <stop offset="0.4" stop-color="#ff0f0f" id="stop3853"/>
+   <stop offset="0.9" stop-color="#ff1e1e" id="stop3851" stop-opacity="0.90196079"/>
+   <stop offset="1" stop-color="#F00" id="stop3845" stop-opacity="0"/>
+  </radialGradient>
+ </defs>
+ <metadata id="metadata7"/>
+ <g id="layer1" transform="translate(-188.97459,39.622659)">
+  <path fill="url(#radialGradient3847)" fill-rule="nonzero" id="rect3756" d="m253.1-39.623-64.125,64.125,85.875,85.875-85.875,85.81,64.125,64.125,85.875-85.875,85.875,85.875,64.125-64.125-85.875-85.805,85.875-85.875-64.127-64.13-85.877,85.875-85.875-85.875z" stroke-miterlimit="3.9000001"/>
+ </g>
 </svg>

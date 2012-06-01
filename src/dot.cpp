@@ -49,7 +49,7 @@ void Dot::deactivate()
     }
 }
 
-bool Dot::isNeighbor(Dot *other) const
+bool Dot::isNeighbor(const Dot *other) const
 {
     if (other == 0) {
         return false;

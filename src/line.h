@@ -7,8 +7,8 @@ class Line
 {
 public:
     Line(Dot *endpoint1, Dot *endpoint2);
-    Dot *getEndpoint1() const;
-    Dot *getEndpoint2() const;
+    Dot *endpoint1() const;
+    Dot *endpoint2() const;
 
 private:
     Dot *m_endpoint1;

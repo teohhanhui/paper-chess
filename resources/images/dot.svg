@@ -1,8 +1,18 @@
 <?xml version="1.0"?>
 <!-- Converted with SVG Converter - Version 0.9.5 (Compiled Mon May 30 09:08:51 2011) - Copyright (C) 2011 Nokia -->
-<svg xmlns="http://www.w3.org/2000/svg" width="368.71" version="1.1" height="368.71" baseProfile="tiny" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg2">
+<svg xmlns="http://www.w3.org/2000/svg" width="300" version="1.1" height="300" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" id="svg2">
+ <defs id="defs4">
+  <radialGradient cx="237.14" cy="300.93" gradientTransform="matrix(0.92695066,0,0,0.92695066,17.323125,21.982998)" id="radialGradient3761" r="114.79" gradientUnits="userSpaceOnUse">
+   <stop offset="0" stop-color="#0000a2" id="stop3757"/>
+   <stop offset="0.4" stop-color="#0000ad" id="stop3765"/>
+   <stop offset="0.6" stop-color="#0000b8" id="stop3763"/>
+   <stop offset="0.80417" stop-color="#0000c8" id="stop3769" stop-opacity="0.90178573"/>
+   <stop offset="0.9" stop-color="#1240eb" id="stop3767" stop-opacity="0.53571427"/>
+   <stop offset="1" stop-color="#1962ff" id="stop3759" stop-opacity="0"/>
+  </radialGradient>
+ </defs>
  <metadata id="metadata7"/>
- <g id="layer1" transform="translate(-92.785706,-210.86218)">
-  <path stroke-dasharray="none" fill="#F00" fill-rule="nonzero" stroke="#000074" id="path2985" stroke-width="3" d="m460,395.22c0,100.99-81.868,182.86-182.86,182.86s-182.86-81.868-182.86-182.86,81.868-182.86,182.86-182.86,182.86,81.87,182.86,182.86z" stroke-miterlimit="3.9000001"/>
+ <g id="layer1" transform="translate(-84.471339,-153.60512)">
+  <path fill="url(#radialGradient3761)" fill-rule="nonzero" id="path2985" d="m351.43,300.93c0,63.118-51.167,114.29-114.29,114.29-63.118,0-114.29-51.167-114.29-114.29,0-63.118,51.167-114.29,114.29-114.29,63.118,0,114.29,51.167,114.29,114.29z" transform="matrix(1.3125,0,0,1.3125,-76.778657,-91.370263)"/>
  </g>
 </svg>

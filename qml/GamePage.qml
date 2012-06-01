@@ -31,6 +31,7 @@ Page {
             top: gamebar.bottom
             bottom: toolbar.top
         }
+        clip: true
 
         contentWidth: width
         contentHeight: height
@@ -46,6 +47,7 @@ Page {
             id: gameBoard
 
             anchors.fill: parent
+            smooth: true
 
             engine: gameEngine
             dotSources: [
