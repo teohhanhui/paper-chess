@@ -6,12 +6,12 @@ Line::Line(Dot *endpoint1, Dot *endpoint2)
 {
 }
 
-Dot *Line::getEndpoint1() const
+Dot *Line::endpoint1() const
 {
     return m_endpoint1;
 }
 
-Dot *Line::getEndpoint2() const
+Dot *Line::endpoint2() const
 {
     return m_endpoint2;
 }

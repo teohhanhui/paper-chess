@@ -12,5 +12,5 @@ bool DotCoordinatesPredicate::operator()(const Dot *dot)
         return false;
     }
 
-    return (dot->getX() == m_x && dot->getY() == m_y);
+    return (dot->x() == m_x && dot->y() == m_y);
 }

@@ -1,6 +1,6 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 1.1
-//app splashscreen
+
 Rectangle {
     id: screen
 
@@ -25,7 +25,7 @@ Rectangle {
         anchors {
             horizontalCenter: icon.horizontalCenter
             top: icon.bottom
-            margins: height / 2
+            margins: height * 0.5
         }
 
         source: "qrc:/images/logo_text.png"

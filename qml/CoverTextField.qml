@@ -1,6 +1,6 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 1.1
-//GUI TextField properties
+
 Flow {
     property string labelText
     property string defaultText
@@ -10,7 +10,7 @@ Flow {
     property alias text: input.text
 
     spacing: label.height * 0.5
-    //font type
+
     FontLoader {
         id: printFont
 
@@ -31,7 +31,6 @@ Flow {
         font.family: printFont.name
     }
 
-    //create a dotted line on the bottom of textfield
     TextInput {
         id: input
 

@@ -1,6 +1,6 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 1.1
-//main menu page
+
 CoverPage {
     id: page
 
@@ -16,8 +16,8 @@ CoverPage {
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
 
-            spacing: logoText.height / 2
-            //logo image
+            spacing: logoText.height * 0.5
+
             Image {
                 id: icon
 
@@ -26,7 +26,7 @@ CoverPage {
                 source: "qrc:/images/logo_icon.svg"
                 sourceSize.height: page.height / 3
             }
-            //logo text
+
             Image {
                 id:logoText
 
@@ -37,12 +37,12 @@ CoverPage {
                 fillMode: Image.PreserveAspectFit
             }
         }
-        //for spacing
+
         Item {
             width: parent.width
-            height: page.height / 8
+            height: page.height * 0.125
         }
-        //layout of menu item button
+
         Flow {
             id: menu
 

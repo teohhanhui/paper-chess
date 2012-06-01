@@ -1,6 +1,6 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 1.1
-//code which direct to another page and and enable page transition
+
 Rectangle {
     id: base
 
