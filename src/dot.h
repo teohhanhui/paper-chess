@@ -4,10 +4,12 @@
 class Dot
 {
 public:
+    Dot();
     Dot(int player, int x, int y, bool active = true);
-    int getPlayer() const;
-    int getX() const;
-    int getY() const;
+    int player() const;
+    int x() const;
+    int y() const;
+    bool isValid() const;
     bool isActive() const;
     void deactivate();
     bool isNeighbor(Dot *other) const;

@@ -1,9 +1,14 @@
 #include "dot.h"
 #include <cstdlib>
 
-using namespace std;
+Dot::Dot()
+    : m_player(0)
+    , m_x(-1)
+    , m_y(-1)
+    , m_active(false)
+{
+}
 
-//creates a dot object
 Dot::Dot(int player, int x, int y, bool active)
     : m_player(player)
     , m_x(x)
@@ -12,19 +17,24 @@ Dot::Dot(int player, int x, int y, bool active)
 {
 }
 
-int Dot::getPlayer() const
+int Dot::player() const
 {
     return m_player;
 }
 
-int Dot::getX() const
+int Dot::x() const
 {
     return m_x;
 }
 
-int Dot::getY() const
+int Dot::y() const
 {
     return m_y;
+}
+
+bool Dot::isValid() const
+{
+    return (m_x >= 0 && m_y >= 0);
 }
 
 bool Dot::isActive() const
@@ -45,6 +55,6 @@ bool Dot::isNeighbor(Dot *other) const
         return false;
     }
 
-    return (abs(m_x - other->getX()) < 2
-            && abs(m_y - other->getY()) < 2);
+    return (std::abs(m_x - other->x()) < 2
+            && std::abs(m_y - other->y()) < 2);
 }

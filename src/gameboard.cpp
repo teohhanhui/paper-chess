@@ -7,22 +7,25 @@
 
 GameBoard::GameBoard(QDeclarativeItem *parent)
     : QDeclarativeItem(parent)
-    , m_invalidDot(QPoint(-1, -1))
     , m_engine(0)
     , m_gridStroke(new Stroke())
     , m_gridRotation(0)
-    , m_provisionalDot(m_invalidDot)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-    connect(this, SIGNAL(widthChanged()), SLOT(resizeGrid()));
-    connect(this, SIGNAL(heightChanged()), SLOT(resizeGrid()));
-    connect(m_gridStroke, SIGNAL(colorChanged()), SLOT(drawGrid()));
-    connect(m_gridStroke, SIGNAL(widthChanged()), SLOT(drawGrid()));
+    connect(this, SIGNAL(widthChanged()), SLOT(resizeBoard()));
+    connect(this, SIGNAL(heightChanged()), SLOT(resizeBoard()));
+    connect(m_gridStroke, SIGNAL(colorChanged()), SLOT(drawBoard()));
+    connect(m_gridStroke, SIGNAL(widthChanged()), SLOT(drawBoard()));
+    connect(this, SIGNAL(hasPendingMovesChanged()), SLOT(drawBoard()));
 }
 
 GameBoard::~GameBoard()
 {
     delete m_gridStroke;
+
+    for (int i = 0; i < NUM_PLAYERS; ++i) {
+         delete m_dotSvgRenderers[i];
+    }
 }
 
 GameEngine *GameBoard::engine() const
@@ -43,7 +46,6 @@ void GameBoard::setEngine(GameEngine *engine)
     if (engine != 0) {
         m_engine = engine;
         connect(m_engine, SIGNAL(gameStarted()), SLOT(setUpBoard()));
-        connect(m_engine, SIGNAL(turnsLeftChanged()), SLOT(beginTurn()));
         setUpBoard();
     }
 }
@@ -59,8 +61,8 @@ void GameBoard::setDotSources(QVariantList &list)
 
     int listSize = list.size();
 
-    if (listSize == 2) {
-        for (int i = 0; i < listSize; ++i) {
+    if (listSize == NUM_PLAYERS) {
+        for (int i = 0; i < NUM_PLAYERS; ++i) {
             delete m_dotSvgRenderers[i];
 
             QString fileString = list[i].toString();
@@ -75,10 +77,30 @@ Stroke *GameBoard::gridStroke() const
     return m_gridStroke;
 }
 
+bool GameBoard::hasPendingMoves() const
+{
+    if (m_engine == 0) {
+        return false;
+    }
+
+    switch (m_engine->stage()) {
+    case GameEngine::PlaceDotStage:
+        return m_provisionalDot.isValid();
+    case GameEngine::ConnectDotsStage:
+        return !m_provisionalChain.empty();
+    default:
+        return false;
+    }
+}
+
 void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
+
+    if (m_engine == 0) {
+        return;
+    }
 
     bool oldAA = painter->testRenderHint(QPainter::Antialiasing);
     bool oldSmooth = painter->testRenderHint(QPainter::SmoothPixmapTransform);
@@ -87,25 +109,37 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         painter->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, true);
     }
 
-    painter->setPen(QPen(m_gridStroke->color(), m_gridStroke->width()));
-    painter->drawLines(m_gridLines.data(), m_gridLines.size());
+    if (!m_gridLines.isEmpty()) {
+        painter->setPen(QPen(m_gridStroke->color(), m_gridStroke->width()));
+        painter->drawLines(m_gridLines.data(), m_gridLines.size());
+    }
 
-    if (m_provisionalDot != m_invalidDot) {
-        QImage dotImage(QSize(m_gridSize * 0.5, m_gridSize * 0.5), QImage::Format_ARGB32_Premultiplied);
-        dotImage.fill(qRgba(0, 0, 0, 0));
-        QPainter dotPainter;
-        dotPainter.begin(&dotImage);
-        dotPainter.setRenderHint(QPainter::Antialiasing, true);
-        m_dotSvgRenderers[m_engine->currentPlayer()]->render(&dotPainter);
-        dotPainter.end();
+    const std::vector<Dot *> &dots = m_engine->getDots();
+    std::vector<Dot *>::const_iterator it;
+    std::vector<Dot *>::const_iterator end = dots.end();
 
+    for (it = dots.begin(); it != end; ++it) {
+        const Dot &dot = **it;
+        const QImage &dotImage = m_dotImages[dot.player()];
+        QPointF intersection = findIntersection(dot.x(), dot.y());
+        QTransform gridDisplayTransform;
+        gridDisplayTransform.rotate(m_gridRotation);
+        intersection = gridDisplayTransform.map(intersection);
+        intersection -= QPointF(dotImage.width() / 2, dotImage.height() / 2);
+
+        painter->setRenderHints(QPainter::Antialiasing, true);
+        painter->drawImage(intersection, dotImage);
+    }
+
+    if (m_provisionalDot.isValid()) {
+        const QImage &dotImage = m_dotImages[m_engine->currentPlayer()];
         QPointF intersection = findIntersection(m_provisionalDot.x(), m_provisionalDot.y());
         QTransform gridDisplayTransform;
         gridDisplayTransform.rotate(m_gridRotation);
         intersection = gridDisplayTransform.map(intersection);
         intersection -= QPointF(dotImage.width() / 2, dotImage.height() / 2);
 
-        painter->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, true);
+        painter->setRenderHints(QPainter::Antialiasing, true);
         painter->drawImage(intersection, dotImage);
     }
 
@@ -115,7 +149,147 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     }
 }
 
-void GameBoard::updateGrid()
+void GameBoard::markPosition(QPoint point)
+{
+    if (m_engine == 0) {
+        return;
+    }
+
+    // check if the point is around the grid
+    if (!(m_gridRect.adjusted(-m_gridSize, -m_gridSize, m_gridSize, m_gridSize)).contains(point)) {
+        return;
+    }
+
+    QTransform gridTransform;
+    gridTransform.rotate(-m_gridRotation);
+
+    QRectF grid = gridTransform.mapRect(m_gridRect);
+    point = gridTransform.map(point);
+
+    QPointF gridOrigin = grid.topLeft();
+    int row = (point.y() - gridOrigin.y()) / m_gridSize;
+    int col = (point.x() - gridOrigin.x()) / m_gridSize;
+
+    Dot dot;
+    QPointF intersections[2][2];
+    QPointF *nearestIntersection = 0;
+    qreal shortestDistance = std::numeric_limits<qreal>::max();
+    qreal distance;
+
+    intersections[0][0] = findIntersection(col, row);
+    intersections[0][1] = findIntersection(col + 1, row);
+    intersections[1][0] = findIntersection(col, row + 1);
+    intersections[1][1] = findIntersection(col + 1, row + 1);
+
+    // check the distance of the point from each intersection
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            distance = (intersections[i][j] - point).manhattanLength();
+
+            if (nearestIntersection == 0 || distance < shortestDistance) {
+                dot = Dot(m_engine->currentPlayer(), col + j, row + i);
+                nearestIntersection = &(intersections[i][j]);
+                shortestDistance = distance;
+            }
+        }
+    }
+    qDebug() << "Dot: (" << dot.x() << "," << dot.y() << ")";
+    switch (m_engine->stage()) {
+    case GameEngine::PlaceDotStage:
+        m_provisionalDot = dot;
+        emit hasPendingMovesChanged();
+        break;
+    case GameEngine::ConnectDotsStage:
+        if (m_provisionalChain.empty()) {
+            m_provisionalChain.push_back(dot);
+            emit hasPendingMovesChanged();
+        }
+        else if (dot.isNeighbor(&m_provisionalChain.front())) {
+            m_provisionalChain.push_front(dot);
+            emit hasPendingMovesChanged();
+        }
+        else if (dot.isNeighbor(&m_provisionalChain.back())) {
+            m_provisionalChain.push_back(dot);
+            emit hasPendingMovesChanged();
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void GameBoard::acceptMove(bool accepted)
+{
+    if (!hasPendingMoves()) {
+        return;
+    }
+
+    switch (m_engine->stage()) {
+    case GameEngine::PlaceDotStage:
+        if (accepted) {
+            m_engine->placeDot(m_provisionalDot.x(), m_provisionalDot.y());
+        }
+        m_provisionalDot = Dot();
+        break;
+    case GameEngine::ConnectDotsStage:
+        if (accepted) {
+            std::deque<Dot>::const_iterator it;
+            std::deque<Dot>::const_iterator last = m_provisionalChain.end() - 1;
+
+            for (it = m_provisionalChain.begin(); it != last; ++it) {
+                m_engine->connectDots((*it).x(), (*it).y(), (*(it + 1)).x(), (*(it + 1)).y());
+            }
+        }
+        m_provisionalChain.clear();
+        break;
+    default:
+        break;
+    }
+
+    emit hasPendingMovesChanged();
+}
+
+void GameBoard::setUpBoard()
+{
+    resizeBoard();
+    m_provisionalDot = Dot();
+}
+
+void GameBoard::resizeBoard()
+{
+    if (m_engine == 0 || width() == 0 || height() == 0) {
+        return;
+    }
+
+    int rows = m_engine->rows();
+    int cols = m_engine->columns();
+    int shorter = std::min(rows, cols);
+    int taller = std::max(rows, cols);
+
+    if (width() < height()) {
+        m_gridRows = taller;
+        m_gridColumns = shorter;
+
+        m_gridRotation = rows == taller ? 0 : 90;
+    }
+    else {
+        m_gridRows = shorter;
+        m_gridColumns = taller;
+
+        m_gridRotation = rows == shorter ? 0 : -90;
+    }
+
+    makeGrid();
+    makeDotImages();
+    update();
+}
+
+void GameBoard::drawBoard()
+{
+    update();
+}
+
+void GameBoard::makeGrid()
 {
     QRectF rect = boundingRect();
 
@@ -142,107 +316,21 @@ void GameBoard::updateGrid()
     for (qreal y = top; y <= bottom; y += m_gridSize) {
         m_gridLines.append(QLineF(left, y, right, y));
     }
-
-    update();
 }
 
-void GameBoard::drawGrid()
+void GameBoard::makeDotImages()
 {
-    update();
-}
+    QPainter dotPainter;
 
-void GameBoard::markPosition(QPoint point)
-{
-    // check if the point is around the grid
-    if (!(m_gridRect.adjusted(-m_gridSize, -m_gridSize, m_gridSize, m_gridSize)).contains(point)) {
-        return;
+    for (int i = 0; i < NUM_PLAYERS; ++i) {
+        QImage &dotImage = m_dotImages[i];
+        dotImage = QImage(QSize(m_gridSize * 0.5, m_gridSize * 0.5), QImage::Format_ARGB32_Premultiplied);
+        dotImage.fill(qRgba(0, 0, 0, 0));
+        dotPainter.begin(&dotImage);
+        dotPainter.setRenderHint(QPainter::Antialiasing, true);
+        m_dotSvgRenderers[i]->render(&dotPainter);
+        dotPainter.end();
     }
-
-    QTransform gridTransform;
-    gridTransform.rotate(-m_gridRotation);
-
-    QRectF grid = gridTransform.mapRect(m_gridRect);
-    point = gridTransform.map(point);
-
-    QPointF gridOrigin = grid.topLeft();
-    int row = (point.y() - gridOrigin.y()) / m_gridSize;
-    int col = (point.x() - gridOrigin.x()) / m_gridSize;
-
-    QPointF intersections[2][2];
-    QPoint nearestIntersection;
-    qreal shortestDistance = std::numeric_limits<qreal>::max();
-    qreal distance;
-
-    intersections[0][0] = findIntersection(col, row);
-    intersections[0][1] = findIntersection(col + 1, row);
-    intersections[1][0] = findIntersection(col, row + 1);
-    intersections[1][1] = findIntersection(col + 1, row + 1);
-
-    // check the distance of the point from each intersection
-    for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 2; ++j) {
-            distance = (intersections[i][j] - point).manhattanLength();
-
-            if ((i == 0 && j == 0) || distance < shortestDistance) {
-                nearestIntersection = QPoint(col + j, row + i);
-                shortestDistance = distance;
-            }
-        }
-    }
-    qDebug() << "Dot: (" << nearestIntersection.x() << "," << nearestIntersection.y() << ")";
-    switch (m_engine->stage()) {
-    case GameEngine::PlaceDotStage:
-        // check if this is the provisional dot
-        // place the dot if that is the case
-        if (nearestIntersection == m_provisionalDot) {
-            m_engine->placeDot(col, row);
-        }
-        else {
-            m_provisionalDot = nearestIntersection;
-            update();
-        }
-        break;
-    case GameEngine::ConnectingStage:
-        break;
-    }
-}
-
-void GameBoard::setUpBoard()
-{
-    resizeGrid();
-    m_provisionalDot = m_invalidDot;
-}
-
-void GameBoard::resizeGrid()
-{
-    if (m_engine == 0 || width() == 0 || height() == 0) {
-        return;
-    }
-
-    int rows = m_engine->rows();
-    int cols = m_engine->columns();
-    int shorter = std::min(rows, cols);
-    int taller = std::max(rows, cols);
-
-    if (width() < height()) {
-        m_gridRows = taller;
-        m_gridColumns = shorter;
-
-        m_gridRotation = rows == taller ? 0 : 90;
-    }
-    else {
-        m_gridRows = shorter;
-        m_gridColumns = taller;
-
-        m_gridRotation = rows == shorter ? 0 : -90;
-    }
-
-    updateGrid();
-}
-
-void GameBoard::beginTurn()
-{
-    m_provisionalDot = m_invalidDot;
 }
 
 QPointF GameBoard::findIntersection(int x, int y) const

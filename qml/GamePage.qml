@@ -4,23 +4,22 @@ import PaperChess 1.0
 
 Page {
     id: page
-    //properties which store player 1 and player 2 name input
+
     property string player1Name
     property string player2Name
 
-    //font type
     FontLoader {
         id: handwritingFont
 
         source: "qrc:/fonts/CoveredByYourGrace.ttf"
     }
-    //load game page background image
+
     Image {
         anchors.fill: parent
 
         source: "qrc:/images/wooden_texture.jpg"
-        sourceSize.width: parent.width
-        fillMode: Image.Stretch
+        sourceSize.height: parent.height
+        fillMode: Image.PreserveAspectCrop
     }
 
     Flickable {
@@ -35,14 +34,14 @@ Page {
 
         contentWidth: width
         contentHeight: height
-        //load gameboard background image
+
         Image {
             anchors.fill: parent
 
             source: "qrc:/images/paper_texture.png"
             fillMode: Image.Tile
         }
-        //set up game engine
+
         GameBoard {
             id: gameBoard
 
@@ -58,7 +57,7 @@ Page {
                 width: 1
             }
         }
-        //pinch to zoom function
+
         PinchArea {
             id: pinchy
 
@@ -69,7 +68,7 @@ Page {
 
             pinch {
                 minimumScale: 1.0
-                maximumScale: 5.0
+                maximumScale: 5
                 dragAxis: Pinch.NoDrag
             }
 
@@ -91,14 +90,14 @@ Page {
 
             onPinchFinished: flicky.returnToBounds()
         }
-        //mouseArea action
+
         MouseArea {
             id: touchy
 
             property variant touchedPoint
 
             anchors.fill: parent
-            //
+
             onClicked: {
                 touchy.touchedPoint = Qt.point(mouseX, mouseY)
                 clickTimer.restart()
@@ -117,7 +116,7 @@ Page {
                                          Qt.point(mouseX, mouseY))
                 }
             }
-            //set a timer to prevent double clicked
+
             Timer {
                 id: clickTimer
 
@@ -126,7 +125,7 @@ Page {
                 onTriggered: gameBoard.markPosition(touchy.touchedPoint)
             }
         }
-        //game board zoom states
+
         states: [
             State {
                 name: "zoomedIn"
@@ -138,7 +137,7 @@ Page {
             }
         ]
     }
-    //upper status bar
+
     Rectangle {
         id: gamebar
 
@@ -147,16 +146,16 @@ Page {
             left: parent.left
             right: parent.right
         }
-        //background gradient color
+
         gradient: Gradient {
             GradientStop { position: 1.0; color: "#d5a95e" }
             GradientStop { position: 0.0; color: "#b78530" }
         }
-        //player 1's turn indicator
+
         PlayerIndicator {
             id: player1Indicator
 
-            width: 40 * baseFontSize
+            width: 35 * baseFontSize
             anchors {
                 left: parent.left
                 top: parent.top
@@ -169,7 +168,7 @@ Page {
             fontSize: 7 * baseFontSize
             activeColor: stageBar.color
         }
-        //game steps status bar
+
         Rectangle {
            id: turnsLeftBar
 
@@ -188,7 +187,7 @@ Page {
                font.pixelSize: 6 * baseFontSize
            }
         }
-        //player's action status bar
+
         Rectangle {
             id: stageBar
 
@@ -205,9 +204,9 @@ Page {
                 function getStageName(stage) {
                     switch(stage) {
                     case GameEngine.PlaceDotStage:
-                        return "Place Dot"
-                    case GameEngine.ConnectingStage:
-                        return "Connect Dots"
+                        return qsTr("Place Dot")
+                    case GameEngine.ConnectDotsStage:
+                        return qsTr("Connect Dots")
                     default:
                         return ""
                     }
@@ -220,11 +219,11 @@ Page {
                 color: "white"
             }
         }
-        //player 1's turn indicator
+
         PlayerIndicator {
             id: player2Indicator
 
-            width: 40 * baseFontSize
+            width: 35 * baseFontSize
             anchors {
                 right: parent.right
                 top: parent.top
@@ -238,7 +237,7 @@ Page {
             activeColor: stageBar.color
         }
     }
-    //bottom menu toolbar
+
     Rectangle {
         id: toolbar
 
@@ -253,7 +252,7 @@ Page {
             GradientStop { position: 0.0; color: "#d5a95e" }
             GradientStop { position: 0.5; color: "#b78530" }
         }
-        //menu button to show the the overlay menu
+
         Button {
             anchors {
                 left: parent.left
@@ -266,7 +265,7 @@ Page {
 
             onClicked: overlayMenu.state = "shown"
         }
-        //end player's turn button
+
         Button {
             id: endTurnButton
 
@@ -275,6 +274,8 @@ Page {
                 bottom: parent.bottom
                 margins: 2 * baseFontSize
             }
+            visible: gameEngine.stage === GameEngine.ConnectDotsStage
+                     && !confirmMoveButton.visible
 
             text: qsTr("End Turn")
             font.pixelSize: 8 * baseFontSize
@@ -292,8 +293,37 @@ Page {
                 }
             }
         }
+
+        Button {
+            id: confirmMoveButton
+
+            function getActionName(stage) {
+                switch(stage) {
+                case GameEngine.PlaceDotStage:
+                    return qsTr("Place")
+                case GameEngine.ConnectDotsStage:
+                    return qsTr("Connect")
+                default:
+                    return ""
+                }
+            }
+
+            anchors {
+                right: parent.right
+                bottom: parent.bottom
+                margins: 2 * baseFontSize
+            }
+            visible: gameBoard.hasPendingMoves
+
+            text: getActionName(gameEngine.stage)
+            font.pixelSize: 8 * baseFontSize
+
+            onClicked: {
+                gameBoard.acceptMove()
+            }
+        }
     }
-    //overlay menu to resume game or exit game
+
     Item {
         id: overlayMenu
 
@@ -355,7 +385,7 @@ Page {
                 }
             }
         }
-        //exit game confirm box
+
         Rectangle {
             id: promptBox
 
@@ -400,7 +430,7 @@ Page {
                         left: parent.left
                         bottom: parent.bottom
                     }
-                    //exit to main menu
+
                     text: "Yes"
                     font {
                         family: handwritingFont.name
@@ -413,7 +443,7 @@ Page {
                         promptBox.state = "hidden"
                     }
                 }
-                //resume game
+
                 Button {
                     anchors {
                         right: parent.right

@@ -15,7 +15,7 @@ class GameEngine : public QObject
     Q_PROPERTY(int columns READ columns)
     Q_PROPERTY(int turnLimit READ turnLimit)
     Q_PROPERTY(int turnsLeft READ turnsLeft NOTIFY turnsLeftChanged)
-    Q_PROPERTY(int currentPlayer READ currentPlayer)
+    Q_PROPERTY(int currentPlayer READ currentPlayer NOTIFY currentPlayerChanged)
     Q_PROPERTY(Stage stage READ stage NOTIFY stageChanged)
     Q_ENUMS(Stage)
 
@@ -23,7 +23,7 @@ public:
     explicit GameEngine(QObject *parent = 0);
     ~GameEngine();
 
-    enum Stage { PlaceDotStage, ConnectingStage, EndStage };
+    enum Stage { PlaceDotStage, ConnectDotsStage, EndStage };
 
     int rows() const;
     int columns() const;
@@ -32,17 +32,20 @@ public:
     int currentPlayer() const;
     Stage stage() const;
 
-public slots:
-    void newGame(int rows, int columns, int turnLimit);
-    bool placeDot(int x, int y);
-    bool connectDots(int x1, int y1, int x2, int y2);
-    void endTurn();
+    const std::vector<Dot *> &getDots() const;
 
 signals:
     void gameStarted();
     void chainCompleted();
     void turnsLeftChanged();
+    void currentPlayerChanged();
     void stageChanged();
+
+public slots:
+    void newGame(int rows, int columns, int turnLimit);
+    bool placeDot(int x, int y);
+    bool connectDots(int x1, int y1, int x2, int y2);
+    void endTurn();
 
 private:
     /* Checks if the point at the specified coordinates is active.
@@ -115,13 +118,13 @@ private:
     int m_columns;
     int m_turnLimit;
     int m_turn;
+    int m_currentPlayer;
+    Stage m_stage;
+    std::vector<bool> m_pointDisabled;
     std::vector<Dot *> m_dots;
     std::vector<Line *> m_lines;
     std::vector<Dot *> m_chain;
     std::vector<std::deque<Dot *> > m_chains;
-    std::vector<bool> m_pointActive;
-    int m_currentPlayer;
-    Stage m_stage;
 };
 
 #endif // GAMEENGINE_H
