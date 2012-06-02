@@ -136,7 +136,7 @@ void GameEngine::newGame(int rows, int columns, int turnLimit)
     m_currentPlayer = 0;
     m_stage = PlaceDotStage;
 
-    m_pointDisabled.assign((rows + 1) * (columns + 1), false);
+    m_pointDisabled = QBitArray((rows + 1) * (columns + 1), false);
 
     emit gameStarted();
     emit turnsLeftChanged();
@@ -200,10 +200,11 @@ bool GameEngine::isPointActive(int x, int y) const
 
 bool GameEngine::connectedInChain(Dot *dot1, Dot *dot2) const
 {
+    const QList<QList<Dot *> > &chains = m_chains;
     QList<QList<Dot *> >::const_iterator chains_it;
-    QList<QList<Dot *> >::const_iterator chains_end = m_chains.end();
+    QList<QList<Dot *> >::const_iterator chains_end = chains.end();
 
-    for (chains_it = m_chains.begin(); chains_it != chains_end; ++chains_it) {
+    for (chains_it = chains.begin(); chains_it != chains_end; ++chains_it) {
         const QList<Dot *> &chain = *chains_it;
         QList<Dot *>::const_iterator it;
         QList<Dot *>::const_iterator end = chain.end();
@@ -304,8 +305,8 @@ bool GameEngine::closeGap(QList<Dot *> chain) const
         return false;
     }
 
-    Dot *startDot = chain[0];
-    Dot *endDot = chain[chain.size() - 1];
+    Dot *startDot = chain.front();
+    Dot *endDot = chain.back();
 
     // check that the start and end dots are actually connected to something
     if (findLine(startDot) == 0 || findLine(endDot) == 0) {
@@ -318,13 +319,10 @@ bool GameEngine::closeGap(QList<Dot *> chain) const
     QStack<Dot *> unvisited;
     QList<Dot *> visited;
     QList<Dot *> resultPath;
-    QList<Dot *> connectedDots;
     bool pathFound = false;
     int totalLines = m_lines.size();
     Dot *currentDot;
     Dot *nextDot;
-    QList<Dot *>::const_iterator it;
-    QList<Dot *>::const_iterator end;
 
     // push the start dot onto unvisited stack
     unvisited.push(startDot);
@@ -333,15 +331,15 @@ bool GameEngine::closeGap(QList<Dot *> chain) const
     visited.push_back(startDot);
 
     // add the start dot to the path
-    resultPath.push_back(startDot);
+    resultPath.push_front(startDot);
 
     while (!pathFound && visited.size() < totalLines && !unvisited.empty()) {
         currentDot = unvisited.top();
 
         // find all dots connected to the current dot
-        connectedDots = findConnectedDots(currentDot);
-
-        end = connectedDots.end();
+        const QList<Dot *> &connectedDots = findConnectedDots(currentDot);
+        QList<Dot *>::const_iterator it;
+        QList<Dot *>::const_iterator end = connectedDots.end();
 
         // check for the end dot
         if (std::find(connectedDots.begin(), connectedDots.end(), endDot) != end) {
@@ -362,7 +360,7 @@ bool GameEngine::closeGap(QList<Dot *> chain) const
                 unvisited.pop();
 
                 // remove the current dot from the path
-                resultPath.pop_back();
+                resultPath.pop_front();
             }
             else {
                 // push the dot onto unvisited stack
@@ -372,7 +370,7 @@ bool GameEngine::closeGap(QList<Dot *> chain) const
                 visited.push_back(nextDot);
 
                 // add the dot to the path
-                resultPath.push_back(nextDot);
+                resultPath.push_front(nextDot);
             }
         }
     }
@@ -382,7 +380,7 @@ bool GameEngine::closeGap(QList<Dot *> chain) const
 
     if (pathFound) {
         // add dots from path to close the chain
-        std::reverse_copy(resultPath.begin(), resultPath.end(), chain.end());
+        chain += resultPath;
     }
 
     return pathFound;
@@ -398,7 +396,7 @@ bool GameEngine::isOnEdge(const Dot *dot) const
             || dot->y() == 0 || dot->y() == m_rows);
 }
 
-void GameEngine::linkChain(QList<Dot *> &chain)
+void GameEngine::linkChain(const QList<Dot *> &chain)
 {
     QList<Dot *>::const_iterator it;
     QList<Dot *>::const_iterator end = chain.end();
@@ -491,10 +489,11 @@ Dot *GameEngine::findDot(const Container &dots, int x, int y) const
 
 Line *GameEngine::findLine(const Dot *endpoint1, const Dot *endpoint2) const
 {
+    const QList<Line *> &lines = m_lines;
     LineEndpointsPredicate pred(endpoint1, endpoint2);
-    QList<Line *>::const_iterator it = std::find_if(m_lines.begin(), m_lines.end(), pred);
+    QList<Line *>::const_iterator it = std::find_if(lines.begin(), lines.end(), pred);
 
-    if (it != m_lines.end()) {
+    if (it != lines.end()) {
         return *it;
     }
     else {
@@ -505,8 +504,9 @@ Line *GameEngine::findLine(const Dot *endpoint1, const Dot *endpoint2) const
 QList<Line *> GameEngine::findLines(const Dot *endpoint) const
 {
     QList<Line *> matches;
-    QList<Line *>::const_iterator it = m_lines.begin();
-    QList<Line *>::const_iterator end = m_lines.end();
+    const QList<Line *> &lines = m_lines;
+    QList<Line *>::const_iterator it = lines.begin();
+    QList<Line *>::const_iterator end = lines.end();
     LineEndpointsPredicate pred(endpoint);
 
     while (it != end) {

@@ -2,7 +2,7 @@
 #define GAMEENGINE_H
 
 #include <QObject>
-#include <vector>
+#include <QBitArray>
 
 class Dot;
 class Line;
@@ -80,7 +80,7 @@ private:
 
     bool isOnEdge(const Dot *dot) const;
 
-    void linkChain(QList<Dot *> &chain);
+    void linkChain(const QList<Dot *> &chain);
 
     /* check number of captured dots, returns number of dots captured
      * idea of calculating captured dots: with limits of MAX x, MAX y, MIN x, MIN y
@@ -109,12 +109,12 @@ private:
     Line *findLine(const Dot *endpoint1, const Dot *endpoint2 = 0) const;
 
     /* Finds all existing lines containing the specified endpoint.
-     * Returns a vector of the lines found.
+     * Returns a list of the lines found.
      */
     QList<Line *> findLines(const Dot *endpoint) const;
 
     /* Finds all dots connected to the specified dot.
-     * Returns a vector of the dots found.
+     * Returns a list of the dots found.
      */
     QList<Dot *> findConnectedDots(const Dot *dot) const;
 
@@ -124,10 +124,9 @@ private:
     int m_turn;
     int m_currentPlayer;
     Stage m_stage;
-    std::vector<bool> m_pointDisabled;
+    QBitArray m_pointDisabled;
     QList<Dot *> m_dots;
     QList<Line *> m_lines;
-    //std::vector<Dot *> m_chain;
     QList<QList<Dot *> > m_chains;
 };
 
