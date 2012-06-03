@@ -116,9 +116,9 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     }
 
     {
-        const QList<Dot *> &dots = m_engine->getDots();
-        QList<Dot *>::const_iterator it;
-        QList<Dot *>::const_iterator end = dots.end();
+        const std::deque<Dot *> &dots = m_engine->getDots();
+        std::deque<Dot *>::const_iterator it;
+        std::deque<Dot *>::const_iterator end = dots.end();
 
         for (it = dots.begin(); it != end; ++it) {
             const Dot &dot = **it;
@@ -134,13 +134,13 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     {
         QVector<QLineF> displayLines;
         QPointF points[2];
-        const QList<Line *> &lines = m_engine->getLines();
-        QList<Line *>::const_iterator it;
-        QList<Line *>::const_iterator end = lines.end();
+        const std::deque<Line *> &lines = m_engine->getLines();
+        std::deque<Line *>::const_iterator it;
+        std::deque<Line *>::const_iterator end = lines.end();
 
         for (it = lines.begin(); it != end; ++it) {
             const Line &line = **it;
-            const Dot dots[2] = { *line.endpoint1(), *line.endpoint2() };
+            const Dot dots[2] = { line.endpoint1(), line.endpoint2() };
 
             for (int i = 0; i < 2; ++i) {
                 points[i] = findIntersection(dots[i].x(), dots[i].y());
@@ -370,10 +370,10 @@ void GameBoard::tryAddToChain(const Dot &dot)
     const Dot &last = m_provisionalChain.back();
     const Dot *previousDot = 0;
 
-    if (dot.isNeighbor(&first)) {
+    if (dot.isNeighbor(first)) {
         previousDot = &first;
     }
-    else if (dot.isNeighbor(&last)) {
+    else if (dot.isNeighbor(last)) {
         previousDot = &last;
     }
     else {

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- Converted with SVG Converter - Version 0.9.5 (Compiled Mon May 30 09:08:51 2011) - Copyright (C) 2011 Nokia -->
+<svg xmlns="http://www.w3.org/2000/svg" width="16.831057" version="1.1" height="16.831057" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" id="svg2">
+ <defs id="defs4">
+  <linearGradient id="linearGradient3769">
+   <stop offset="0" style="stop-color:#00002a;stop-opacity:0.25185186" id="stop3771"/>
+   <stop offset="1" style="stop-color:#000000;stop-opacity:0" id="stop3773"/>
+  </linearGradient>
+  <radialGradient fx="37.142857" fy="33.433609" cx="37.142857" cy="33.433609" gradientTransform="matrix(0.71654334,0.47589138,-0.47097551,0.70914154,26.274801,-7.9515179)" r="6.0714288" id="radialGradient3775" gradientUnits="userSpaceOnUse">
+   <stop offset="0" style="stop-color:#00002a;stop-opacity:0.25185186" id="stop3771"/>
+   <stop offset="1" style="stop-color:#000000;stop-opacity:0" id="stop3773"/>
+  </radialGradient>
+  <radialGradient fx="37.142857" fy="33.433609" cx="37.142857" cy="33.433609" gradientTransform="matrix(0.66202381,0.43968216,-0.43514033,0.65518525,27.101713,-4.8026496)" r="6.5714288" id="radialGradient3777" gradientUnits="userSpaceOnUse">
+   <stop offset="0" style="stop-color:#00002a;stop-opacity:0.25185186" id="stop3771"/>
+   <stop offset="1" style="stop-color:#000000;stop-opacity:0" id="stop3773"/>
+  </radialGradient>
+ </defs>
+ <metadata id="metadata7"/>
+ <g id="layer1" transform="translate(-28.727328,-25.018081)">
+  <path style="opacity:0.8628318;fill:url(#radialGradient3777);fill-opacity:1;stroke:url(#radialGradient3775)" id="path2987" d="m 43.214285,33.433609  c 0.0011 3.3539 -2.7175 6.0733 -6.0714 6.0733 c -3.3539 0.0000 -6.0725 -2.7194 -6.0714 -6.0733 c -0.0011 -3.3539 2.7175 -6.0733 6.0714 -6.0733 c 3.3539 -0.0000 6.0725 2.7194 6.0714 6.0733 z"/>
+ </g>
+</svg>

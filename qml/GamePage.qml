@@ -70,7 +70,7 @@ Page {
 
             pinch {
                 minimumScale: 1.0
-                maximumScale: 5
+                maximumScale: 7.5
                 dragAxis: Pinch.NoDrag
             }
 
@@ -99,15 +99,18 @@ Page {
             property variant touchedPoint
 
             anchors.fill: parent
-
-            onClicked: {
+            onPressed: {
                 touchy.touchedPoint = Qt.point(mouseX, mouseY)
-                clickTimer.restart()
+                selectedDot.x = mouseX - selectedDot.width  * 0.5
+                selectedDot.y = mouseY - selectedDot.height * 0.5
+                selectedDot.visible = true
             }
 
-            onDoubleClicked: {
-                clickTimer.stop()
+            onReleased: selectedDot.visible = false
 
+            onClicked: gameBoard.markPosition(touchy.touchedPoint)
+
+            onDoubleClicked: {
                 if (flicky.state === "zoomedIn") {
                     flicky.contentWidth = flicky.width
                     flicky.contentHeight = flicky.height
@@ -115,16 +118,18 @@ Page {
                 else {
                     flicky.resizeContent(flicky.width * pinchy.pinch.maximumScale,
                                          flicky.height* pinchy.pinch.maximumScale,
-                                         Qt.point(mouseX, mouseY))
+                                         touchy.touchedPoint)
                 }
             }
 
-            Timer {
-                id: clickTimer
+            Image {
+                id: selectedDot
 
-                interval: doubleClickInterval
+                smooth: true
+                visible: false
 
-                onTriggered: gameBoard.markPosition(touchy.touchedPoint)
+                source: "qrc:/images/touch_shadow.svg"
+                sourceSize.width: 30 * baseFontSize
             }
         }
 
@@ -243,7 +248,7 @@ Page {
     Rectangle {
         id: toolbar
 
-        height: 12 * baseFontSize
+        height: 16 * baseFontSize
         anchors {
             left: parent.left
             right: parent.right
@@ -263,7 +268,7 @@ Page {
             }
 
             text: qsTr("Menu")
-            font.pixelSize: 8 * baseFontSize
+            font.pixelSize: 10 * baseFontSize
 
             onClicked: overlayMenu.state = "shown"
         }
@@ -280,7 +285,7 @@ Page {
                      && !confirmMoveButton.visible
 
             text: qsTr("End Turn")
-            font.pixelSize: 8 * baseFontSize
+            font.pixelSize: 10 * baseFontSize
 
             onClicked: {
                 gameEngine.endTurn()
@@ -318,7 +323,7 @@ Page {
             visible: gameBoard.hasPendingMoves
 
             text: getActionName(gameEngine.stage)
-            font.pixelSize: 8 * baseFontSize
+            font.pixelSize: 10 * baseFontSize
 
             onClicked: {
                 gameBoard.acceptMove()

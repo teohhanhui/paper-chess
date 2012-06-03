@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QBitArray>
+#include <deque>
+#include <list>
 
 class Dot;
 class Line;
@@ -32,8 +34,8 @@ public:
     Stage stage() const;
 
     const Dot *getDotAt(int x, int y) const;
-    const QList<Dot *> &getDots() const;
-    const QList<Line *> &getLines() const;
+    const std::deque<Dot *> &getDots() const;
+    const std::deque<Line *> &getLines() const;
 
     bool canPlaceDot(int x, int y) const;
     bool canConnectDots(int x1, int y1, int x2, int y2) const;
@@ -44,6 +46,7 @@ signals:
     void turnsLeftChanged();
     void currentPlayerChanged();
     void stageChanged();
+    void turnEnded();
 
 public slots:
     void newGame(int rows, int columns, int turnLimit);
@@ -57,30 +60,39 @@ private:
      */
     bool isPointActive(int x, int y) const;
 
-    /* Checks if any chain contains the specified dots.
-     * Returns true if the dots belong in any of the chains, false otherwise.
+    /* Checks if the dots are connected in any chain (i.e. the dots are side-by-side).
+     * Returns true if the chain is found, false otherwise.
      */
-    bool connectedInChain(Dot *dot1, Dot *dot2) const;
+    bool connectedInChain(const Dot &dot1, const Dot &dot2) const;
 
-    /* Inserts the specified dots into a suitable chain.
-     * A new chain is created if no existing chain has one of the dots as an endpoint.
+    /* Inserts the specified dots at the beginning or end of a chain.
+     * A new chain is created if the dots cannot be inserted into an existing chain.
      * Returns the chain where the dots were inserted.
      */
-    QList<Dot *> &insertIntoChain(Dot *dot1, Dot *dot2);
+    std::deque<Dot *> &addToChains(Dot &dot1, Dot &dot2);
 
-    /* Checks for a closed shape in which the chain is a part of.
-     * All existing lines and all chains may be used to make the connection.
+    void dropFromChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2);
+
+    bool neighborsInChain(const std::deque<Dot *> &chain, const Dot &dot1, const Dot &dot2) const;
+
+    /* Completes the specified chain.
+     * If successful, all the necessary followup actions will be performed.
      */
-    void checkChain(QList<Dot *> &chain);
+    void completeChain(const std::deque<Dot *> &chain);
 
-    /* Closes the chain using existing lines.
+    /* Closes the chain using connections from existing lines and all the chains.
+     * The resultant chain is stored into outChain.
      * Returns true if the chain is successfully closed, false otherwise.
      */
-    bool closeGap(QList<Dot *> chain) const;
+    bool closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> &outChain) const;
 
     bool isOnEdge(const Dot *dot) const;
 
-    void linkChain(const QList<Dot *> &chain);
+    /* Add all line segments from the input chain.
+     * An added line segment is removed from its original chain.
+     * A chain is removed when it becomes empty.
+     */
+    void finalizeChain(const std::deque<Dot *> &chain);
 
     /* check number of captured dots, returns number of dots captured
      * idea of calculating captured dots: with limits of MAX x, MAX y, MIN x, MIN y
@@ -93,15 +105,14 @@ private:
      * 3. increment counter if captured a dot.
      * 4. repeat from MIN y to MAX y
      */
-    void captureArea(const QList<Dot *> surroundingDots);
+    void captureArea(const std::deque<Dot *> &surroundingDots);
 
     void captureDot(int x, int y);
 
-    /* Finds a dot within the given container with coordinates (x,y).
+    /* Finds a dot within the given list with coordinates (x,y).
      * Returns a pointer to the dot if found, a null pointer otherwise.
      */
-    template <typename Container>
-    Dot *findDot(const Container &dots, int x, int y) const;
+    Dot *findDot(const std::deque<Dot *> &dots, int x, int y) const;
 
     /* Finds an existing line with the specified endpoints.
      * Returns a pointer to the line if found, a null pointer otherwise.
@@ -111,12 +122,18 @@ private:
     /* Finds all existing lines containing the specified endpoint.
      * Returns a list of the lines found.
      */
-    QList<Line *> findLines(const Dot *endpoint) const;
+    std::deque<Line *> findLines(const Dot &endpoint) const;
+
+    std::deque<Dot *> *findChain(const Dot &dot1, const Dot &dot2) const;
 
     /* Finds all dots connected to the specified dot.
      * Returns a list of the dots found.
      */
-    QList<Dot *> findConnectedDots(const Dot *dot) const;
+    std::deque<Dot *> findConnectedDots(const Dot &dot) const;
+
+    void clearTurnData();
+
+    void clearGameData();
 
     int m_rows;
     int m_columns;
@@ -125,9 +142,9 @@ private:
     int m_currentPlayer;
     Stage m_stage;
     QBitArray m_pointDisabled;
-    QList<Dot *> m_dots;
-    QList<Line *> m_lines;
-    QList<QList<Dot *> > m_chains;
+    std::deque<Dot *> m_dots;
+    std::deque<Line *> m_lines;
+    std::list<std::deque<Dot *>*> m_chains;
 };
 
 #endif // GAMEENGINE_H

@@ -49,12 +49,8 @@ void Dot::deactivate()
     }
 }
 
-bool Dot::isNeighbor(const Dot *other) const
+bool Dot::isNeighbor(const Dot &other) const
 {
-    if (other == 0) {
-        return false;
-    }
-
-    return (std::abs(m_x - other->x()) < 2
-            && std::abs(m_y - other->y()) < 2);
+    return (std::abs(m_x - other.x()) < 2
+            && std::abs(m_y - other.y()) < 2);
 }
