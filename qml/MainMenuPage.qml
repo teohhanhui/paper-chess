@@ -13,6 +13,8 @@ CoverPage {
     Column {
         anchors.centerIn: parent
 
+        spacing: page.height * 0.125
+
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
 
@@ -38,16 +40,11 @@ CoverPage {
             }
         }
 
-        Item {
-            width: parent.width
-            height: page.height * 0.125
-        }
-
         Flow {
             id: menu
 
             anchors.horizontalCenter: parent.horizontalCenter
-            //set layout position for potrait mode and landscape mode
+
             flow: page.width > page.height ? Flow.LeftToRight : Flow.TopToBottom
             spacing: flow === Flow.LeftToRight ? 20 * baseFontSize : 4 * baseFontSize
 
@@ -57,7 +54,7 @@ CoverPage {
                 text: qsTr("Play")
                 font {
                     family: handwritingFont.name
-                    pixelSize: 15 * baseFontSize
+                    pixelSize: 17 * baseFontSize
                 }
 
                 onClicked: pageRequested("newGamePage")
@@ -69,7 +66,7 @@ CoverPage {
                 text: qsTr("How To Play")
                 font {
                     family: handwritingFont.name
-                    pixelSize: 13 * baseFontSize
+                    pixelSize: 15 * baseFontSize
                 }
 
                 onClicked: pageRequested("howToPlayPage")
@@ -81,7 +78,7 @@ CoverPage {
                 text: qsTr("Exit")
                 font {
                     family: handwritingFont.name
-                    pixelSize: 13 * baseFontSize
+                    pixelSize: 15 * baseFontSize
                 }
 
                 onClicked: Qt.quit()

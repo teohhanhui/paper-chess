@@ -43,8 +43,10 @@ Page {
         contentWidth: width
         contentHeight: height
 
-        onMovementEnded: selectedDot.visible = false
-        onFlickStarted: selectedDot.visible = false
+        onWidthChanged: contentScale = 1
+
+        onMovementEnded: touchShadow.visible = false
+        onFlickStarted: touchShadow.visible = false
 
         Image {
             anchors.fill: parent
@@ -119,12 +121,12 @@ Page {
 
             onPressed: {
                 touchy.touchedPoint = Qt.point(mouseX, mouseY)
-                selectedDot.x = mouseX - selectedDot.width  * 0.5
-                selectedDot.y = mouseY - selectedDot.height * 0.5
-                selectedDot.visible = true
+                touchShadow.x = mouseX - touchShadow.width  * 0.5
+                touchShadow.y = mouseY - touchShadow.height * 0.5
+                touchShadow.visible = true
             }
 
-            onReleased: selectedDot.visible = false
+            onReleased: touchShadow.visible = false
 
             onClicked: gameBoard.markPosition(touchy.touchedPoint)
 
@@ -144,13 +146,13 @@ Page {
             }
 
             Image {
-                id: selectedDot
+                id: touchShadow
 
                 smooth: true
                 visible: false
 
                 source: "qrc:/images/touch_shadow.svg"
-                sourceSize.width: 30 * baseFontSize
+                sourceSize.width: 90 * baseFontSize
             }
         }
 

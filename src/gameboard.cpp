@@ -233,7 +233,7 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         }
 
         stroke = m_markStrokes[m_engine->currentPlayer()];
-        painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DotLine, Qt::FlatCap));
+        painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DashLine, Qt::FlatCap));
         painter->setOpacity(0.5);
         painter->drawLines(displayChain);
         painter->setOpacity(1);
