@@ -35,21 +35,12 @@ Item {
             name: "hiddenRight"
             PropertyChanges {
                 target: page
-                x: width
+                x: width + 20 * baseFontSize
             }
         }
     ]
 
     transitions: [
-        Transition {
-            from: "shown"
-            to: "hidden"
-            NumberAnimation {
-                properties: "opacity"
-                easing.type: Easing.InExpo
-                duration: 600
-            }
-        },
         Transition {
             from: "shown"
             to: "hiddenLeft"
@@ -64,7 +55,7 @@ Item {
             to: "hiddenRight"
             NumberAnimation {
                 properties: "x"
-                easing.type: Easing.InQuart
+                easing.type: Easing.InOutQuart
                 duration: 600
             }
         },

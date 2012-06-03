@@ -108,7 +108,7 @@ CoverPage {
         anchors {
             left: parent.left
             bottom: parent.bottom
-            leftMargin: 2 * baseFontSize
+            leftMargin: 5 * baseFontSize
         }
 
         text: qsTr("Back")
