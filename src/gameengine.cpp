@@ -359,18 +359,23 @@ void GameEngine::completeChain(const std::deque<Dot *> &chain)
     const std::deque<Dot *> *finalChain = &chain;
     std::deque<Dot *> closedChain;
 
+    // check if the chain is already closed
     if (start == end) {
         completed = true;
         surrounded = true;
     }
     else {
+        // try closing the chain
         if (closeChain(chain, closedChain)) {
             finalChain = &closedChain;
             completed = true;
             surrounded = true;
         }
-        else if (isOnEdge(start) && isOnEdge(end)) {
-            completed = true;
+        else {
+            // check for edge-to-edge connection
+            if (connectingEdges(chain)) {
+                completed = true;
+            }
         }
     }
 
@@ -476,14 +481,28 @@ bool GameEngine::closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> 
     return pathFound;
 }
 
-bool GameEngine::isOnEdge(const Dot *dot) const
+bool GameEngine::connectingEdges(const std::deque<Dot *> &chain) const
 {
-    if (dot == 0) {
+    const Dot &start = *chain.front();
+    const Dot &end = *chain.back();
+
+    if (&start == &end) {
         return false;
     }
-
-    return (dot->x() == 0 || dot->x() == m_columns
-            || dot->y() == 0 || dot->y() == m_rows);
+    else if (start.x() == end.x()) {
+        return ((start.y() == 0 && end.y() == m_rows)
+                || (end.y() == 0 && start.y() == m_rows));
+    }
+    else if (start.y() == end.y()) {
+        return ((start.x() == 0 && end.x() == m_columns)
+                || (end.x() == 0 && start.x() == m_columns));
+    }
+    else {
+        return (start.x() == 0 || start.x() == m_columns
+                || start.y() == 0 || start.y() == m_rows
+                || end.x() == 0 || end.x() == m_columns
+                || end.y() == 0 || end.y() == m_rows);
+    }
 }
 
 void GameEngine::finalizeChain(const std::deque<Dot *> &chain)

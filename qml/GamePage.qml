@@ -25,6 +25,13 @@ Page {
     Flickable {
         id: flicky
 
+        property real contentScale: 1.0
+
+        function scaleContent(newScale, center) {
+            flicky.resizeContent(flicky.width * newScale, flicky.height * newScale, center)
+            contentScale = newScale
+        }
+
         anchors {
             left: parent.left
             right: parent.right
@@ -35,6 +42,9 @@ Page {
 
         contentWidth: width
         contentHeight: height
+
+        onMovementEnded: selectedDot.visible = false
+        onFlickStarted: selectedDot.visible = false
 
         Image {
             anchors.fill: parent
@@ -73,7 +83,6 @@ Page {
         PinchArea {
             id: pinchy
 
-            property real contentScale: 1.0
             property real initialScale
 
             anchors.fill: parent
@@ -84,7 +93,7 @@ Page {
                 dragAxis: Pinch.NoDrag
             }
 
-            onPinchStarted: initialScale = contentScale
+            onPinchStarted: initialScale = flicky.contentScale
 
             onPinchUpdated: {
                 var newScale = initialScale * pinch.scale
@@ -95,9 +104,7 @@ Page {
                 if (newScale > pinchy.pinch.maximumScale)
                     newScale = pinchy.pinch.maximumScale
 
-                contentScale = newScale
-
-                flicky.resizeContent(flicky.width * newScale, flicky.height * newScale, pinch.center)
+                flicky.scaleContent(newScale, pinch.center)
             }
 
             onPinchFinished: flicky.returnToBounds()
@@ -109,6 +116,7 @@ Page {
             property variant touchedPoint
 
             anchors.fill: parent
+
             onPressed: {
                 touchy.touchedPoint = Qt.point(mouseX, mouseY)
                 selectedDot.x = mouseX - selectedDot.width  * 0.5
@@ -121,15 +129,18 @@ Page {
             onClicked: gameBoard.markPosition(touchy.touchedPoint)
 
             onDoubleClicked: {
+                var newScale
+
                 if (flicky.state === "zoomedIn") {
-                    flicky.contentWidth = flicky.width
-                    flicky.contentHeight = flicky.height
+                    newScale = pinchy.pinch.minimumScale
+
                 }
                 else {
-                    flicky.resizeContent(flicky.width * pinchy.pinch.maximumScale,
-                                         flicky.height* pinchy.pinch.maximumScale,
-                                         touchy.touchedPoint)
+                    newScale = pinchy.pinch.maximumScale
                 }
+
+                flicky.scaleContent(newScale, touchy.touchedPoint)
+                flicky.returnToBounds()
             }
 
             Image {

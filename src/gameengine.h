@@ -88,7 +88,10 @@ private:
      */
     bool closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> &outChain) const;
 
-    bool isOnEdge(const Dot *dot) const;
+    /* Checks if the chain connects one edge of the grid to another.
+     * Returns true if the chain connects edges, false otherwise.
+     */
+    bool connectingEdges(const std::deque<Dot *> &chain) const;
 
     /* Add all line segments from the input chain.
      * An added line segment is removed from its original chain.
