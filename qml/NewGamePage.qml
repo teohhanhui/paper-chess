@@ -57,8 +57,8 @@ CoverPage {
             CoverTextField {
                 id: player1TextField
 
-                labelText: "Name"
-                defaultText: "Player 1"
+                labelText: qsTr("Name")
+                defaultText: qsTr("Player 1")
                 maximumLength: 18
                 labelFontSize: 8 * baseFontSize
                 textFontSize: 8 * baseFontSize
@@ -67,8 +67,8 @@ CoverPage {
             CoverTextField {
                 id: player2TextField
 
-                labelText: "Name"
-                defaultText: "Player 2"
+                labelText: qsTr("Name")
+                defaultText: qsTr("Player 2")
                 maximumLength: 18
                 labelFontSize: 8 * baseFontSize
                 textFontSize: 8 * baseFontSize

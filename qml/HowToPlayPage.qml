@@ -19,7 +19,7 @@ CoverPage {
         Text {
             id: rulesTitle
 
-            text: "Game Rules"
+            text: qsTr("Game Rules")
             font {
                 family: handwritingFont.name
                 pixelSize: 12 * baseFontSize
@@ -56,7 +56,7 @@ CoverPage {
                 topMargin: 5 * baseFontSize
             }
 
-            text: "Game Controls"
+            text: qsTr("Game Controls")
             font {
                 family: handwritingFont.name
                 pixelSize: 12 * baseFontSize

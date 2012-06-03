@@ -9,7 +9,6 @@ Rectangle {
 
         width: parent.width
         height: parent.height
-        state: "hidden"
 
         onPageRequested: {
             if (pageName === "scorePage") {
@@ -21,12 +20,27 @@ Rectangle {
         }
     }
 
+    ScorePage {
+        id: scorePage
+
+        width: parent.width
+        height: parent.height
+        state: "hiddenRight"
+
+        onPageRequested: {
+            if (pageName === "mainMenuPage") {
+                mainMenuPage.state = "shown"
+                newGamePage.state = "shown"
+                scorePage.state = "hiddenRight"
+            }
+        }
+    }
+
     NewGamePage {
         id: newGamePage
 
         width: parent.width
         height: parent.height
-        state: "hidden"
 
         onPageRequested: {
             if (pageName === "gamePage") {
@@ -38,7 +52,6 @@ Rectangle {
             }
             else if (pageName === "mainMenuPage") {
                 mainMenuPage.state = "shown"
-                newGamePage.state = "hidden"
             }
         }
     }
@@ -58,28 +71,11 @@ Rectangle {
         }
     }
 
-    ScorePage {
-        id: scorePage
-
-        width: parent.width
-        height: parent.height
-        state: "hiddenRight"
-
-        onPageRequested: {
-            if (pageName === "mainMenuPage") {
-                mainMenuPage.state = "shown"
-                newGamePage.state = "shown"
-                scorePage.state = "hidden"
-            }
-        }
-    }
-
     MainMenuPage {
         id:mainMenuPage
 
         width: parent.width
         height: parent.height
-
         state: "shown"
 
         onPageRequested: {

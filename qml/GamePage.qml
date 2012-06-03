@@ -213,7 +213,7 @@ Page {
            Text {
                anchors.centerIn: parent
 
-               text: "Moves: " + gameEngine.turnsLeft
+               text: qsTr("Moves: ") + gameEngine.turnsLeft
                font.pixelSize: 6 * baseFontSize
            }
         }
@@ -287,41 +287,14 @@ Page {
             anchors {
                 left: parent.left
                 bottom: parent.bottom
-                margins: 2 * baseFontSize
+                leftMargin: 4 * baseFontSize
+                bottomMargin: 2 * baseFontSize
             }
 
             text: qsTr("Menu")
             font.pixelSize: 10 * baseFontSize
 
             onClicked: overlayMenu.state = "shown"
-        }
-
-        Button {
-            id: endTurnButton
-
-            anchors {
-                right: parent.right
-                bottom: parent.bottom
-                margins: 2 * baseFontSize
-            }
-            visible: gameEngine.stage === GameEngine.ConnectDotsStage
-                     && !confirmMoveButton.visible
-
-            text: qsTr("End Turn")
-            font.pixelSize: 10 * baseFontSize
-
-            onClicked: {
-                gameEngine.endTurn()
-
-                if (player1Indicator.state === "active") {
-                    player1Indicator.state = "inactive"
-                    player2Indicator.state = "active"
-                }
-                else {
-                    player1Indicator.state = "active"
-                    player2Indicator.state = "inactive"
-                }
-            }
         }
 
         Button {
@@ -341,15 +314,58 @@ Page {
             anchors {
                 right: parent.right
                 bottom: parent.bottom
-                margins: 2 * baseFontSize
+                rightMargin: 4 * baseFontSize
+                bottomMargin: 2 * baseFontSize
             }
             visible: gameBoard.hasPendingMoves
 
             text: getActionName(gameEngine.stage)
             font.pixelSize: 10 * baseFontSize
 
+            onClicked: gameBoard.acceptMove(true)
+        }
+
+        Button {
+            id: cancelMoveButton
+
+            anchors {
+                right: confirmMoveButton.left
+                bottom: parent.bottom
+                rightMargin: 10 * baseFontSize
+                bottomMargin: 2 * baseFontSize
+            }
+            visible: gameBoard.hasPendingMoves
+
+            text: qsTr("Cancel")
+            font.pixelSize: 8 * baseFontSize
+
+            onClicked: gameBoard.acceptMove(false)
+        }
+
+        Button {
+            anchors {
+                right: parent.right
+                bottom: parent.bottom
+                rightMargin: 4 * baseFontSize
+                bottomMargin: 2 * baseFontSize
+            }
+            visible: gameEngine.stage === GameEngine.ConnectDotsStage
+                     && !gameBoard.hasPendingMoves
+
+            text: qsTr("End Turn")
+            font.pixelSize: 10 * baseFontSize
+
             onClicked: {
-                gameBoard.acceptMove()
+                gameEngine.endTurn()
+
+                if (player1Indicator.state === "active") {
+                    player1Indicator.state = "inactive"
+                    player2Indicator.state = "active"
+                }
+                else {
+                    player1Indicator.state = "active"
+                    player2Indicator.state = "inactive"
+                }
             }
         }
     }
@@ -395,7 +411,7 @@ Page {
                 }
 
                 Button {
-                    text: "Resume"
+                    text: qsTr("Resume")
                     font {
                         family: handwritingFont.name
                         pixelSize: 12 * baseFontSize
@@ -405,7 +421,7 @@ Page {
                 }
 
                 Button {
-                    text: "End Game"
+                    text: qsTr("End Game")
                     font {
                         family: handwritingFont.name
                         pixelSize: 12 * baseFontSize
@@ -447,7 +463,7 @@ Page {
                         right: parent.right
                     }
 
-                    text: "Are you sure you want to exit?"
+                    text: qsTr("Are you sure you want to exit?")
                     font {
                         family: handwritingFont.name
                         pixelSize: 10 * baseFontSize
@@ -461,7 +477,7 @@ Page {
                         bottom: parent.bottom
                     }
 
-                    text: "Yes"
+                    text: qsTr("Yes")
                     font {
                         family: handwritingFont.name
                         pixelSize: 11 * baseFontSize
@@ -482,7 +498,7 @@ Page {
                         rightMargin: 10
                     }
 
-                    text: "No"
+                    text: qsTr("No")
                     font {
                         family: handwritingFont.name
                         pixelSize: 11 * baseFontSize
