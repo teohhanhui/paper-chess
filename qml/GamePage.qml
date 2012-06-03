@@ -133,14 +133,14 @@ Page {
 
                 if (flicky.state === "zoomedIn") {
                     newScale = pinchy.pinch.minimumScale
-
+                    flicky.contentWidth = newScale * flicky.width
+                    flicky.contentHeight = newScale * flicky.height
+                    flicky.contentScale = newScale
                 }
                 else {
                     newScale = pinchy.pinch.maximumScale
+                    flicky.scaleContent(newScale, touchy.touchedPoint)
                 }
-
-                flicky.scaleContent(newScale, touchy.touchedPoint)
-                flicky.returnToBounds()
             }
 
             Image {

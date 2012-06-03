@@ -119,9 +119,6 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     if (!m_gridLines.isEmpty()) {
         painter->setPen(QPen(m_gridStroke->color(), m_gridStroke->width()));
         painter->drawLines(m_gridLines.data(), m_gridLines.size());
-
-        // reset the painter's pen
-        painter->setPen(QPen());
     }
 
     {
@@ -167,9 +164,6 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             painter->setPen(QPen(stroke->color(), stroke->width()));
             painter->drawLines(displayLines);
         }
-
-        // reset the painter's pen
-        painter->setPen(QPen());
     }
 
     {
@@ -201,11 +195,8 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         }
 
         stroke = m_markStrokes[m_engine->currentPlayer()];
-        painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DotLine));
+        painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DashLine, Qt::FlatCap));
         painter->drawLines(displayChains);
-
-        // reset the painter's pen
-        painter->setPen(QPen());
     }
 
     if (m_provisionalDot.isValid()) {
@@ -218,7 +209,38 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
         painter->setOpacity(0.5);
         painter->drawImage(intersection, dotImage);
+        painter->setOpacity(1);
     }
+
+    if (!m_provisionalChain.empty()) {
+        QVector<QLineF> displayChain;
+        const QList<Dot> &chain = m_provisionalChain;
+        QList<Dot>::const_iterator it;
+        QList<Dot>::const_iterator end = chain.end();
+        Dot dots[2];
+        QPointF points[2];
+        Stroke *stroke;
+
+        for (it = chain.begin(); it != end - 1; ++it) {
+            for (int i = 0; i < 2; ++i) {
+                dots[i] = *(it + i);
+
+                points[i] = findIntersection(dots[i].x(), dots[i].y());
+                points[i] = QTransform().rotate(m_gridRotation).map(points[i]);
+            }
+
+            displayChain.append(QLineF(points[0], points[1]));
+        }
+
+        stroke = m_markStrokes[m_engine->currentPlayer()];
+        painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DotLine, Qt::FlatCap));
+        painter->setOpacity(0.5);
+        painter->drawLines(displayChain);
+        painter->setOpacity(1);
+    }
+
+    // reset the painter's pen
+    painter->setPen(QPen());
 
     if (smooth()) {
         painter->setRenderHint(QPainter::Antialiasing, oldAA);
