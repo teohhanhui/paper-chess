@@ -47,6 +47,7 @@ void GameBoard::setEngine(GameEngine *engine)
     if (engine != 0) {
         m_engine = engine;
         connect(m_engine, SIGNAL(gameStarted()), SLOT(setUpBoard()));
+        connect(m_engine, SIGNAL(chainsChanged()), SLOT(drawBoard()));
         setUpBoard();
     }
 }
@@ -71,6 +72,11 @@ void GameBoard::setDotSources(QVariantList &list)
             m_dotSvgRenderers[i] = new QSvgRenderer(fileString);
         }
     }
+}
+
+QDeclarativeListProperty<Stroke> GameBoard::markStrokes()
+{
+    return QDeclarativeListProperty<Stroke>(this, m_markStrokes);
 }
 
 Stroke *GameBoard::gridStroke() const
@@ -113,6 +119,9 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     if (!m_gridLines.isEmpty()) {
         painter->setPen(QPen(m_gridStroke->color(), m_gridStroke->width()));
         painter->drawLines(m_gridLines.data(), m_gridLines.size());
+
+        // reset the painter's pen
+        painter->setPen(QPen());
     }
 
     {
@@ -125,7 +134,7 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             const QImage &dotImage = m_dotImages[dot.player()];
             QPointF intersection = findIntersection(dot.x(), dot.y());
             intersection = QTransform().rotate(m_gridRotation).map(intersection);
-            intersection -= QPointF(dotImage.width() / 2, dotImage.height() / 2);
+            intersection -= QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5);
 
             painter->drawImage(intersection, dotImage);
         }
@@ -133,25 +142,70 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     {
         QVector<QLineF> displayLines;
+        std::vector<const Line *>::const_iterator it;
+        std::vector<const Line *>::const_iterator end;
         QPointF points[2];
-        const std::deque<Line *> &lines = m_engine->getLines();
-        std::deque<Line *>::const_iterator it;
-        std::deque<Line *>::const_iterator end = lines.end();
+        Stroke *stroke;
 
-        for (it = lines.begin(); it != end; ++it) {
-            const Line &line = **it;
-            const Dot dots[2] = { line.endpoint1(), line.endpoint2() };
+        for (int player = 0; player < NUM_PLAYERS; ++player) {
+            displayLines.clear();
+            const std::vector<const Line *> &lines = m_engine->getLines(player);
+            end = lines.end();
 
-            for (int i = 0; i < 2; ++i) {
-                points[i] = findIntersection(dots[i].x(), dots[i].y());
-                points[i] = QTransform().rotate(m_gridRotation).map(points[i]);
+            for (it = lines.begin(); it != end; ++it) {
+                const Line &line = **it;
+                const Dot dots[2] = { line.endpoint1(), line.endpoint2() };
+
+                for (int i = 0; i < 2; ++i) {
+                    points[i] = findIntersection(dots[i].x(), dots[i].y());
+                    points[i] = QTransform().rotate(m_gridRotation).map(points[i]);
+                }
+                displayLines.append(QLineF(points[0], points[1]));
             }
 
-            displayLines.append(QLineF(points[0], points[1]));
+            stroke = m_markStrokes[player];
+            painter->setPen(QPen(stroke->color(), stroke->width()));
+            painter->drawLines(displayLines);
         }
 
-        painter->setPen(QPen(Qt::black, m_gridStroke->width() * 2));
-        painter->drawLines(displayLines);
+        // reset the painter's pen
+        painter->setPen(QPen());
+    }
+
+    {
+        QVector<QLineF> displayChains;
+        const std::vector<const std::deque<Dot *>*> &chains = m_engine->getChains();
+        std::vector<const std::deque<Dot *>*>::const_iterator chains_it;
+        std::vector<const std::deque<Dot *>*>::const_iterator chains_end = chains.end();
+        const std::deque<Dot *> *chain;
+        std::deque<Dot *>::const_iterator it;
+        std::deque<Dot *>::const_iterator end;
+        Dot dots[2];
+        QPointF points[2];
+        Stroke *stroke;
+
+        for (chains_it = chains.begin(); chains_it != chains_end; ++chains_it) {
+            chain = *chains_it;
+            end = chain->end();
+
+            for (it = chain->begin(); it != end - 1; ++it) {
+                for (int i = 0; i < 2; ++i) {
+                    dots[i] = **(it + i);
+
+                    points[i] = findIntersection(dots[i].x(), dots[i].y());
+                    points[i] = QTransform().rotate(m_gridRotation).map(points[i]);
+                }
+
+                displayChains.append(QLineF(points[0], points[1]));
+            }
+        }
+
+        stroke = m_markStrokes[m_engine->currentPlayer()];
+        painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DotLine));
+        painter->drawLines(displayChains);
+
+        // reset the painter's pen
+        painter->setPen(QPen());
     }
 
     if (m_provisionalDot.isValid()) {
@@ -160,8 +214,9 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         QTransform gridDisplayTransform;
         gridDisplayTransform.rotate(m_gridRotation);
         intersection = gridDisplayTransform.map(intersection);
-        intersection -= QPointF(dotImage.width() / 2, dotImage.height() / 2);
+        intersection -= QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5);
 
+        painter->setOpacity(0.5);
         painter->drawImage(intersection, dotImage);
     }
 

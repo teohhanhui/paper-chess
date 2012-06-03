@@ -1,3 +1,14 @@
 syntax: glob
 *.user
 *.autosave
+moc/
+rcc/
+obj/
+*.cache
+Makefile
+*.sis
+*.pkg
+*.rss
+*.loc
+*.mmp
+*.inf

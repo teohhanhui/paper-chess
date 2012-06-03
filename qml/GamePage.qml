@@ -54,6 +54,16 @@ Page {
                 player1Indicator.playerMarkerSource,
                 player2Indicator.playerMarkerSource
             ]
+            markStrokes: [
+                Stroke {
+                    color: "blue"
+                    width: 2
+                },
+                Stroke {
+                    color: "red"
+                    width: 2
+                }
+            ]
             gridStroke {
                 color: "slategray"
                 width: 1

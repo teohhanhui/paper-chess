@@ -65,9 +65,37 @@ const std::deque<Dot *> &GameEngine::getDots() const
     return m_dots;
 }
 
-const std::deque<Line *> &GameEngine::getLines() const
+const std::vector<const Line *> GameEngine::getLines(int player) const
 {
-    return m_lines;
+    std::vector<const Line *> outLines;
+    const std::deque<Line *> &lines = m_lines;
+    std::deque<Line *>::const_iterator it;
+    std::deque<Line *>::const_iterator end = lines.end();
+    Line *line;
+
+    for (it = lines.begin(); it != end; ++it) {
+        line = *it;
+
+        if (line->endpoint1().player() == player) {
+            outLines.push_back(line);
+        }
+    }
+
+    return outLines;
+}
+
+const std::vector<const std::deque<Dot *>*> GameEngine::getChains() const
+{
+    std::vector<const std::deque<Dot *>*> outChains;
+    const std::list<std::deque<Dot *>*> &chains = m_chains;
+    std::list<std::deque<Dot *>*>::const_iterator it;
+    std::list<std::deque<Dot *>*>::const_iterator end = chains.end();
+
+    for (it = chains.begin(); it != end; ++it) {
+        outChains.push_back(*it);
+    }
+
+    return outChains;
 }
 
 bool GameEngine::canPlaceDot(int x, int y) const
@@ -183,6 +211,8 @@ bool GameEngine::connectDots(int x1, int y1, int x2, int y2)
 
     std::deque<Dot *> chain = addToChains(dot1, dot2);
     completeChain(chain);
+
+    emit chainsChanged();
 
     return true;
 }
@@ -348,6 +378,7 @@ void GameEngine::completeChain(const std::deque<Dot *> &chain)
         if (surrounded) {
             captureArea(*finalChain);
         }
+
         finalizeChain(*finalChain);
     }
 }
@@ -475,8 +506,6 @@ void GameEngine::finalizeChain(const std::deque<Dot *> &chain)
             }
         }
     }
-
-    emit chainCompleted();
 }
 
 void GameEngine::captureArea(const std::deque<Dot *> &surroundingDots)

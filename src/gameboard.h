@@ -15,6 +15,7 @@ class GameBoard : public QDeclarativeItem
     Q_OBJECT
     Q_PROPERTY(GameEngine *engine READ engine WRITE setEngine)
     Q_PROPERTY(QVariantList dotSources READ dotSources WRITE setDotSources)
+    Q_PROPERTY(QDeclarativeListProperty<Stroke> markStrokes READ markStrokes)
     Q_PROPERTY(Stroke *gridStroke READ gridStroke)
     Q_PROPERTY(bool hasPendingMoves READ hasPendingMoves NOTIFY hasPendingMovesChanged)
 
@@ -27,6 +28,8 @@ public:
 
     QVariantList dotSources() const;
     void setDotSources(QVariantList &list);
+
+    QDeclarativeListProperty<Stroke> markStrokes();
 
     Stroke *gridStroke() const;
 
@@ -56,6 +59,7 @@ private:
 
     GameEngine *m_engine;
     QVariantList m_dotSources;
+    QList<Stroke *> m_markStrokes;
     Stroke *m_gridStroke;
     int m_gridRows;
     int m_gridColumns;

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QBitArray>
 #include <deque>
+#include <vector>
 #include <list>
 
 class Dot;
@@ -35,14 +36,15 @@ public:
 
     const Dot *getDotAt(int x, int y) const;
     const std::deque<Dot *> &getDots() const;
-    const std::deque<Line *> &getLines() const;
+    const std::vector<const Line *> getLines(int player) const;
+    const std::vector<const std::deque<Dot *>*> getChains() const;
 
     bool canPlaceDot(int x, int y) const;
     bool canConnectDots(int x1, int y1, int x2, int y2) const;
 
 signals:
     void gameStarted();
-    void chainCompleted();
+    void chainsChanged();
     void turnsLeftChanged();
     void currentPlayerChanged();
     void stageChanged();
