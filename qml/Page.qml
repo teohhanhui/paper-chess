@@ -5,6 +5,7 @@ Item {
     id: page
 
     property int baseFontSize: Math.min(width, height) * 0.007
+    property int transitionDuration: width * 1.5
 
     signal pageRequested(string pageName)
 
@@ -47,7 +48,7 @@ Item {
             NumberAnimation {
                 properties: "x"
                 easing.type: Easing.InOutQuart
-                duration: 600
+                duration: transitionDuration
             }
         },
         Transition {
@@ -55,8 +56,8 @@ Item {
             to: "hiddenRight"
             NumberAnimation {
                 properties: "x"
-                easing.type: Easing.InOutQuart
-                duration: 600
+                easing.type: Easing.InQuart
+                duration: transitionDuration
             }
         },
         Transition {
@@ -65,7 +66,7 @@ Item {
             NumberAnimation {
                 properties: "x"
                 easing.type: Easing.InOutQuart
-                duration: 600
+                duration: transitionDuration
             }
         },
         Transition {
@@ -74,7 +75,7 @@ Item {
             NumberAnimation {
                 properties: "x"
                 easing.type: Easing.InOutQuart
-                duration: 600
+                duration: transitionDuration
             }
         }
     ]

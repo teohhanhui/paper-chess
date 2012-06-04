@@ -5,8 +5,7 @@ import PaperChess 1.0
 Page {
     id: page
 
-    property string player1Name
-    property string player2Name
+    property bool lastTurn: gameEngine.turnsLeft === 1
 
     FontLoader {
         id: handwritingFont
@@ -133,7 +132,7 @@ Page {
             onDoubleClicked: {
                 var newScale
 
-                if (flicky.state === "zoomedIn") {
+                if (flicky.contentWidth > flicky.width) {
                     newScale = pinchy.pinch.minimumScale
                     flicky.contentWidth = newScale * flicky.width
                     flicky.contentHeight = newScale * flicky.height
@@ -155,17 +154,6 @@ Page {
                 sourceSize.width: 90 * baseFontSize
             }
         }
-
-        states: [
-            State {
-                name: "zoomedIn"
-                when: flicky.contentWidth > flicky.width
-            },
-            State {
-                name: "zoomedOut"
-                when: flicky.contentWidth <= flicky.width
-            }
-        ]
     }
 
     Rectangle {
@@ -191,9 +179,9 @@ Page {
                 top: parent.top
                 bottom: parent.bottom
             }
-            state: "active"
+            state: gameEngine.currentPlayer == 0 ? "active" : "inactive"
 
-            playerName: player1Name
+            playerName: gameEngine.playerNames[0]
             playerMarkerSource: "qrc:/images/dot.svg"
             fontSize: 7 * baseFontSize
             activeColor: stageBar.color
@@ -213,7 +201,7 @@ Page {
            Text {
                anchors.centerIn: parent
 
-               text: qsTr("Moves: ") + gameEngine.turnsLeft
+               text: qsTr("Dots: ") + gameEngine.turnsLeft
                font.pixelSize: 6 * baseFontSize
            }
         }
@@ -238,7 +226,7 @@ Page {
                     case GameEngine.ConnectDotsStage:
                         return qsTr("Connect Dots")
                     default:
-                        return ""
+                        return qsTr("Game Ended")
                     }
                 }
 
@@ -259,9 +247,9 @@ Page {
                 top: parent.top
                 bottom: parent.bottom
             }
-            state: "inactive"
+            state: gameEngine.currentPlayer == 1 ? "active" : "inactive"
 
-            playerName: player2Name
+            playerName: gameEngine.playerNames[1]
             playerMarkerSource: "qrc:/images/cross.svg"
             fontSize: 7 * baseFontSize
             activeColor: stageBar.color
@@ -343,6 +331,8 @@ Page {
         }
 
         Button {
+            id: endTurnButton
+
             anchors {
                 right: parent.right
                 bottom: parent.bottom
@@ -352,20 +342,15 @@ Page {
             visible: gameEngine.stage === GameEngine.ConnectDotsStage
                      && !gameBoard.hasPendingMoves
 
-            text: qsTr("End Turn")
+            text: lastTurn ? qsTr("End Game") : qsTr("End Turn")
             font.pixelSize: 10 * baseFontSize
 
             onClicked: {
-                gameEngine.endTurn()
+                if (lastTurn) {
+                    pageRequested("scorePage")
+                }
 
-                if (player1Indicator.state === "active") {
-                    player1Indicator.state = "inactive"
-                    player2Indicator.state = "active"
-                }
-                else {
-                    player1Indicator.state = "active"
-                    player2Indicator.state = "inactive"
-                }
+                gameEngine.endTurn()
             }
         }
     }

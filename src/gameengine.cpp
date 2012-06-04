@@ -11,18 +11,35 @@
 
 GameEngine::GameEngine(QObject *parent)
     : QObject(parent)
+    , m_numPlayers(DEFAULT_NUM_PLAYERS)
     , m_rows(0)
     , m_columns(0)
     , m_turnLimit(0)
-    , m_turn(0)
+    , m_turnsLeft(0)
     , m_currentPlayer(0)
 {
+    m_playerNames.resize(m_numPlayers);
+
+    for (int i = 0; i < m_numPlayers; ++i) {
+        m_playerNames[i] = "Player " + QString::number(i + 1);
+    }
+
+    m_playerScores.resize(m_numPlayers);
+
+    for (int i = 0; i < m_numPlayers; ++i) {
+        m_playerScores[i] = 0;
+    }
 }
 
 GameEngine::~GameEngine()
 {
     clearTurnData();
     clearGameData();
+}
+
+int GameEngine::numPlayers() const
+{
+    return m_numPlayers;
 }
 
 int GameEngine::rows() const
@@ -42,7 +59,7 @@ int GameEngine::turnLimit() const
 
 int GameEngine::turnsLeft() const
 {
-    return m_turnLimit - m_turn;
+    return m_turnsLeft;
 }
 
 int GameEngine::currentPlayer() const
@@ -53,6 +70,41 @@ int GameEngine::currentPlayer() const
 GameEngine::Stage GameEngine::stage() const
 {
     return m_stage;
+}
+
+QVariantList GameEngine::playerNames() const
+{
+    QVariantList list;
+
+    for (int i = 0; i < m_numPlayers; ++i) {
+        list.append(m_playerNames[i]);
+    }
+
+    return list;
+}
+
+void GameEngine::setPlayerNames(QVariantList &list)
+{
+    if (list.size() == m_numPlayers) {
+        m_playerNames.resize(m_numPlayers);
+
+        for (int i = 0; i < m_numPlayers; ++i) {
+            m_playerNames[i] = list.at(i).toString();
+        }
+
+        emit playerNamesChanged();
+    }
+}
+
+QVariantList GameEngine::playerScores() const
+{
+    QVariantList list;
+
+    for (int i = 0; i < m_numPlayers; ++i) {
+        list.append(m_playerScores[i]);
+    }
+
+    return list;
 }
 
 const Dot *GameEngine::getDotAt(int x, int y) const
@@ -160,22 +212,23 @@ bool GameEngine::canConnectDots(int x1, int y1, int x2, int y2) const
 
 void GameEngine::newGame(int rows, int columns, int turnLimit)
 {
+    clearGameData();
+    clearTurnData();
+    m_pointDisabled = QBitArray((rows + 1) * (columns + 1), false);
+
     m_rows = rows;
     m_columns = columns;
     emit gameStarted();
 
-    clearGameData();
-    m_pointDisabled = QBitArray((rows + 1) * (columns + 1), false);
-
     m_turnLimit = turnLimit;
-    m_turn = 0;
+    m_turnsLeft = turnLimit;
     emit turnsLeftChanged();
 
     m_currentPlayer = 0;
     emit currentPlayerChanged();
 
     m_stage = PlaceDotStage;
-    emit stageChanged();    
+    emit stageChanged();
 }
 
 bool GameEngine::placeDot(int x, int y)
@@ -219,17 +272,27 @@ bool GameEngine::connectDots(int x1, int y1, int x2, int y2)
 
 void GameEngine::endTurn()
 {
+    if (m_turnsLeft <= 0) {
+        return;
+    }
+
     clearTurnData();
     emit turnEnded();
 
-    m_turn++;
+    --m_turnsLeft;
     emit turnsLeftChanged();
 
-    m_currentPlayer = m_currentPlayer == 0 ? 1 : 0;
-    emit currentPlayerChanged();
+    if (m_turnsLeft > 0) {
+        m_currentPlayer = ++m_currentPlayer == m_numPlayers ? 0 : m_currentPlayer;
+        emit currentPlayerChanged();
 
-    m_stage = PlaceDotStage;
-    emit stageChanged();
+        m_stage = PlaceDotStage;
+        emit stageChanged();
+    }
+    else {
+        m_stage = EndStage;
+        emit stageChanged();
+    }
 }
 
 bool GameEngine::isPointActive(int x, int y) const

@@ -4,9 +4,6 @@ import QtQuick 1.1
 CoverPage {
     id: page
 
-    property alias player1Name: player1TextField.text
-    property alias player2Name: player2TextField.text
-
     FontLoader {
         id: handwritingFont
 
@@ -98,7 +95,12 @@ CoverPage {
                 pixelSize: 15 * baseFontSize
             }
 
-            onClicked: pageRequested("gamePage")
+            onClicked: {
+                gameEngine.newGame(40, 25, 200)
+                gameEngine.playerNames = [player1TextField.text, player2TextField.text]
+
+                pageRequested("gamePage")
+            }
         }
     }
 

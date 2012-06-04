@@ -13,8 +13,6 @@ Rectangle {
         onPageRequested: {
             if (pageName === "scorePage") {
                 scorePage.state = "shown"
-                scorePage.player1Name = gamePage.player1Name
-                scorePage.player2Name = gamePage.player2Name
             }
         }
     }
@@ -43,11 +41,8 @@ Rectangle {
 
         onPageRequested: {
             if (pageName === "gamePage") {
-                gameEngine.newGame(40, 25, 200)
                 gamePage.state = "shown"
                 newGamePage.state = "hiddenLeft"
-                gamePage.player1Name = newGamePage.player1Name
-                gamePage.player2Name = newGamePage.player2Name
             }
             else if (pageName === "mainMenuPage") {
                 mainMenuPage.state = "shown"

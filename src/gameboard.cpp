@@ -9,24 +9,21 @@
 GameBoard::GameBoard(QDeclarativeItem *parent)
     : QDeclarativeItem(parent)
     , m_engine(0)
+    , m_numPlayers(DEFAULT_NUM_PLAYERS)
     , m_gridStroke(new Stroke())
     , m_gridRotation(0)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     connect(this, SIGNAL(widthChanged()), SLOT(resizeBoard()));
     connect(this, SIGNAL(heightChanged()), SLOT(resizeBoard()));
+    connect(this, SIGNAL(hasPendingMovesChanged()), SLOT(drawBoard()));
     connect(m_gridStroke, SIGNAL(colorChanged()), SLOT(drawBoard()));
     connect(m_gridStroke, SIGNAL(widthChanged()), SLOT(drawBoard()));
-    connect(this, SIGNAL(hasPendingMovesChanged()), SLOT(drawBoard()));
 }
 
 GameBoard::~GameBoard()
 {
     delete m_gridStroke;
-
-    for (int i = 0; i < NUM_PLAYERS; ++i) {
-         delete m_dotSvgRenderers[i];
-    }
 }
 
 GameEngine *GameBoard::engine() const
@@ -46,8 +43,12 @@ void GameBoard::setEngine(GameEngine *engine)
 
     if (engine != 0) {
         m_engine = engine;
+        m_numPlayers = engine->numPlayers();
+
         connect(m_engine, SIGNAL(gameStarted()), SLOT(setUpBoard()));
         connect(m_engine, SIGNAL(chainsChanged()), SLOT(drawBoard()));
+        connect(m_engine, SIGNAL(turnEnded()), SLOT(clearProvisional()));
+
         setUpBoard();
     }
 }
@@ -61,12 +62,14 @@ void GameBoard::setDotSources(QVariantList &list)
 {
     m_dotSources = list;
 
-    int listSize = list.size();
-
-    if (listSize == NUM_PLAYERS) {
-        for (int i = 0; i < NUM_PLAYERS; ++i) {
+    if (list.size() == m_numPlayers) {
+        for (int i = 0; i < m_dotSvgRenderers.size(); ++i) {
             delete m_dotSvgRenderers[i];
+        }
 
+        m_dotSvgRenderers.resize(m_numPlayers);
+
+        for (int i = 0; i < m_numPlayers; ++i) {
             QString fileString = list[i].toString();
             fileString.replace("qrc", "");
             m_dotSvgRenderers[i] = new QSvgRenderer(fileString);
@@ -144,7 +147,7 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         QPointF points[2];
         Stroke *stroke;
 
-        for (int player = 0; player < NUM_PLAYERS; ++player) {
+        for (int player = 0; player < m_numPlayers; ++player) {
             displayLines.clear();
             const std::vector<const Line *> &lines = m_engine->getLines(player);
             end = lines.end();
@@ -347,7 +350,7 @@ void GameBoard::acceptMove(bool accepted)
 void GameBoard::setUpBoard()
 {
     resizeBoard();
-    m_provisionalDot = Dot();
+    clearProvisional();
 }
 
 void GameBoard::resizeBoard()
@@ -376,11 +379,20 @@ void GameBoard::resizeBoard()
 
     makeGrid();
     makeDotImages();
+
     update();
 }
 
 void GameBoard::drawBoard()
 {
+    update();
+}
+
+void GameBoard::clearProvisional()
+{
+    m_provisionalDot = Dot();
+    m_provisionalChain.clear();
+
     update();
 }
 
@@ -417,7 +429,9 @@ void GameBoard::makeDotImages()
 {
     QPainter dotPainter;
 
-    for (int i = 0; i < NUM_PLAYERS; ++i) {
+    m_dotImages.resize(m_numPlayers);
+
+    for (int i = 0; i < m_numPlayers; ++i) {
         QImage &dotImage = m_dotImages[i];
         dotImage = QImage(QSize(m_gridSize * 0.5, m_gridSize * 0.5), QImage::Format_ARGB32_Premultiplied);
         dotImage.fill(qRgba(0, 0, 0, 0));

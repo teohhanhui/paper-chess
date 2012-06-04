@@ -2,6 +2,8 @@
 #define GAMEENGINE_H
 
 #include <QObject>
+#include <QVariantList>
+#include <QVarLengthArray>
 #include <QBitArray>
 #include <deque>
 #include <vector>
@@ -13,12 +15,15 @@ class Line;
 class GameEngine : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int numPlayers READ numPlayers)
     Q_PROPERTY(int rows READ rows)
     Q_PROPERTY(int columns READ columns)
     Q_PROPERTY(int turnLimit READ turnLimit)
     Q_PROPERTY(int turnsLeft READ turnsLeft NOTIFY turnsLeftChanged)
     Q_PROPERTY(int currentPlayer READ currentPlayer NOTIFY currentPlayerChanged)
     Q_PROPERTY(Stage stage READ stage NOTIFY stageChanged)
+    Q_PROPERTY(QVariantList playerNames READ playerNames WRITE setPlayerNames NOTIFY playerNamesChanged)
+    Q_PROPERTY(QVariantList playerScores READ playerScores NOTIFY playerScoresChanged)
     Q_ENUMS(Stage)
 
 public:
@@ -27,12 +32,24 @@ public:
 
     enum Stage { PlaceDotStage, ConnectDotsStage, EndStage };
 
+    int numPlayers() const;
+
     int rows() const;
+
     int columns() const;
+
     int turnLimit() const;
+
     int turnsLeft() const;
+
     int currentPlayer() const;
+
     Stage stage() const;
+
+    QVariantList playerNames() const;
+    void setPlayerNames(QVariantList &list);
+
+    QVariantList playerScores() const;
 
     const Dot *getDotAt(int x, int y) const;
     const std::deque<Dot *> &getDots() const;
@@ -43,11 +60,13 @@ public:
     bool canConnectDots(int x1, int y1, int x2, int y2) const;
 
 signals:
+    void playerNamesChanged();
     void gameStarted();
-    void chainsChanged();
     void turnsLeftChanged();
     void currentPlayerChanged();
     void stageChanged();
+    void chainsChanged();
+    void playerScoresChanged();
     void turnEnded();
 
 public slots:
@@ -140,12 +159,18 @@ private:
 
     void clearGameData();
 
+    static const int DEFAULT_NUM_PLAYERS = 2;
+
+    const int m_numPlayers;
+
     int m_rows;
     int m_columns;
     int m_turnLimit;
-    int m_turn;
+    int m_turnsLeft;
     int m_currentPlayer;
     Stage m_stage;
+    QVarLengthArray<QString, DEFAULT_NUM_PLAYERS> m_playerNames;
+    QVarLengthArray<int, DEFAULT_NUM_PLAYERS> m_playerScores;
     QBitArray m_pointDisabled;
     std::deque<Dot *> m_dots;
     std::deque<Line *> m_lines;

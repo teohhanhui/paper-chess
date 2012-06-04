@@ -48,6 +48,7 @@ protected slots:
     void setUpBoard();
     void resizeBoard();
     void drawBoard();
+    void clearProvisional();
 
 private:
     void makeGrid();
@@ -55,9 +56,10 @@ private:
     void tryAddToChain(const Dot &dot);
     QPointF findIntersection(int x, int y) const;
 
-    static const int NUM_PLAYERS = 2;
+    static const int DEFAULT_NUM_PLAYERS = 2;
 
     GameEngine *m_engine;
+    int m_numPlayers;
     QVariantList m_dotSources;
     QList<Stroke *> m_markStrokes;
     Stroke *m_gridStroke;
@@ -67,8 +69,8 @@ private:
     qreal m_gridSize;
     QRectF m_gridRect;
     QVarLengthArray<QLineF, 100> m_gridLines;
-    QSvgRenderer *m_dotSvgRenderers[NUM_PLAYERS];
-    QImage m_dotImages[NUM_PLAYERS];
+    QVarLengthArray<QSvgRenderer *, DEFAULT_NUM_PLAYERS> m_dotSvgRenderers;
+    QVarLengthArray<QImage, DEFAULT_NUM_PLAYERS> m_dotImages;
     Dot m_provisionalDot;
     QList<Dot> m_provisionalChain;
 };

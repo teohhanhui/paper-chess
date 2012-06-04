@@ -4,33 +4,27 @@ import QtQuick 1.1
 CoverPage {
     id: page
 
-    property string player1Name
-    property string player2Name
-
     FontLoader {
         id: handwritingFont
 
         source: "qrc:/fonts/CoveredByYourGrace.ttf"
     }
 
-    Item {
+    Column {
         id: title
 
-        height: 25 * baseFontSize
         anchors {
             left: parent.left
             right: parent.right
             top: parent.top
+            margins: 5 * baseFontSize
         }
 
         Image {
-            anchors {
-                fill: parent
-                margins: 5 * baseFontSize
-            }
+            anchors.horizontalCenter: parent.horizontalCenter
 
             source: "qrc:/images/scoreboard_text.png"
-            sourceSize.height: height
+            sourceSize.width: parent.width
             fillMode: Image.PreserveAspectFit
         }
     }
@@ -41,25 +35,38 @@ CoverPage {
             right: parent.right
             top: title.bottom
             leftMargin: 5 * baseFontSize
-            topMargin: 15 * baseFontSize
+            rightMargin: 5 * baseFontSize
+            topMargin: parent.height * 0.15
         }
 
-        spacing: 10 * baseFontSize
+        spacing: parent.height * 0.025
 
         Text {
-            text: player1Name + " score here"
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+
+            text: gameEngine.playerNames[0] + "\n" + gameEngine.playerScores[0]
             font {
                family: handwritingFont.name
                pixelSize: 12 * baseFontSize
             }
+            horizontalAlignment: Text.AlignHCenter
         }
 
         Text {
-            text: player2Name + " score here"
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+
+            text: gameEngine.playerNames[1] + "\n" + gameEngine.playerScores[1]
             font {
                family: handwritingFont.name
                pixelSize: 12 * baseFontSize
             }
+            horizontalAlignment: Text.AlignHCenter
         }
     }
 
