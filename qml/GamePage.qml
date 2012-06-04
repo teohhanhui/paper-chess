@@ -188,7 +188,7 @@ Page {
         }
 
         Rectangle {
-           id: turnsLeftBar
+           id: dotsRemainingBar
 
            height: parent.height * 0.5
            anchors {
@@ -199,11 +199,24 @@ Page {
            color: "transparent"
 
            Text {
+               id: dotsRemainingText
+
                anchors.centerIn: parent
 
                text: qsTr("Dots: ") + gameEngine.turnsLeft
                font.pixelSize: 6 * baseFontSize
            }
+
+           states: [
+               State {
+                   name: "placedDot"
+                   when: gameEngine.stage === GameEngine.ConnectDotsStage
+                   PropertyChanges {
+                       target: dotsRemainingText
+                       text: qsTr("Dots: ") + (gameEngine.turnsLeft - 1)
+                   }
+               }
+           ]
         }
 
         Rectangle {
@@ -212,7 +225,7 @@ Page {
             anchors {
                 left: player1Indicator.right
                 right: player2Indicator.left
-                top: turnsLeftBar.bottom
+                top: dotsRemainingBar.bottom
                 bottom: parent.bottom
             }
 

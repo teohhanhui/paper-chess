@@ -131,8 +131,6 @@ private:
      */
     void captureArea(const std::deque<Dot *> &surroundingDots);
 
-    void captureDot(int x, int y);
-
     /* Finds a dot within the given list with coordinates (x,y).
      * Returns a pointer to the dot if found, a null pointer otherwise.
      */

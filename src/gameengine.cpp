@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <stack>
 #include <set>
+#include <limits>
 #include "dot.h"
 #include "line.h"
 #include "dotcoordinatespredicate.h"
@@ -229,6 +230,11 @@ void GameEngine::newGame(int rows, int columns, int turnLimit)
 
     m_stage = PlaceDotStage;
     emit stageChanged();
+
+    for (int i = 0; i < m_numPlayers; ++i) {
+        m_playerScores[i] = 0;
+    }
+    emit playerScoresChanged();
 }
 
 bool GameEngine::placeDot(int x, int y)
@@ -279,8 +285,10 @@ void GameEngine::endTurn()
     clearTurnData();
     emit turnEnded();
 
-    --m_turnsLeft;
-    emit turnsLeftChanged();
+    if (m_currentPlayer == m_numPlayers - 1) {
+        --m_turnsLeft;
+        emit turnsLeftChanged();
+    }
 
     if (m_turnsLeft > 0) {
         m_currentPlayer = ++m_currentPlayer == m_numPlayers ? 0 : m_currentPlayer;
@@ -591,63 +599,60 @@ void GameEngine::finalizeChain(const std::deque<Dot *> &chain)
 }
 
 void GameEngine::captureArea(const std::deque<Dot *> &surroundingDots)
-{/*
-    int captured=0, mX=0, mY=0, smX=0, smY=0, currX=0, currY=0;
-    int rowct=0,colct=0;
-    int capturedPlayer = m_currentPlayer == 0 ? 1 : 0;
-
-    //getting min max x & y
-    smX = surroundingDots[0]->x();
-    smY = surroundingDots[0]->y();
-    mX = surroundingDots[0]->x();
-    mY = surroundingDots[0]->y();
-
+{
     std::deque<Dot *>::const_iterator it;
     std::deque<Dot *>::const_iterator end = surroundingDots.end();
+    int minY = m_rows;
+    int maxY = 0;
+    std::map<int, int> leftBounds;
+    std::map<int, int> rightBounds;
 
     for (it = surroundingDots.begin(); it != end; ++it) {
-        currX = (*it)->x();
-        currY = (*it)->y();
+        const Dot &dot = **it;
 
-        if (currX < smX) {
-            smX = currX;
+        if (dot.y() < minY) {
+            minY = dot.y();
         }
-        if (currY < smY) {
-            smY = currY;
+        if (dot.y() > maxY) {
+            maxY = dot.y();
+        }
+
+        if (leftBounds.find(dot.y()) == leftBounds.end()) {
+            leftBounds[dot.y()] = m_columns;
+        }
+        if (rightBounds.find(dot.y()) == rightBounds.end()) {
+            rightBounds[dot.y()] = 0;
+        }
+
+        if (dot.x() < leftBounds[dot.y()]) {
+            leftBounds[dot.y()] = dot.x();
+        }
+        if (dot.x() > rightBounds[dot.y()]) {
+            rightBounds[dot.y()] = dot.x();
         }
     }
 
-    for (it = surroundingDots.begin(); it != end; ++it) {
-        currX = (*it)->x();
-        currY = (*it)->y();
+    int x;
+    int y;
+    Dot *dot;
+    bool captured = false;
 
-        if (currX > mX) {
-            mX = currX;
-        }
-        if (currY > mY) {
-            mY = currY;
-        }
-    }
+    for (y = minY + 1; y < maxY; ++y) {
+        for (x = leftBounds[y] + 1; x < rightBounds[y]; ++x) {
+            dot = findDot(m_dots, x, y);
 
-    //calculate captured dots
-    for (rowct = smY; rowct < mY; ++rowct) {
-        for (colct = smX; colct < mX; ++colct) {
-            if (findDot(surroundingDots, rowct, colct)->player() == capturedPlayer) {
-                captureDot(rowct, colct);
-                captured++;
+            if (dot != 0) {
+                if (dot->player() != m_currentPlayer && dot->isActive()) {
+                    m_playerScores[m_currentPlayer] += 10;
+                    dot->deactivate();
+                    captured = true;
+                }
             }
         }
     }
 
-    m_chain.clear();
-*/}
-
-void GameEngine::captureDot(int x, int y)
-{
-    Dot *dot = findDot(m_dots, x, y);
-
-    if (dot != 0) {
-        dot->deactivate();
+    if (captured) {
+        emit playerScoresChanged();
     }
 }
 
