@@ -217,9 +217,9 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     if (!m_provisionalChain.empty()) {
         QVector<QLineF> displayChain;
-        const QList<Dot> &chain = m_provisionalChain;
-        QList<Dot>::const_iterator it;
-        QList<Dot>::const_iterator end = chain.end();
+        const std::deque<Dot> &chain = m_provisionalChain;
+        std::deque<Dot>::const_iterator it;
+        std::deque<Dot>::const_iterator end = chain.end();
         Dot dots[2];
         QPointF points[2];
         Stroke *stroke;
@@ -327,8 +327,8 @@ void GameBoard::acceptMove(bool accepted)
         break;
     case GameEngine::ConnectDotsStage:
         if (accepted) {
-            QList<Dot>::const_iterator it;
-            QList<Dot>::const_iterator last = m_provisionalChain.end() - 1;
+            std::deque<Dot>::const_iterator it;
+            std::deque<Dot>::const_iterator last = m_provisionalChain.end() - 1;
 
             for (it = m_provisionalChain.begin(); it != last; ++it) {
                 const Dot dot1 = *it;
@@ -474,7 +474,17 @@ void GameBoard::tryAddToChain(const Dot &dot)
         return;
     }
 
-    if (m_engine->canConnectDots(dot.x(), dot.y(), previousDot->x(), previousDot->y())) {
+    std::deque<Dot *> chain;
+    std::deque<Dot>::iterator it;
+    std::deque<Dot>::iterator end = m_provisionalChain.end();
+
+    for (it = m_provisionalChain.begin(); it != end; ++it) {
+        chain.push_back(&*it);
+    }
+
+    if (!m_engine->neighborsInChain(chain, first, dot)
+            && !m_engine->neighborsInChain(chain, last, dot)
+            && m_engine->canConnectDots(dot.x(), dot.y(), previousDot->x(), previousDot->y())) {
         if (previousDot == &first) {
             m_provisionalChain.push_front(dot);
         }

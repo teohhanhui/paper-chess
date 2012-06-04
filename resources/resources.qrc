@@ -12,6 +12,7 @@
         <file>images/wooden_texture.jpg</file>
         <file>fonts/CantataOne-Regular.ttf</file>
         <file>fonts/CoveredByYourGrace.ttf</file>
-        <file>images/touch_shadow.svg</file>
+        <file>fonts/OpenSans-Regular.ttf</file>
+        <file>fonts/Nunito-Bold.ttf</file>
     </qresource>
 </RCC>

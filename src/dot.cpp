@@ -17,6 +17,32 @@ Dot::Dot(int player, int x, int y, bool active)
 {
 }
 
+bool operator==(const Dot &dot1, const Dot &dot2)
+{
+    return !operator!=(dot1, dot2);
+}
+
+bool operator!=(const Dot &dot1, const Dot &dot2)
+{
+    if (dot1.m_player != dot2.m_player) {
+        return true;
+    }
+
+    if (dot1.m_x != dot2.m_x) {
+        return true;
+    }
+
+    if (dot1.m_y != dot2.m_y) {
+        return true;
+    }
+
+    if (dot1.m_active != dot2.m_active) {
+        return true;
+    }
+
+    return false;
+}
+
 int Dot::player() const
 {
     return m_player;

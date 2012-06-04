@@ -6,6 +6,10 @@ class Dot
 public:
     Dot();
     Dot(int player, int x, int y, bool active = true);
+
+    friend bool operator==(const Dot &dot1, const Dot &dot2);
+    friend bool operator!=(const Dot &dot1, const Dot &dot2);
+
     int player() const;
     int x() const;
     int y() const;
@@ -20,5 +24,8 @@ private:
     int m_y;
     int m_active;
 };
+
+bool operator==(const Dot &dot1, const Dot &dot2);
+bool operator!=(const Dot &dot1, const Dot &dot2);
 
 #endif // DOT_H

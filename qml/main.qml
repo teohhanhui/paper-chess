@@ -9,6 +9,7 @@ Rectangle {
 
         width: parent.width
         height: parent.height
+        state: "hidden"
 
         onPageRequested: {
             if (pageName === "scorePage") {
@@ -38,6 +39,7 @@ Rectangle {
 
         width: parent.width
         height: parent.height
+        state: "hidden"
 
         onPageRequested: {
             if (pageName === "gamePage") {

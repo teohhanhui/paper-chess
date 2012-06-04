@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <stack>
 #include <set>
-#include <limits>
 #include "dot.h"
 #include "line.h"
 #include "dotcoordinatespredicate.h"
@@ -211,6 +210,26 @@ bool GameEngine::canConnectDots(int x1, int y1, int x2, int y2) const
     return false;
 }
 
+bool GameEngine::neighborsInChain(const std::deque<Dot *> &chain, const Dot &dot1, const Dot &dot2) const
+{
+    std::deque<Dot *>::const_iterator it;
+    std::deque<Dot *>::const_iterator end = chain.end();
+    std::deque<Dot *>::const_iterator next;
+
+    for (it = chain.begin(); it != end; ++it) {
+        next = it + 1;
+
+        if (next != end) {
+            if ((**it == dot1 && **next == dot2)
+                    || (**it == dot2 && **next == dot1)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void GameEngine::newGame(int rows, int columns, int turnLimit)
 {
     clearGameData();
@@ -399,26 +418,6 @@ void GameEngine::dropFromChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2)
             }
         }
     }
-}
-
-bool GameEngine::neighborsInChain(const std::deque<Dot *> &chain, const Dot &dot1, const Dot &dot2) const
-{
-    std::deque<Dot *>::const_iterator it;
-    std::deque<Dot *>::const_iterator end = chain.end();
-    std::deque<Dot *>::const_iterator next;
-
-    for (it = chain.begin(); it != end; ++it) {
-        next = it + 1;
-
-        if (next != end) {
-            if ((*it == &dot1 && *next == &dot2)
-                    || (*it == &dot2 && *next == &dot1)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
 
 void GameEngine::completeChain(const std::deque<Dot *> &chain)

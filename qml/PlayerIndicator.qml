@@ -6,7 +6,7 @@ Rectangle {
 
     property alias playerName: playerNameText.text
     property alias playerMarkerSource: playerMarkerImage.source
-    property alias fontSize: playerNameText.font.pixelSize
+    property alias font: playerNameText.font
     property color activeColor: "white"
 
     Text {
@@ -36,7 +36,7 @@ Rectangle {
             anchors.centerIn: parent
             smooth: true
 
-            sourceSize.height: fontSize
+            sourceSize.height: font.pixelSize
         }
     }
 

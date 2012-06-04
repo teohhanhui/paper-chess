@@ -5,12 +5,106 @@ import PaperChess 1.0
 Page {
     id: page
 
-    property bool lastTurn: gameEngine.turnsLeft === 1
+    FontLoader {
+        id: regularFont
+
+        source: "qrc:/fonts/OpenSans-Regular.ttf"
+    }
+
+    FontLoader {
+        id: boldFont
+
+        source: "qrc:/fonts/Nunito-Bold.ttf"
+    }
 
     FontLoader {
         id: handwritingFont
 
         source: "qrc:/fonts/CoveredByYourGrace.ttf"
+    }
+
+    Connections {
+        target: gameEngine
+
+        onGameStarted: gameTracker.state = "placeDotWaiting"
+
+        onTurnEnded: gameTracker.state = "placeDotWaiting"
+
+        onTurnsLeftChanged: {
+            if (gameEngine.turnsLeft === 0) {
+                gameTracker.state = "ended"
+            }
+        }
+    }
+
+    Item {
+        id: gameTracker
+
+        states: [
+            State {
+                name: "placeDotWaiting"
+                PropertyChanges {
+                    target: stageText
+                    text: qsTr("Place Dot")
+                }
+                PropertyChanges {
+                    target: confirmActionButton
+                    visible: false
+                    text: qsTr("Place")
+                }
+                PropertyChanges {
+                    target: cancelActionButton
+                    visible: false
+                }
+            },
+            State {
+                name: "placeDotPending"
+                extend: "placeDotWaiting"
+                PropertyChanges {
+                    target: confirmActionButton
+                    visible: true
+                }
+            },
+            State {
+                name: "connectDotsWaiting"
+                extend: "placeDotPending"
+                PropertyChanges {
+                    target: stageText
+                    text: qsTr("Connect Dots")
+                }
+                PropertyChanges {
+                    target: confirmActionButton
+                    text: qsTr("End Turn")
+                }
+            },
+            State {
+                name: "connectDotsPending"
+                extend: "connectDotsWaiting"
+                PropertyChanges {
+                    target: confirmActionButton
+                    text: qsTr("Connect")
+                }
+                PropertyChanges {
+                    target: cancelActionButton
+                    visible: true
+                }
+            },
+            State {
+                name: "ended"
+                PropertyChanges {
+                    target: stageText
+                    text: qsTr("Game Ended")
+                }
+                PropertyChanges {
+                    target: confirmActionButton
+                    visible: false
+                }
+                PropertyChanges {
+                    target: cancelActionButton
+                    visible: false
+                }
+            }
+        ]
     }
 
     Image {
@@ -44,9 +138,6 @@ Page {
 
         onWidthChanged: contentScale = 1
 
-        onMovementEnded: touchShadow.visible = false
-        onFlickStarted: touchShadow.visible = false
-
         Image {
             anchors.fill: parent
 
@@ -78,6 +169,28 @@ Page {
             gridStroke {
                 color: "slategray"
                 width: 1
+            }
+
+            onHasPendingMovesChanged: {
+                var stage = gameEngine.stage
+                var pending = gameBoard.hasPendingMoves
+
+                if (stage === GameEngine.PlaceDotStage) {
+                    if (pending) {
+                        gameTracker.state = "placeDotPending"
+                    }
+                    else {
+                        gameTracker.state = "placeDotWaiting"
+                    }
+                }
+                else if (stage === GameEngine.ConnectDotsStage) {
+                    if (pending) {
+                        gameTracker.state = "connectDotsPending"
+                    }
+                    else {
+                        gameTracker.state = "connectDotsWaiting"
+                    }
+                }
             }
         }
 
@@ -118,16 +231,10 @@ Page {
 
             anchors.fill: parent
 
-            onPressed: {
+            onClicked: {
                 touchy.touchedPoint = Qt.point(mouseX, mouseY)
-                touchShadow.x = mouseX - touchShadow.width  * 0.5
-                touchShadow.y = mouseY - touchShadow.height * 0.5
-                touchShadow.visible = true
+                gameBoard.markPosition(touchy.touchedPoint)
             }
-
-            onReleased: touchShadow.visible = false
-
-            onClicked: gameBoard.markPosition(touchy.touchedPoint)
 
             onDoubleClicked: {
                 var newScale
@@ -142,16 +249,6 @@ Page {
                     newScale = pinchy.pinch.maximumScale
                     flicky.scaleContent(newScale, touchy.touchedPoint)
                 }
-            }
-
-            Image {
-                id: touchShadow
-
-                smooth: true
-                visible: false
-
-                source: "qrc:/images/touch_shadow.svg"
-                sourceSize.width: 90 * baseFontSize
             }
         }
     }
@@ -173,7 +270,7 @@ Page {
         PlayerIndicator {
             id: player1Indicator
 
-            width: 35 * baseFontSize
+            width: 32 * baseFontSize;
             anchors {
                 left: parent.left
                 top: parent.top
@@ -183,7 +280,10 @@ Page {
 
             playerName: gameEngine.playerNames[0]
             playerMarkerSource: "qrc:/images/dot.svg"
-            fontSize: 7 * baseFontSize
+            font {
+                family: regularFont.name
+                pixelSize: 6 * baseFontSize
+            }
             activeColor: stageBar.color
         }
 
@@ -204,7 +304,10 @@ Page {
                anchors.centerIn: parent
 
                text: qsTr("Dots: ") + gameEngine.turnsLeft
-               font.pixelSize: 6 * baseFontSize
+               font {
+                   family: regularFont.name
+                   pixelSize: 6 * baseFontSize
+               }
            }
 
            states: [
@@ -232,29 +335,21 @@ Page {
             color: Qt.rgba(255, 128, 0, 0.25)
 
             Text {
-                function getStageName(stage) {
-                    switch(stage) {
-                    case GameEngine.PlaceDotStage:
-                        return qsTr("Place Dot")
-                    case GameEngine.ConnectDotsStage:
-                        return qsTr("Connect Dots")
-                    default:
-                        return qsTr("Game Ended")
-                    }
-                }
+                id: stageText
 
                 anchors.centerIn: parent
 
-                text: getStageName(gameEngine.stage)
-                font.pixelSize: 8 * baseFontSize
-                color: "white"
+                font {
+                    family: boldFont.name
+                    pixelSize: 8 * baseFontSize
+                }
             }
         }
 
         PlayerIndicator {
             id: player2Indicator
 
-            width: 35 * baseFontSize
+            width: 32 * baseFontSize;
             anchors {
                 right: parent.right
                 top: parent.top
@@ -264,7 +359,10 @@ Page {
 
             playerName: gameEngine.playerNames[1]
             playerMarkerSource: "qrc:/images/cross.svg"
-            fontSize: 7 * baseFontSize
+            font {
+                family: regularFont.name
+                pixelSize: 6 * baseFontSize
+            }
             activeColor: stageBar.color
         }
     }
@@ -285,6 +383,8 @@ Page {
         }
 
         Button {
+            id: menuButton
+
             anchors {
                 left: parent.left
                 bottom: parent.bottom
@@ -293,77 +393,69 @@ Page {
             }
 
             text: qsTr("Menu")
-            font.pixelSize: 10 * baseFontSize
+            font {
+                family: regularFont.name
+                pixelSize: 10 * baseFontSize
+            }
 
             onClicked: overlayMenu.state = "shown"
         }
 
-        Button {
-            id: confirmMoveButton
-
-            function getActionName(stage) {
-                switch(stage) {
-                case GameEngine.PlaceDotStage:
-                    return qsTr("Place")
-                case GameEngine.ConnectDotsStage:
-                    return qsTr("Connect")
-                default:
-                    return ""
-                }
-            }
+        Rectangle {
+            id: actionsBar
 
             anchors {
+                left: menuButton.right
                 right: parent.right
+                top: parent.top
                 bottom: parent.bottom
-                rightMargin: 4 * baseFontSize
-                bottomMargin: 2 * baseFontSize
             }
-            visible: gameBoard.hasPendingMoves
 
-            text: getActionName(gameEngine.stage)
-            font.pixelSize: 10 * baseFontSize
+            color: "transparent"
 
-            onClicked: gameBoard.acceptMove(true)
-        }
+            Button {
+                id: cancelActionButton
 
-        Button {
-            id: cancelMoveButton
-
-            anchors {
-                right: confirmMoveButton.left
-                bottom: parent.bottom
-                rightMargin: 10 * baseFontSize
-                bottomMargin: 2 * baseFontSize
-            }
-            visible: gameBoard.hasPendingMoves
-
-            text: qsTr("Cancel")
-            font.pixelSize: 8 * baseFontSize
-
-            onClicked: gameBoard.acceptMove(false)
-        }
-
-        Button {
-            id: endTurnButton
-
-            anchors {
-                right: parent.right
-                bottom: parent.bottom
-                rightMargin: 4 * baseFontSize
-                bottomMargin: 2 * baseFontSize
-            }
-            visible: gameEngine.stage === GameEngine.ConnectDotsStage
-                     && !gameBoard.hasPendingMoves
-
-            text: lastTurn ? qsTr("End Game") : qsTr("End Turn")
-            font.pixelSize: 10 * baseFontSize
-
-            onClicked: {
-                if (lastTurn) {
-                    pageRequested("scorePage")
+                anchors {
+                    right: confirmActionButton.left
+                    bottom: parent.bottom
+                    rightMargin: 10 * baseFontSize
+                    bottomMargin: 3 * baseFontSize
                 }
 
-                gameEngine.endTurn()
+                text: qsTr("Cancel")
+                font {
+                    family: regularFont.name
+                    pixelSize: 8 * baseFontSize
+                }
+
+                onClicked: gameBoard.acceptMove(false)
+            }
+
+            Button {
+                id: confirmActionButton
+
+                anchors {
+                    right: parent.right
+                    bottom: parent.bottom
+                    rightMargin: 4 * baseFontSize
+                    bottomMargin: 2 * baseFontSize
+                }
+
+                text: "End Turn"
+                font {
+                    family: boldFont.name
+                    pixelSize: 10 * baseFontSize
+                }
+
+                onClicked: {
+                    if (gameTracker.state === "connectDotsWaiting") {
+                        gameEngine.endTurn()
+                    }
+                    else if (gameTracker.state !== "endStage") {
+                        gameBoard.acceptMove(true)
+                    }
+                }
             }
         }
     }

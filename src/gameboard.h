@@ -5,6 +5,7 @@
 #include <QVarLengthArray>
 #include <QtSvg/QSvgRenderer>
 #include <QList>
+#include <deque>
 #include "dot.h"
 
 class Stroke;
@@ -72,7 +73,7 @@ private:
     QVarLengthArray<QSvgRenderer *, DEFAULT_NUM_PLAYERS> m_dotSvgRenderers;
     QVarLengthArray<QImage, DEFAULT_NUM_PLAYERS> m_dotImages;
     Dot m_provisionalDot;
-    QList<Dot> m_provisionalChain;
+    std::deque<Dot> m_provisionalChain;
 };
 
 #endif // GAMEBOARD_H

@@ -59,6 +59,8 @@ public:
     bool canPlaceDot(int x, int y) const;
     bool canConnectDots(int x1, int y1, int x2, int y2) const;
 
+    bool neighborsInChain(const std::deque<Dot *> &chain, const Dot &dot1, const Dot &dot2) const;
+
 signals:
     void playerNamesChanged();
     void gameStarted();
@@ -94,8 +96,6 @@ private:
 
     void dropFromChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2);
 
-    bool neighborsInChain(const std::deque<Dot *> &chain, const Dot &dot1, const Dot &dot2) const;
-
     /* Completes the specified chain.
      * If successful, all the necessary followup actions will be performed.
      */
@@ -118,16 +118,9 @@ private:
      */
     void finalizeChain(const std::deque<Dot *> &chain);
 
-    /* check number of captured dots, returns number of dots captured
-     * idea of calculating captured dots: with limits of MAX x, MAX y, MIN x, MIN y
-     * we can visualize the captured dots in a shape.  based on the coordinates,
-     * the captured dots will be calculated line by line.
-     *
-     * Steps:
-     * 1. based on vector input which lists the dots for a complete surround, find dots with the same y-axis.
-     * 2. this becomes the MIN & MAX values for x for the said row, in which we check all existing dots in between.
-     * 3. increment counter if captured a dot.
-     * 4. repeat from MIN y to MAX y
+    /* Capture dots in the area enclosed by the specified surrounding dots.
+     * A dot can be captured if it belong to another player and has not been previously captured.
+     * The current player's score is incremented for each dot captured.
      */
     void captureArea(const std::deque<Dot *> &surroundingDots);
 

@@ -15,7 +15,7 @@ Item {
             PropertyChanges {
                 target: page
                 x: 0
-                opacity: 1
+                visible: true
             }
         },
         State {
@@ -23,6 +23,7 @@ Item {
             PropertyChanges {
                 target: page
                 opacity: 0
+                visible: false
             }
         },
         State {
@@ -30,6 +31,7 @@ Item {
             PropertyChanges {
                 target: page
                 x: -width - 20 * baseFontSize
+                visible: false
             }
         },
         State {
@@ -37,6 +39,7 @@ Item {
             PropertyChanges {
                 target: page
                 x: width + 20 * baseFontSize
+                visible: false
             }
         }
     ]
@@ -45,37 +48,57 @@ Item {
         Transition {
             from: "shown"
             to: "hiddenLeft"
-            NumberAnimation {
-                properties: "x"
-                easing.type: Easing.InOutQuart
-                duration: transitionDuration
+            SequentialAnimation {
+                NumberAnimation {
+                    properties: "x"
+                    easing.type: Easing.InOutQuart
+                    duration: transitionDuration
+                }
+                PropertyAction {
+                    properties: "visible"
+                }
             }
         },
         Transition {
             from: "shown"
             to: "hiddenRight"
-            NumberAnimation {
-                properties: "x"
-                easing.type: Easing.InQuart
-                duration: transitionDuration
+            SequentialAnimation {
+                NumberAnimation {
+                    properties: "x"
+                    easing.type: Easing.InQuart
+                    duration: transitionDuration
+                }
+                PropertyAction {
+                    properties: "visible"
+                }
             }
         },
         Transition {
             from: "hiddenLeft"
             to: "shown"
-            NumberAnimation {
-                properties: "x"
-                easing.type: Easing.InOutQuart
-                duration: transitionDuration
+            SequentialAnimation {
+                PropertyAction {
+                    properties: "visible"
+                }
+                NumberAnimation {
+                    properties: "x"
+                    easing.type: Easing.InOutQuart
+                    duration: transitionDuration
+                }
             }
         },
         Transition {
             from: "hiddenRight"
             to: "shown"
-            NumberAnimation {
-                properties: "x"
-                easing.type: Easing.InOutQuart
-                duration: transitionDuration
+            SequentialAnimation {
+                PropertyAction {
+                    properties: "visible"
+                }
+                NumberAnimation {
+                    properties: "x"
+                    easing.type: Easing.InOutQuart
+                    duration: transitionDuration
+                }
             }
         }
     ]
