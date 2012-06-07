@@ -125,9 +125,9 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     }
 
     {
-        const std::deque<Dot *> &dots = m_engine->getDots();
-        std::deque<Dot *>::const_iterator it;
-        std::deque<Dot *>::const_iterator end = dots.end();
+        const std::vector<const Dot *> &dots = m_engine->getDots();
+        std::vector<const Dot *>::const_iterator it;
+        std::vector<const Dot *>::const_iterator end = dots.end();
 
         for (it = dots.begin(); it != end; ++it) {
             const Dot &dot = **it;
@@ -171,21 +171,20 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     {
         QVector<QLineF> displayChains;
-        const std::vector<const std::deque<Dot *>*> &chains = m_engine->getChains();
-        std::vector<const std::deque<Dot *>*>::const_iterator chains_it;
-        std::vector<const std::deque<Dot *>*>::const_iterator chains_end = chains.end();
-        const std::deque<Dot *> *chain;
-        std::deque<Dot *>::const_iterator it;
-        std::deque<Dot *>::const_iterator end;
+        const std::vector<std::vector<const Dot *> > &chains = m_engine->getChains();
+        std::vector<std::vector<const Dot *> >::const_iterator chains_it;
+        std::vector<std::vector<const Dot *> >::const_iterator chains_end = chains.end();
+        std::vector<const Dot *>::const_iterator it;
+        std::vector<const Dot *>::const_iterator end;
         Dot dots[2];
         QPointF points[2];
         Stroke *stroke;
 
         for (chains_it = chains.begin(); chains_it != chains_end; ++chains_it) {
-            chain = *chains_it;
-            end = chain->end();
+            const std::vector<const Dot *> &chain = *chains_it;
+            end = chain.end();
 
-            for (it = chain->begin(); it != end - 1; ++it) {
+            for (it = chain.begin(); it != end - 1; ++it) {
                 for (int i = 0; i < 2; ++i) {
                     dots[i] = **(it + i);
 

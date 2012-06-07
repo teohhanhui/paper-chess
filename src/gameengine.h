@@ -51,14 +51,39 @@ public:
 
     QVariantList playerScores() const;
 
+    /* Gets the dot with the specified coordinates.
+     * Returns a pointer to the dot if found, a null pointer otherwise.
+     */
     const Dot *getDotAt(int x, int y) const;
-    const std::deque<Dot *> &getDots() const;
-    const std::vector<const Line *> getLines(int player) const;
-    const std::vector<const std::deque<Dot *>*> getChains() const;
 
+    /* Gets a list of all dots.
+     * Returns a list which is a snapshot of all the dots.
+     */
+    std::vector<const Dot *> getDots() const;
+
+    /* Gets a list of all lines.
+     * Returns a list which is a snapshot of all the lines.
+     */
+    std::vector<const Line *> getLines(int player) const;
+
+    /* Gets a list of all the chains.
+     * Returns a list of lists which is a snapshot of all the chains.
+     */
+    std::vector<std::vector<const Dot *> > getChains() const;
+
+    /* Checks if a dot can be placed at the specified coordinates.
+     * Returns true if the dot can be placed, false otherwise.
+     */
     bool canPlaceDot(int x, int y) const;
+
+    /* Checks if the specified dots can be connected.
+     * Returns true if the dots can be connected, false otherwise.
+     */
     bool canConnectDots(int x1, int y1, int x2, int y2) const;
 
+    /* Checks if the two specified dots are connected in the specified chain.
+     * Returns true if the two dots are connected, false otherwise.
+     */
     bool neighborsInChain(const std::deque<Dot *> &chain, const Dot &dot1, const Dot &dot2) const;
 
 signals:
@@ -94,7 +119,11 @@ private:
      */
     std::deque<Dot *> &addToChains(Dot &dot1, Dot &dot2);
 
-    void dropFromChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2);
+    /* Splits the specified chain at the segment between the two specified dots.
+     * If the segment is at the middle of the chain, a new chain is added.
+     * The original chain will be removed if it becomes empty after the split.
+     */
+    void cutChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2);
 
     /* Completes the specified chain.
      * If successful, all the necessary followup actions will be performed.
@@ -139,6 +168,9 @@ private:
      */
     std::deque<Line *> findLines(const Dot &endpoint) const;
 
+    /* Finds an existing chain where the two specified dots are connected.
+     * Returns a pointer to the chain if found, a null pointer otherwise.
+     */
     std::deque<Dot *> *findChain(const Dot &dot1, const Dot &dot2) const;
 
     /* Finds all dots connected to the specified dot.
@@ -146,8 +178,12 @@ private:
      */
     std::deque<Dot *> findConnectedDots(const Dot &dot) const;
 
+    /* Clears all data pertaining to the turn.
+     */
     void clearTurnData();
 
+    /* Clears all data pertaining to the game.
+     */
     void clearGameData();
 
     static const int DEFAULT_NUM_PLAYERS = 2;

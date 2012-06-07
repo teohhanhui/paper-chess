@@ -112,12 +112,21 @@ const Dot *GameEngine::getDotAt(int x, int y) const
     return findDot(m_dots, x, y);
 }
 
-const std::deque<Dot *> &GameEngine::getDots() const
+std::vector<const Dot *> GameEngine::getDots() const
 {
-    return m_dots;
+    std::vector<const Dot *> outDots;
+    const std::deque<Dot *> &dots = m_dots;
+    std::deque<Dot *>::const_iterator it;
+    std::deque<Dot *>::const_iterator end = dots.end();
+
+    for (it = dots.begin(); it != end; ++it) {
+        outDots.push_back(*it);
+    }
+
+    return outDots;
 }
 
-const std::vector<const Line *> GameEngine::getLines(int player) const
+std::vector<const Line *> GameEngine::getLines(int player) const
 {
     std::vector<const Line *> outLines;
     const std::deque<Line *> &lines = m_lines;
@@ -136,15 +145,25 @@ const std::vector<const Line *> GameEngine::getLines(int player) const
     return outLines;
 }
 
-const std::vector<const std::deque<Dot *>*> GameEngine::getChains() const
+std::vector<std::vector<const Dot *> > GameEngine::getChains() const
 {
-    std::vector<const std::deque<Dot *>*> outChains;
+    std::vector<std::vector<const Dot *> > outChains;
     const std::list<std::deque<Dot *>*> &chains = m_chains;
-    std::list<std::deque<Dot *>*>::const_iterator it;
-    std::list<std::deque<Dot *>*>::const_iterator end = chains.end();
+    std::list<std::deque<Dot *>*>::const_iterator chains_it;
+    std::list<std::deque<Dot *>*>::const_iterator chains_end = chains.end();
+    std::deque<Dot *>::const_iterator it;
+    std::deque<Dot *>::const_iterator end;
 
-    for (it = chains.begin(); it != end; ++it) {
-        outChains.push_back(*it);
+    for (chains_it = chains.begin(); chains_it != chains_end; ++chains_it) {
+        std::vector<const Dot *> outChain;
+        const std::deque<Dot *> &chain = **chains_it;
+        end = chain.end();
+
+        for (it = chain.begin(); it != end; ++it) {
+            outChain.push_back(*it);
+        }
+
+        outChains.push_back(outChain);
     }
 
     return outChains;
@@ -372,7 +391,7 @@ std::deque<Dot *> &GameEngine::addToChains(Dot &dot1, Dot &dot2)
     return *m_chains.back();
 }
 
-void GameEngine::dropFromChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2)
+void GameEngine::cutChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2)
 {
     std::deque<Dot *>::iterator it;
     std::deque<Dot *>::iterator begin = chain->begin();
@@ -590,7 +609,7 @@ void GameEngine::finalizeChain(const std::deque<Dot *> &chain)
             Dot &dot2 = **next;
 
             if ((foundChain = findChain(dot1, dot2)) != 0) {
-                dropFromChain(foundChain, dot1, dot2);
+                cutChain(foundChain, dot1, dot2);
                 m_lines.push_back(new Line(dot1, dot2));
             }
         }
