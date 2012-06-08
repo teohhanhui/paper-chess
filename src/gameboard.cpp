@@ -481,8 +481,8 @@ void GameBoard::tryAddToChain(const Dot &dot)
         chain.push_back(&*it);
     }
 
-    if (!m_engine->neighborsInChain(chain, first, dot)
-            && !m_engine->neighborsInChain(chain, last, dot)
+    if (!m_engine->neighborsInChain(chain.begin(), chain.end() - 1, first, dot)
+            && !m_engine->neighborsInChain(chain.begin(), chain.end() - 1, last, dot)
             && m_engine->canConnectDots(dot.x(), dot.y(), previousDot->x(), previousDot->y())) {
         if (previousDot == &first) {
             m_provisionalChain.push_front(dot);

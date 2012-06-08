@@ -84,7 +84,9 @@ public:
     /* Checks if the two specified dots are connected in the specified chain.
      * Returns true if the two dots are connected, false otherwise.
      */
-    bool neighborsInChain(const std::deque<Dot *> &chain, const Dot &dot1, const Dot &dot2) const;
+    template <typename InputIterator>
+    bool neighborsInChain(InputIterator chainStart, InputIterator chainEnd,
+                          const Dot &dot1, const Dot &dot2) const;
 
 signals:
     void playerNamesChanged();
@@ -107,6 +109,10 @@ private:
      * Returns true if the point is active, false otherwise.
      */
     bool isPointActive(int x, int y) const;
+
+    /* Deactivates the point at the specified coordinates.
+     */
+    void deactivatePoint(int x, int y);
 
     /* Checks if the dots are connected in any chain (i.e. the dots are side-by-side).
      * Returns true if the chain is found, false otherwise.
@@ -136,10 +142,16 @@ private:
      */
     bool closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> &outChain) const;
 
-    /* Checks if the chain connects one edge of the grid to another.
-     * Returns true if the chain connects edges, false otherwise.
+    /* Forms a barricade off the grid's borders.
+     * The traversal follows existing lines and all other chains.
+     * Returns true if a barricade can be formed, false otherwise.
      */
-    bool connectingEdges(const std::deque<Dot *> &chain) const;
+    bool formBarricade(const std::deque<Dot *> &chain) const;
+
+    /* Extends the chain to the grid's borders using existing lines and all the chains.
+     * Returns true if the chain can be extended to go from border to border, false otherwise.
+     */
+    bool extendToBorders(const std::deque<Dot *> &inChain, std::deque<Dot *> &outChain) const;
 
     /* Add all line segments from the input chain.
      * An added line segment is removed from its original chain.
@@ -177,6 +189,15 @@ private:
      * Returns a list of the dots found.
      */
     std::deque<Dot *> findConnectedDots(const Dot &dot) const;
+
+    /* Finds a path from the start of the chain to a dot for which the predicate is true.
+     * The dots (chainStart, chainEnd] are excluded during the traversal.
+     * The current path is stored in resultPath.
+     * Returns true if a path is found, false otherwise.
+     */
+    template <typename InputIterator, typename Predicate, typename Container>
+    bool findPath(InputIterator chainStart, InputIterator chainEnd,
+                  Predicate pred, Container &resultPath) const;
 
     /* Clears all data pertaining to the turn.
      */

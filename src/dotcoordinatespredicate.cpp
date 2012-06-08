@@ -1,4 +1,5 @@
 #include "dotcoordinatespredicate.h"
+#include "dot.h"
 
 DotCoordinatesPredicate::DotCoordinatesPredicate(int x, int y)
     : m_x(x)
@@ -6,7 +7,7 @@ DotCoordinatesPredicate::DotCoordinatesPredicate(int x, int y)
 {
 }
 
-bool DotCoordinatesPredicate::operator()(const Dot *dot)
+bool DotCoordinatesPredicate::operator()(const Dot *dot) const
 {
     if (dot == 0) {
         return false;

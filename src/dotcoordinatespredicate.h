@@ -1,13 +1,13 @@
 #ifndef DOTCOORDINATESPREDICATE_H
 #define DOTCOORDINATESPREDICATE_H
 
-#include "dot.h"
+class Dot;
 
 class DotCoordinatesPredicate
 {
 public:
     DotCoordinatesPredicate(int x, int y);
-    bool operator()(const Dot *dot);
+    bool operator()(const Dot *dot) const;
 private:
     int m_x;
     int m_y;

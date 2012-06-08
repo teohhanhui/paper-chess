@@ -39,7 +39,8 @@ SOURCES += src/main.cpp \
     src/dotcoordinatespredicate.cpp \
     src/gameengine.cpp \
     src/lineendpointspredicate.cpp \
-    src/gameboard.cpp
+    src/gameboard.cpp \
+    src/dotonborderpredicate.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -52,7 +53,8 @@ HEADERS += \
     src/dotcoordinatespredicate.h \
     src/gameengine.h \
     src/lineendpointspredicate.h \
-    src/gameboard.h
+    src/gameboard.h \
+    src/dotonborderpredicate.h
 
 OTHER_FILES += \
 

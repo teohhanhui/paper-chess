@@ -1,7 +1,8 @@
 #ifndef LINEENDPOINTSPREDICATE_H
 #define LINEENDPOINTSPREDICATE_H
 
-#include "line.h"
+class Dot;
+class Line;
 
 class LineEndpointsPredicate
 {

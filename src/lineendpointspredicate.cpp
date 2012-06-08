@@ -1,4 +1,6 @@
 #include "lineendpointspredicate.h"
+#include "dot.h"
+#include "line.h"
 
 LineEndpointsPredicate::LineEndpointsPredicate(const Dot *endpoint1, const Dot *endpoint2)
     : m_endpoint1(endpoint1)
