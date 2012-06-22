@@ -507,11 +507,8 @@ bool GameEngine::closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> 
                          DotCoordinatesPredicate(endDot->x(), endDot->y()), resultPath);
 
     if (pathFound) {
-        // remove the end dot from the result path as it is redundant
-        resultPath.pop_back();
-
         // add dots from the result path to close the chain
-        outChain.insert(outChain.end(), resultPath.rbegin(), resultPath.rend());
+        outChain.insert(outChain.end(), resultPath.rbegin() + 1, resultPath.rend());
     }
 
     return pathFound;
@@ -588,7 +585,7 @@ bool GameEngine::extendToBorders(const std::deque<Dot *> &inChain, std::deque<Do
 
         // prepend dots before the start dot
         if (startOnBorder) {
-            outChain.insert(outChain.end(), resultPath.begin(), resultPath.end());
+            outChain.insert(outChain.end(), resultPath.rbegin(), resultPath.rend() - 1);
         }
     }
 
@@ -600,7 +597,7 @@ bool GameEngine::extendToBorders(const std::deque<Dot *> &inChain, std::deque<Do
 
         // append dots after the end dot
         if (endOnBorder) {
-            outChain.insert(outChain.end(), resultPath.begin(), resultPath.end());
+            outChain.insert(outChain.end(), resultPath.begin() + 1, resultPath.end());
         }
     }
 
