@@ -79,7 +79,7 @@ public:
     /* Checks if the specified dots can be connected.
      * Returns true if the dots can be connected, false otherwise.
      */
-    bool canConnectDots(int x1, int y1, int x2, int y2) const;
+    bool canConnectDots(const Dot &dot1, const Dot &dot2) const;
 
     /* Checks if the two specified dots are connected in the specified chain.
      * Returns true if the two dots are connected, false otherwise.
@@ -134,36 +134,42 @@ private:
     /* Completes the specified chain.
      * If successful, all the necessary followup actions will be performed.
      */
-    void completeChain(const std::deque<Dot *> &chain);
+    template <typename InputIterator>
+    void completeChain(InputIterator chainStart, InputIterator chainEnd);
 
     /* Closes the chain using connections from existing lines and all the chains.
      * The resultant chain is stored into outChain.
      * Returns true if the chain is successfully closed, false otherwise.
      */
-    bool closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> &outChain) const;
+    template <typename InputIterator>
+    bool closeChain(InputIterator chainStart, InputIterator chainEnd, std::deque<Dot *> &outChain) const;
 
     /* Forms a barricade off the grid's borders.
      * The traversal follows existing lines and all other chains.
      * Returns true if a barricade can be formed, false otherwise.
      */
-    bool formBarricade(const std::deque<Dot *> &chain) const;
+    template <typename InputIterator>
+    bool formBarricade(InputIterator chainStart, InputIterator chainEnd) const;
 
     /* Extends the chain to the grid's borders using existing lines and all the chains.
      * Returns true if the chain can be extended to go from border to border, false otherwise.
      */
-    bool extendToBorders(const std::deque<Dot *> &inChain, std::deque<Dot *> &outChain) const;
+    template <typename InputIterator>
+    bool extendToBorders(InputIterator chainStart, InputIterator chainEnd, std::deque<Dot *> &outChain) const;
 
     /* Add all line segments from the input chain.
      * An added line segment is removed from its original chain.
      * A chain is removed when it becomes empty.
      */
-    void finalizeChain(const std::deque<Dot *> &chain);
+    template <typename InputIterator>
+    void finalizeChain(InputIterator chainStart, InputIterator chainEnd);
 
     /* Capture dots in the area enclosed by the specified surrounding dots.
      * A dot can be captured if it belong to another player and has not been previously captured.
      * The current player's score is incremented for each dot captured.
      */
-    void captureArea(const std::deque<Dot *> &surroundingDots);
+    template <typename InputIterator>
+    void captureArea(InputIterator chainStart, InputIterator chainEnd);
 
     /* Finds a dot within the given list with coordinates (x,y).
      * Returns a pointer to the dot if found, a null pointer otherwise.

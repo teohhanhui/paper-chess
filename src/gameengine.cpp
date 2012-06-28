@@ -175,18 +175,12 @@ bool GameEngine::canPlaceDot(int x, int y) const
     return (isPointActive(x, y) && findDot(m_dots, x, y) == 0);
 }
 
-bool GameEngine::canConnectDots(int x1, int y1, int x2, int y2) const
+bool GameEngine::canConnectDots(const Dot &dot1, const Dot &dot2) const
 {
-    const Dot *dotPtr1 = findDot(m_dots, x1, y1);
-    const Dot *dotPtr2 = findDot(m_dots, x2, y2);
-
-    // check if both dots exist and are not the same dot
-    if (dotPtr1 == 0 || dotPtr2 == 0 || dotPtr1 == dotPtr2) {
+    // check if the dots are the same dot
+    if (&dot1 == &dot2 || dot1 == dot2) {
         return false;
     }
-
-    const Dot &dot1 = *dotPtr1;
-    const Dot &dot2 = *dotPtr2;
 
     // check if both dots belong to the current player
     if (dot1.player() != m_currentPlayer || dot2.player() != m_currentPlayer) {
@@ -301,15 +295,29 @@ bool GameEngine::connectDots(int x1, int y1, int x2, int y2)
         return false;
     }
 
-    if (!canConnectDots(x1, y1, x2, y2)) {
+    Dot *dot1 = findDot(m_dots, x1, y1);
+    Dot *dot2 = findDot(m_dots, x2, y2);
+
+    // check if the dots exist
+    if (dot1 == 0 || dot2 == 0) {
         return false;
     }
 
-    Dot &dot1 = *findDot(m_dots, x1, y1);
-    Dot &dot2 = *findDot(m_dots, x2, y2);
+    if (!canConnectDots(*dot1, *dot2)) {
+        return false;
+    }
 
-    std::deque<Dot *> chain = addToChains(dot1, dot2);
-    completeChain(chain);
+    std::deque<Dot *> chain = addToChains(*dot1, *dot2);
+    std::deque<Dot *>::iterator first = chain.begin();
+    std::deque<Dot *>::iterator last = chain.end() - 1;
+    std::deque<Dot *>::iterator head_it;
+    std::deque<Dot *>::iterator tail_it;
+
+    for (head_it = first; head_it != last; ++head_it) {
+        for (tail_it = last; tail_it != head_it; --tail_it) {
+            completeChain(head_it, tail_it);
+        }
+    }
 
     emit chainsChanged();
 
@@ -446,30 +454,29 @@ void GameEngine::cutChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2)
     }
 }
 
-void GameEngine::completeChain(const std::deque<Dot *> &chain)
+template <typename InputIterator>
+void GameEngine::completeChain(InputIterator chainStart, InputIterator chainEnd)
 {
-    Dot *start = chain.front();
-    Dot *end = chain.back();
     bool completed = false;
     bool surrounded = false;
-    const std::deque<Dot *> *finalChain = &chain;
     std::deque<Dot *> closedChain;
 
     // check if the chain is already closed
-    if (start == end) {
+    if (*chainStart == *chainEnd) {
         completed = true;
         surrounded = true;
     }
     else {
         // try closing the chain
-        if (closeChain(chain, closedChain)) {
-            finalChain = &closedChain;
+        if (closeChain(chainStart, chainEnd, closedChain)) {
+            chainStart = closedChain.begin();
+            chainEnd = closedChain.end() - 1;
             completed = true;
             surrounded = true;
         }
         else {
             // try forming a barricade
-            if (formBarricade(chain)) {
+            if (formBarricade(chainStart, chainEnd)) {
                 completed = true;
             }
         }
@@ -477,24 +484,27 @@ void GameEngine::completeChain(const std::deque<Dot *> &chain)
 
     if (completed) {
         if (surrounded) {
-            captureArea(*finalChain);
+            captureArea(chainStart, chainEnd);
         }
 
-        finalizeChain(*finalChain);
+        finalizeChain(chainStart, chainEnd);
     }
 }
 
-bool GameEngine::closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> &outChain) const
+template <typename InputIterator>
+bool GameEngine::closeChain(InputIterator chainStart, InputIterator chainEnd, std::deque<Dot *> &outChain) const
 {
     // initialize the output chain to contain all dots from the input chain
-    outChain = std::deque<Dot *>(inChain);
+    outChain.clear();
+    outChain.insert(outChain.end(), chainStart, chainEnd + 1);
 
-    if (inChain.size() < 2) {
+    // check if there are at least 2 dots in the chain
+    if (chainStart + 1 == chainEnd) {
         return false;
     }
 
-    Dot *startDot = inChain.front();
-    Dot *endDot = inChain.back();
+    Dot *startDot = *chainStart;
+    Dot *endDot = *chainEnd;
 
     // check that the start and end dots are actually connected to something else
     if (findConnectedDots(*startDot).size() < 2 || findConnectedDots(*endDot).size() < 2) {
@@ -503,7 +513,7 @@ bool GameEngine::closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> 
 
     bool pathFound;
     std::vector<Dot *> resultPath;
-    pathFound = findPath(inChain.begin(), inChain.end() - 1,
+    pathFound = findPath(chainStart, chainEnd,
                          DotCoordinatesPredicate(endDot->x(), endDot->y()), resultPath);
 
     if (pathFound) {
@@ -514,12 +524,13 @@ bool GameEngine::closeChain(const std::deque<Dot *> &inChain, std::deque<Dot *> 
     return pathFound;
 }
 
-bool GameEngine::formBarricade(const std::deque<Dot *> &chain) const
+template <typename InputIterator>
+bool GameEngine::formBarricade(InputIterator chainStart, InputIterator chainEnd) const
 {
     std::deque<Dot *> extendedChain;
 
     // try to extend the chain to the borders
-    if (!extendToBorders(chain, extendedChain)) {
+    if (!extendToBorders(chainStart, chainEnd, extendedChain)) {
         return false;
     }
 
@@ -573,15 +584,16 @@ bool GameEngine::formBarricade(const std::deque<Dot *> &chain) const
     return false;
 }
 
-bool GameEngine::extendToBorders(const std::deque<Dot *> &inChain, std::deque<Dot *> &outChain) const
+template <typename InputIterator>
+bool GameEngine::extendToBorders(InputIterator chainStart, InputIterator chainEnd, std::deque<Dot *> &outChain) const
 {
     DotOnBorderPredicate pred(0, m_columns, 0, m_rows);
     std::vector<Dot *> resultPath;
-    bool startOnBorder = pred(inChain.front());
-    bool endOnBorder = pred(inChain.back());;
+    bool startOnBorder = pred(*chainStart);
+    bool endOnBorder = pred(*chainEnd);;
 
     if (!startOnBorder) {
-        startOnBorder = findPath(inChain.begin(), inChain.end() - 1, pred, resultPath);
+        startOnBorder = findPath(chainStart, chainEnd, pred, resultPath);
 
         // prepend dots before the start dot
         if (startOnBorder) {
@@ -590,9 +602,12 @@ bool GameEngine::extendToBorders(const std::deque<Dot *> &inChain, std::deque<Do
     }
 
     // copy all dots from the input chain to the output chain
-    outChain.insert(outChain.end(), inChain.begin(), inChain.end());
+    outChain.insert(outChain.end(), chainStart, chainEnd + 1);
 
     if (!endOnBorder) {
+        std::vector<Dot *> inChain;
+        inChain.insert(inChain.end(), chainStart, chainEnd + 1);
+
         endOnBorder = findPath(inChain.rbegin(), inChain.rend() - 1, pred, resultPath);
 
         // append dots after the end dot
@@ -604,17 +619,17 @@ bool GameEngine::extendToBorders(const std::deque<Dot *> &inChain, std::deque<Do
     return (startOnBorder && endOnBorder);
 }
 
-void GameEngine::finalizeChain(const std::deque<Dot *> &chain)
+template <typename InputIterator>
+void GameEngine::finalizeChain(InputIterator chainStart, InputIterator chainEnd)
 {
-    std::deque<Dot *>::const_iterator it;
-    std::deque<Dot *>::const_iterator end = chain.end();
-    std::deque<Dot *>::const_iterator next;
+    InputIterator it;
+    InputIterator next;
     std::deque<Dot *> *foundChain;
 
-    for (it = chain.begin(); it != end; ++it) {
+    for (it = chainStart; it != chainEnd + 1; ++it) {
         next = it + 1;
 
-        if (next != end) {
+        if (next != chainEnd + 1) {
             Dot &dot1 = **it;
             Dot &dot2 = **next;
 
@@ -626,16 +641,16 @@ void GameEngine::finalizeChain(const std::deque<Dot *> &chain)
     }
 }
 
-void GameEngine::captureArea(const std::deque<Dot *> &surroundingDots)
+template <typename InputIterator>
+void GameEngine::captureArea(InputIterator chainStart, InputIterator chainEnd)
 {
-    std::deque<Dot *>::const_iterator it;
-    std::deque<Dot *>::const_iterator end = surroundingDots.end();
+    InputIterator it;
     int minY = m_rows;
     int maxY = 0;
     std::map<int, int> leftBounds;
     std::map<int, int> rightBounds;
 
-    for (it = surroundingDots.begin(); it != end; ++it) {
+    for (it = chainStart; it != chainEnd + 1; ++it) {
         const Dot &dot = **it;
 
         if (dot.y() < minY) {
