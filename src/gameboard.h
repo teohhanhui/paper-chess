@@ -1,9 +1,10 @@
 #ifndef GAMEBOARD_H
 #define GAMEBOARD_H
 
-#include <QDeclarativeItem>
+#include <QtQuick/QQuickPaintedItem>
 #include <QVarLengthArray>
 #include <QtSvg/QSvgRenderer>
+#include <QtGui/QImage>
 #include <QList>
 #include <deque>
 #include "dot.h"
@@ -11,17 +12,17 @@
 class Stroke;
 class GameEngine;
 
-class GameBoard : public QDeclarativeItem
+class GameBoard : public QQuickPaintedItem
 {
     Q_OBJECT
     Q_PROPERTY(GameEngine *engine READ engine WRITE setEngine)
     Q_PROPERTY(QVariantList dotSources READ dotSources WRITE setDotSources)
-    Q_PROPERTY(QDeclarativeListProperty<Stroke> markStrokes READ markStrokes)
+    Q_PROPERTY(QQmlListProperty<Stroke> markStrokes READ markStrokes)
     Q_PROPERTY(Stroke *gridStroke READ gridStroke)
     Q_PROPERTY(bool hasPendingMoves READ hasPendingMoves NOTIFY hasPendingMovesChanged)
 
 public:
-    explicit GameBoard(QDeclarativeItem *parent = 0);
+    explicit GameBoard(QQuickPaintedItem *parent = nullptr);
     ~GameBoard();
 
     GameEngine *engine() const;
@@ -30,13 +31,13 @@ public:
     QVariantList dotSources() const;
     void setDotSources(QVariantList &list);
 
-    QDeclarativeListProperty<Stroke> markStrokes();
+    QQmlListProperty<Stroke> markStrokes();
 
     Stroke *gridStroke() const;
 
     bool hasPendingMoves() const;
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+    void paint(QPainter *painter);
 
 signals:
     void hasPendingMovesChanged();

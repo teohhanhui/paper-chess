@@ -2,7 +2,7 @@
 #define STROKE_H
 
 #include <QObject>
-#include <QColor>
+#include <QtGui/QColor>
 
 class Stroke : public QObject
 {
@@ -11,7 +11,7 @@ class Stroke : public QObject
     Q_PROPERTY(qreal width READ width WRITE setWidth NOTIFY widthChanged)
 
 public:
-    explicit Stroke(QObject *parent = 0);
+    explicit Stroke(QObject *parent = nullptr);
 
     QColor color() const;
     void setColor(const QColor &color);

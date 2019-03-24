@@ -1,29 +1,28 @@
-#include <QApplication>
-#include <QtDeclarative>
-#include "qmlapplicationviewer.h"
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include "gameengine.h"
 #include "gameboard.h"
 #include "stroke.h"
 
-Q_DECL_EXPORT int main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    QScopedPointer<QApplication> app(createApplication(argc, argv));
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+    QGuiApplication app(argc, argv);
 
     qmlRegisterType<GameEngine>("PaperChess", 1, 0, "GameEngine");
     qmlRegisterType<GameBoard>("PaperChess", 1, 0, "GameBoard");
     qmlRegisterType<Stroke>("PaperChess", 1, 0, "Stroke");
 
-    QmlApplicationViewer viewer;
-    viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
+    QQmlApplicationEngine engine;
 
     GameEngine gameEngine;
-    viewer.rootContext()->setContextProperty("gameEngine", &gameEngine);
+    engine.rootContext()->setContextProperty("gameEngine", &gameEngine);
 
-    int doubleClickInterval = app->doubleClickInterval();
-    viewer.rootContext()->setContextProperty("doubleClickInterval", doubleClickInterval);
+    engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+    if (engine.rootObjects().isEmpty())
+        return -1;
 
-    viewer.setMainQmlFile(QLatin1String("qml/main.qml"));
-    viewer.showExpanded();
-
-    return app->exec();
+    return app.exec();
 }

@@ -10,11 +10,11 @@ LineEndpointsPredicate::LineEndpointsPredicate(const Dot *endpoint1, const Dot *
 
 bool LineEndpointsPredicate::operator()(const Line *line)
 {
-    if (line == 0) {
+    if (line == nullptr) {
         return false;
     }
 
-    if (m_endpoint2 == 0) {
+    if (m_endpoint2 == nullptr) {
         // only match a single endpoint
         return (&line->endpoint1() == m_endpoint1 || &line->endpoint2() == m_endpoint1);
     }

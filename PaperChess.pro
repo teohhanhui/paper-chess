@@ -1,50 +1,16 @@
-QT += svg
+QT += quick svg
+CONFIG += c++11
 
-# Add more folders to ship with the application, here
-folder_01.source = qml
-folder_01.target =
-DEPLOYMENTFOLDERS = folder_01
+# The following define makes your compiler emit warnings if you use
+# any Qt feature that has been marked deprecated (the exact warnings
+# depend on your compiler). Refer to the documentation for the
+# deprecated API to know how to port your code away from it.
+DEFINES += QT_DEPRECATED_WARNINGS
 
-# Additional import path used to resolve QML modules in Creator's code model
-QML_IMPORT_PATH =
-
-symbian:TARGET.UID3 = 0xE1C8D6CE
-
-# Smart Installer package's UID
-# This UID is from the protected range and therefore the package will
-# fail to install if self-signed. By default qmake uses the unprotected
-# range value if unprotected UID is defined for the application and
-# 0x2002CCCF value if protected UID is given to the application
-#symbian:DEPLOYMENT.installer_header = 0x2002CCCF
-
-# Allow network access on Symbian
-symbian:TARGET.CAPABILITY += NetworkServices
-
-# If your application uses the Qt Mobility libraries, uncomment the following
-# lines and add the respective components to the MOBILITY variable.
-# CONFIG += mobility
-# MOBILITY +=
-
-# Speed up launching on MeeGo/Harmattan when using applauncherd daemon
-# CONFIG += qdeclarative-boostable
-
-# Add dependency to Symbian components
-# CONFIG += qt-components
-
-# The .cpp file which was generated for your project. Feel free to hack it.
-SOURCES += src/main.cpp \
-    src/stroke.cpp \
-    src/dot.cpp \
-    src/line.cpp \
-    src/dotcoordinatespredicate.cpp \
-    src/gameengine.cpp \
-    src/lineendpointspredicate.cpp \
-    src/gameboard.cpp \
-    src/dotonborderpredicate.cpp
-
-# Please do not modify the following two lines. Required for deployment.
-include(qmlapplicationviewer/qmlapplicationviewer.pri)
-qtcAddDeployment()
+# You can also make your code fail to compile if it uses deprecated APIs.
+# In order to do so, uncomment the following line.
+# You can also select to disable deprecated APIs only up to a certain version of Qt.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 HEADERS += \
     src/stroke.h \
@@ -56,7 +22,29 @@ HEADERS += \
     src/gameboard.h \
     src/dotonborderpredicate.h
 
-OTHER_FILES += \
+SOURCES += \
+    src/main.cpp \
+    src/stroke.cpp \
+    src/dot.cpp \
+    src/line.cpp \
+    src/dotcoordinatespredicate.cpp \
+    src/gameengine.cpp \
+    src/lineendpointspredicate.cpp \
+    src/gameboard.cpp \
+    src/dotonborderpredicate.cpp
 
 RESOURCES += \
-    resources/resources.qrc
+    qml.qrc \
+    images.qrc \
+    fonts.qrc
+
+# Additional import path used to resolve QML modules in Qt Creator's code model
+QML_IMPORT_PATH =
+
+# Additional import path used to resolve QML modules just for Qt Quick Designer
+QML_DESIGNER_IMPORT_PATH =
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target

@@ -2,17 +2,13 @@
     <qresource prefix="/">
         <file>images/cover.jpg</file>
         <file>images/cross.svg</file>
-        <file>images/dot.svg</file>
         <file>images/dot_border.svg</file>
+        <file>images/dot.svg</file>
         <file>images/logo_icon.svg</file>
         <file>images/logo_text.png</file>
         <file>images/orange_gradient.svg</file>
         <file>images/paper_texture.png</file>
         <file>images/scoreboard_text.png</file>
         <file>images/wooden_texture.jpg</file>
-        <file>fonts/CantataOne-Regular.ttf</file>
-        <file>fonts/CoveredByYourGrace.ttf</file>
-        <file>fonts/OpenSans-Regular.ttf</file>
-        <file>fonts/Nunito-Bold.ttf</file>
     </qresource>
 </RCC>

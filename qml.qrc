@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/Button.qml</file>
+        <file>qml/CoverPage.qml</file>
+        <file>qml/CoverTextField.qml</file>
+        <file>qml/GamePage.qml</file>
+        <file>qml/HowToPlayPage.qml</file>
+        <file>qml/MainMenuPage.qml</file>
+        <file>qml/NewGamePage.qml</file>
+        <file>qml/Page.qml</file>
+        <file>qml/PlayerIndicator.qml</file>
+        <file>qml/ScorePage.qml</file>
+        <file>qml/SplashScreen.qml</file>
+    </qresource>
+</RCC>

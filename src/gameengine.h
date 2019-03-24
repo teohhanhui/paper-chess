@@ -27,7 +27,7 @@ class GameEngine : public QObject
     Q_ENUMS(Stage)
 
 public:
-    explicit GameEngine(QObject *parent = 0);
+    explicit GameEngine(QObject *parent = nullptr);
     ~GameEngine();
 
     enum Stage { PlaceDotStage, ConnectDotsStage, EndStage };
@@ -179,7 +179,7 @@ private:
     /* Finds an existing line with the specified endpoints.
      * Returns a pointer to the line if found, a null pointer otherwise.
      */
-    Line *findLine(const Dot *endpoint1, const Dot *endpoint2 = 0) const;
+    Line *findLine(const Dot *endpoint1, const Dot *endpoint2 = nullptr) const;
 
     /* Finds all existing lines containing the specified endpoint.
      * Returns a list of the lines found.

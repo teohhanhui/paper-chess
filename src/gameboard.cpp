@@ -1,19 +1,22 @@
 #include "gameboard.h"
-#include <QPainter>
+#include <QtQuick/QQuickPaintedItem>
+#include <QtGui/QPainter>
+#include <QtGui/QImage>
+#include <QtWidgets/QGraphicsItem>
 #include <algorithm>
 #include <limits>
 #include "gameengine.h"
 #include "stroke.h"
 #include "line.h"
 
-GameBoard::GameBoard(QDeclarativeItem *parent)
-    : QDeclarativeItem(parent)
-    , m_engine(0)
+GameBoard::GameBoard(QQuickPaintedItem *parent)
+    : QQuickPaintedItem(parent)
+    , m_engine(nullptr)
     , m_numPlayers(DEFAULT_NUM_PLAYERS)
     , m_gridStroke(new Stroke())
     , m_gridRotation(0)
 {
-    setFlag(QGraphicsItem::ItemHasNoContents, false);
+    setFlag(QQuickItem::ItemHasContents, true);
     connect(this, SIGNAL(widthChanged()), SLOT(resizeBoard()));
     connect(this, SIGNAL(heightChanged()), SLOT(resizeBoard()));
     connect(this, SIGNAL(hasPendingMovesChanged()), SLOT(drawBoard()));
@@ -37,11 +40,11 @@ void GameBoard::setEngine(GameEngine *engine)
         return;
     }
 
-    if (m_engine != 0) {
+    if (m_engine != nullptr) {
         m_engine->disconnect(this);
     }
 
-    if (engine != 0) {
+    if (engine != nullptr) {
         m_engine = engine;
         m_numPlayers = engine->numPlayers();
 
@@ -77,9 +80,9 @@ void GameBoard::setDotSources(QVariantList &list)
     }
 }
 
-QDeclarativeListProperty<Stroke> GameBoard::markStrokes()
+QQmlListProperty<Stroke> GameBoard::markStrokes()
 {
-    return QDeclarativeListProperty<Stroke>(this, m_markStrokes);
+    return QQmlListProperty<Stroke>(this, m_markStrokes);
 }
 
 Stroke *GameBoard::gridStroke() const
@@ -89,7 +92,7 @@ Stroke *GameBoard::gridStroke() const
 
 bool GameBoard::hasPendingMoves() const
 {
-    if (m_engine == 0) {
+    if (m_engine == nullptr) {
         return false;
     }
 
@@ -103,12 +106,9 @@ bool GameBoard::hasPendingMoves() const
     }
 }
 
-void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void GameBoard::paint(QPainter *painter)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
-    if (m_engine == 0) {
+    if (m_engine == nullptr) {
         return;
     }
 
@@ -252,7 +252,7 @@ void GameBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
 void GameBoard::markPosition(QPoint point)
 {
-    if (m_engine == 0) {
+    if (m_engine == nullptr) {
         return;
     }
 
@@ -268,12 +268,12 @@ void GameBoard::markPosition(QPoint point)
     point = gridTransform.map(point);
 
     QPointF gridOrigin = grid.topLeft();
-    int row = (point.y() - gridOrigin.y()) / m_gridSize;
-    int col = (point.x() - gridOrigin.x()) / m_gridSize;
+    int row = static_cast<int>((point.y() - gridOrigin.y()) / m_gridSize);
+    int col = static_cast<int>((point.x() - gridOrigin.x()) / m_gridSize);
 
     Dot dot;
     QPointF intersections[2][2];
-    QPointF *nearestIntersection = 0;
+    QPointF *nearestIntersection = nullptr;
     qreal shortestDistance = std::numeric_limits<qreal>::max();
     qreal distance;
 
@@ -287,7 +287,7 @@ void GameBoard::markPosition(QPoint point)
         for (int j = 0; j < 2; ++j) {
             distance = (intersections[i][j] - point).manhattanLength();
 
-            if (nearestIntersection == 0 || distance < shortestDistance) {
+            if (nearestIntersection == nullptr || distance < shortestDistance) {
                 dot = Dot(m_engine->currentPlayer(), col + j, row + i);
                 nearestIntersection = &(intersections[i][j]);
                 shortestDistance = distance;
@@ -354,7 +354,7 @@ void GameBoard::setUpBoard()
 
 void GameBoard::resizeBoard()
 {
-    if (m_engine == 0 || width() == 0 || height() == 0) {
+    if (m_engine == nullptr || width() == 0 || height() == 0) {
         return;
     }
 
@@ -432,7 +432,7 @@ void GameBoard::makeDotImages()
 
     for (int i = 0; i < m_numPlayers; ++i) {
         QImage &dotImage = m_dotImages[i];
-        dotImage = QImage(QSize(m_gridSize * 0.5, m_gridSize * 0.5), QImage::Format_ARGB32_Premultiplied);
+        dotImage = QImage(QSize(static_cast<int>(m_gridSize * 0.5), static_cast<int>(m_gridSize * 0.5)), QImage::Format_ARGB32_Premultiplied);
         dotImage.fill(qRgba(0, 0, 0, 0));
         dotPainter.begin(&dotImage);
         dotPainter.setRenderHint(QPainter::Antialiasing, true);
@@ -446,7 +446,7 @@ void GameBoard::tryAddToChain(const Dot &dot)
     const Dot *existingDot = m_engine->getDotAt(dot.x(), dot.y());
 
     // check if the dot exists, is active and belongs to the current player
-    if (existingDot == 0 || !existingDot->isActive() || existingDot->player() != dot.player()) {
+    if (existingDot == nullptr || !existingDot->isActive() || existingDot->player() != dot.player()) {
         return;
     }
 
@@ -458,7 +458,7 @@ void GameBoard::tryAddToChain(const Dot &dot)
 
     const Dot &first = m_provisionalChain.front();
     const Dot &last = m_provisionalChain.back();
-    const Dot *previousDot = 0;
+    const Dot *previousDot = nullptr;
 
     if (dot.isNeighbor(first)) {
         previousDot = &first;

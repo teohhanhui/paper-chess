@@ -1,6 +1,4 @@
 #include "gameengine.h"
-#include <QApplication>
-#include <QDebug>
 #include <algorithm>
 #include <stack>
 #include <set>
@@ -172,7 +170,7 @@ std::vector<std::vector<const Dot *> > GameEngine::getChains() const
 
 bool GameEngine::canPlaceDot(int x, int y) const
 {
-    return (isPointActive(x, y) && findDot(m_dots, x, y) == 0);
+    return (isPointActive(x, y) && findDot(m_dots, x, y) == nullptr);
 }
 
 bool GameEngine::canConnectDots(const Dot &dot1, const Dot &dot2) const
@@ -194,7 +192,7 @@ bool GameEngine::canConnectDots(const Dot &dot1, const Dot &dot2) const
 
     // check if the dots are neighbours and are not yet connected
     if (!dot1.isNeighbor(dot2)
-            || findLine(&dot1, &dot2) != 0
+            || findLine(&dot1, &dot2) != nullptr
             || connectedInChain(dot1, dot2)) {
         return false;
     }
@@ -210,13 +208,13 @@ bool GameEngine::canConnectDots(const Dot &dot1, const Dot &dot2) const
         const Dot *blockingDot1 = findDot(m_dots, dot1.x(), dot2.y());
         const Dot *blockingDot2 = findDot(m_dots, dot2.x(), dot1.y());
 
-        if (blockingDot1 == 0 || blockingDot2 == 0) {
+        if (blockingDot1 == nullptr || blockingDot2 == nullptr) {
             return true;
         }
 
         const Line *blockingLine = findLine(blockingDot1, blockingDot2);
 
-        if (blockingLine == 0) {
+        if (blockingLine == nullptr) {
             return true;
         }
     }
@@ -299,7 +297,7 @@ bool GameEngine::connectDots(int x1, int y1, int x2, int y2)
     Dot *dot2 = findDot(m_dots, x2, y2);
 
     // check if the dots exist
-    if (dot1 == 0 || dot2 == 0) {
+    if (dot1 == nullptr || dot2 == nullptr) {
         return false;
     }
 
@@ -363,7 +361,7 @@ void GameEngine::deactivatePoint(int x, int y)
 
 bool GameEngine::connectedInChain(const Dot &dot1, const Dot &dot2) const
 {
-    return (findChain(dot1, dot2) != 0);
+    return (findChain(dot1, dot2) != nullptr);
 }
 
 std::deque<Dot *> &GameEngine::addToChains(Dot &dot1, Dot &dot2)
@@ -633,7 +631,7 @@ void GameEngine::finalizeChain(InputIterator chainStart, InputIterator chainEnd)
             Dot &dot1 = **it;
             Dot &dot2 = **next;
 
-            if ((foundChain = findChain(dot1, dot2)) != 0) {
+            if ((foundChain = findChain(dot1, dot2)) != nullptr) {
                 cutChain(foundChain, dot1, dot2);
                 m_lines.push_back(new Line(dot1, dot2));
             }
@@ -684,7 +682,7 @@ void GameEngine::captureArea(InputIterator chainStart, InputIterator chainEnd)
         for (x = leftBounds[y] + 1; x < rightBounds[y]; ++x) {
             dot = findDot(m_dots, x, y);
 
-            if (dot != 0) {
+            if (dot != nullptr) {
                 if (dot->player() != m_currentPlayer && dot->isActive()) {
                     m_playerScores[m_currentPlayer] += 10;
                     dot->deactivate();
@@ -710,7 +708,7 @@ Dot *GameEngine::findDot(const std::deque<Dot *> &dots, int x, int y) const
         return *it;
     }
     else {
-        return 0;
+        return nullptr;
     }
 }
 
@@ -724,7 +722,7 @@ Line *GameEngine::findLine(const Dot *endpoint1, const Dot *endpoint2) const
         return *it;
     }
     else {
-        return 0;
+        return nullptr;
     }
 }
 
@@ -763,7 +761,7 @@ std::deque<Dot *> *GameEngine::findChain(const Dot &dot1, const Dot &dot2) const
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 std::deque<Dot *> GameEngine::findConnectedDots(const Dot &dot) const
@@ -856,7 +854,7 @@ bool GameEngine::findPath(InputIterator chainStart, InputIterator chainEnd,
         std::deque<Dot *>::const_iterator it;
         std::deque<Dot *>::const_iterator end = connectedDots.end();
 
-        nextDot = 0;
+        nextDot = nullptr;
 
         // find the next dot to visit
         for (it = connectedDots.begin(); it != end; ++it) {
@@ -874,7 +872,7 @@ bool GameEngine::findPath(InputIterator chainStart, InputIterator chainEnd,
         }
 
         // check for dead end
-        if (nextDot == 0) {
+        if (nextDot == nullptr) {
             // pop the current dot off the unvisited stack
             unvisited.pop();
 

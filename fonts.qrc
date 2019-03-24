@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fonts/CantataOne-Regular.ttf</file>
+        <file>fonts/CoveredByYourGrace.ttf</file>
+        <file>fonts/Nunito-Bold.ttf</file>
+        <file>fonts/OpenSans-Regular.ttf</file>
+    </qresource>
+</RCC>

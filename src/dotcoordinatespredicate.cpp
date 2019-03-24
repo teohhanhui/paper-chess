@@ -9,7 +9,7 @@ DotCoordinatesPredicate::DotCoordinatesPredicate(int x, int y)
 
 bool DotCoordinatesPredicate::operator()(const Dot *dot) const
 {
-    if (dot == 0) {
+    if (dot == nullptr) {
         return false;
     }
 
