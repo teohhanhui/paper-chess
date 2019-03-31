@@ -39,12 +39,12 @@ public:
 
     void paint(QPainter *painter);
 
-signals:
-    void hasPendingMovesChanged();
-
 public slots:
     void markPosition(QPoint pos);
     void acceptMove(bool accepted = true);
+
+signals:
+    void hasPendingMovesChanged();
 
 protected slots:
     void setUpBoard();

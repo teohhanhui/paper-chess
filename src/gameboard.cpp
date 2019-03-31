@@ -17,11 +17,11 @@ GameBoard::GameBoard(QQuickPaintedItem *parent)
     , m_gridRotation(0)
 {
     setFlag(QQuickItem::ItemHasContents, true);
-    connect(this, SIGNAL(widthChanged()), SLOT(resizeBoard()));
-    connect(this, SIGNAL(heightChanged()), SLOT(resizeBoard()));
-    connect(this, SIGNAL(hasPendingMovesChanged()), SLOT(drawBoard()));
-    connect(m_gridStroke, SIGNAL(colorChanged()), SLOT(drawBoard()));
-    connect(m_gridStroke, SIGNAL(widthChanged()), SLOT(drawBoard()));
+    connect(this, &GameBoard::widthChanged, this, &GameBoard::resizeBoard);
+    connect(this, &GameBoard::heightChanged, this, &GameBoard::resizeBoard);
+    connect(this, &GameBoard::hasPendingMovesChanged, this, &GameBoard::drawBoard);
+    connect(m_gridStroke, &Stroke::colorChanged, this, &GameBoard::drawBoard);
+    connect(m_gridStroke, &Stroke::widthChanged, this, &GameBoard::drawBoard);
 }
 
 GameBoard::~GameBoard()
@@ -48,9 +48,9 @@ void GameBoard::setEngine(GameEngine *engine)
         m_engine = engine;
         m_numPlayers = engine->numPlayers();
 
-        connect(m_engine, SIGNAL(gameStarted()), SLOT(setUpBoard()));
-        connect(m_engine, SIGNAL(chainsChanged()), SLOT(drawBoard()));
-        connect(m_engine, SIGNAL(turnEnded()), SLOT(clearProvisional()));
+        connect(m_engine, &GameEngine::gameStarted, this, &GameBoard::setUpBoard);
+        connect(m_engine, &GameEngine::chainsChanged, this, &GameBoard::drawBoard);
+        connect(m_engine, &GameEngine::turnEnded, this, &GameBoard::clearProvisional);
 
         setUpBoard();
     }
