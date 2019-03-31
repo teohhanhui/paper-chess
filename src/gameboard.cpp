@@ -1,8 +1,8 @@
 #include "gameboard.h"
-#include <QtQuick/QQuickPaintedItem>
-#include <QtGui/QPainter>
-#include <QtGui/QImage>
-#include <QtWidgets/QGraphicsItem>
+#include <QQuickPaintedItem>
+#include <QPainter>
+#include <QImage>
+#include <QGraphicsItem>
 #include <algorithm>
 #include <limits>
 #include "gameengine.h"

@@ -1,10 +1,10 @@
 #ifndef GAMEBOARD_H
 #define GAMEBOARD_H
 
-#include <QtQuick/QQuickPaintedItem>
+#include <QQuickPaintedItem>
 #include <QVarLengthArray>
-#include <QtSvg/QSvgRenderer>
-#include <QtGui/QImage>
+#include <QSvgRenderer>
+#include <QImage>
 #include <QList>
 #include <deque>
 #include "dot.h"

@@ -2,7 +2,7 @@
 #define STROKE_H
 
 #include <QObject>
-#include <QtGui/QColor>
+#include <QColor>
 
 class Stroke : public QObject
 {
