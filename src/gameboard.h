@@ -1,7 +1,7 @@
 #ifndef GAMEBOARD_H
 #define GAMEBOARD_H
 
-#include <QQuickPaintedItem>
+#include <QQuickItem>
 #include <QVarLengthArray>
 #include <QSvgRenderer>
 #include <QImage>
@@ -12,7 +12,7 @@
 class Stroke;
 class GameEngine;
 
-class GameBoard : public QQuickPaintedItem
+class GameBoard : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(GameEngine *engine READ engine WRITE setEngine)
@@ -22,7 +22,7 @@ class GameBoard : public QQuickPaintedItem
     Q_PROPERTY(bool hasPendingMoves READ hasPendingMoves NOTIFY hasPendingMovesChanged)
 
 public:
-    explicit GameBoard(QQuickPaintedItem *parent = nullptr);
+    explicit GameBoard(QQuickItem *parent = nullptr);
     ~GameBoard();
 
     GameEngine *engine() const;
@@ -51,6 +51,9 @@ protected slots:
     void resizeBoard();
     void drawBoard();
     void clearProvisional();
+
+protected:
+    QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
 
 private:
     void makeGrid();
