@@ -110,6 +110,10 @@ GameBoard::GameBoard(QQuickItem *parent)
 GameBoard::~GameBoard()
 {
     delete m_gridStroke;
+
+    for (const QSvgRenderer *dotSvgRenderer : m_dotSvgRenderers) {
+        delete dotSvgRenderer;
+    }
 }
 
 GameEngine *GameBoard::engine() const
@@ -175,7 +179,7 @@ Stroke *GameBoard::gridStroke() const
 
 bool GameBoard::hasPendingMoves() const
 {
-    if (m_engine == nullptr) {
+    if (!isReady()) {
         return false;
     }
 
@@ -191,7 +195,7 @@ bool GameBoard::hasPendingMoves() const
 
 void GameBoard::markPosition(QPoint point)
 {
-    if (m_engine == nullptr) {
+    if (!isReady()) {
         return;
     }
 
@@ -249,6 +253,10 @@ void GameBoard::markPosition(QPoint point)
 
 void GameBoard::acceptMove(bool accepted)
 {
+    if (!isReady()) {
+        return;
+    }
+
     if (!hasPendingMoves()) {
         return;
     }
@@ -289,6 +297,10 @@ void GameBoard::acceptMove(bool accepted)
 
 void GameBoard::setUpBoard()
 {
+    if (!isReady()) {
+        return;
+    }
+
     m_lineMaterialsDirty = true;
 
     resizeBoard();
@@ -297,7 +309,7 @@ void GameBoard::setUpBoard()
 
 void GameBoard::resizeBoard()
 {
-    if (m_engine == nullptr || width() == 0 || height() == 0) {
+    if (!isReady()) {
         return;
     }
 
@@ -347,12 +359,21 @@ void GameBoard::clearProvisional()
     update();
 }
 
-QSGNode *GameBoard::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData)
+void GameBoard::componentComplete()
 {
-    Q_UNUSED(updatePaintNodeData);
+    QQuickItem::componentComplete();
+
+    setUpBoard();
+}
+
+QSGNode *GameBoard::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+{
+    if (!isReady()) {
+        return oldNode;
+    }
 
     QSGGameBoardNode *node = static_cast<QSGGameBoardNode *>(oldNode);
-    if (!node) {
+    if (node == nullptr) {
         node = new QSGGameBoardNode();
     }
 
@@ -476,6 +497,11 @@ QPointF GameBoard::findIntersection(int x, int y) const
     return QPointF(x * m_gridSize, y * m_gridSize) + gridOrigin;
 }
 
+bool GameBoard::isReady() const
+{
+    return m_engine != nullptr && isComponentComplete() && width() > 0 && height() > 0;
+}
+
 void GameBoard::updateGridNode(GameBoard::QSGGameBoardNode *node)
 {
     if (!m_gridDirty) {
@@ -487,7 +513,7 @@ void GameBoard::updateGridNode(GameBoard::QSGGameBoardNode *node)
 
     if (gridGeometry == nullptr) {
         gridGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), m_gridLines.size() * 2);
-        gridGeometry->setLineWidth(m_gridStroke->width());
+        gridGeometry->setLineWidth(static_cast<float>(m_gridStroke->width()));
         gridGeometry->setDrawingMode(QSGGeometry::DrawLines);
         gridNode->setGeometry(gridGeometry);
         gridNode->setFlag(QSGNode::OwnsGeometry);
@@ -561,8 +587,8 @@ void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
         QSGMaterial *lineMaterial = lineMaterials[player];
 
         QSGGeometryNode *linesNode = new QSGGeometryNode();
-        QSGGeometry *linesGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), lines.size() * 2);
-        linesGeometry->setLineWidth(stroke->width());
+        QSGGeometry *linesGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), static_cast<int>(lines.size() * 2));
+        linesGeometry->setLineWidth(static_cast<float>(stroke->width()));
         linesGeometry->setDrawingMode(QSGGeometry::DrawLines);
         linesNode->setGeometry(linesGeometry);
         linesNode->setFlag(QSGNode::OwnsGeometry);
@@ -598,8 +624,8 @@ void GameBoard::updateChainContainerNode(GameBoard::QSGGameBoardNode *node)
 
     for (const std::vector<const Dot *> &chain : chains) {
         QSGGeometryNode *chainNode = new QSGGeometryNode();
-        QSGGeometry *chainGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), chain.size());
-        chainGeometry->setLineWidth(stroke->width());
+        QSGGeometry *chainGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), static_cast<int>(chain.size()));
+        chainGeometry->setLineWidth(static_cast<float>(stroke->width()));
         chainGeometry->setDrawingMode(QSGGeometry::DrawLineStrip);
         chainNode->setGeometry(chainGeometry);
         chainNode->setFlag(QSGNode::OwnsGeometry);
@@ -654,8 +680,8 @@ void GameBoard::updateProvisionalChainContainerNode(GameBoard::QSGGameBoardNode 
         const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
 
         QSGGeometryNode *chainNode = new QSGGeometryNode();
-        QSGGeometry *chainGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), chain.size());
-        chainGeometry->setLineWidth(stroke->width());
+        QSGGeometry *chainGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), static_cast<int>(chain.size()));
+        chainGeometry->setLineWidth(static_cast<float>(stroke->width()));
         chainGeometry->setDrawingMode(QSGGeometry::DrawLineStrip);
         chainNode->setGeometry(chainGeometry);
         chainNode->setFlag(QSGNode::OwnsGeometry);

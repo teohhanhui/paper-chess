@@ -29,7 +29,7 @@ class GameBoard : public QQuickItem
 
 public:
     explicit GameBoard(QQuickItem *parent = nullptr);
-    ~GameBoard();
+    ~GameBoard() override;
 
     GameEngine *engine() const;
     void setEngine(GameEngine *engine);
@@ -57,6 +57,7 @@ protected slots:
     void clearProvisional();
 
 protected:
+    void componentComplete() override;
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
 
 private:
@@ -95,6 +96,8 @@ private:
     void tryAddToChain(const Dot &dot);
     QPointF findIntersection(int x, int y) const;
 
+    bool isReady() const;
+
     void updateGridNode(QSGGameBoardNode *node);
     void updateDotContainerNode(QSGGameBoardNode *node);
     void updateLineContainerNode(QSGGameBoardNode *node);
@@ -129,7 +132,6 @@ private:
     bool m_dotImagesDirty;
     bool m_linesDirty;
     bool m_lineMaterialsDirty;
-    QTransform m_gridDisplayTransform;
 };
 
 #endif // GAMEBOARD_H

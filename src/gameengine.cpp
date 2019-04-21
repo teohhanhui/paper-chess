@@ -588,7 +588,7 @@ bool GameEngine::extendToBorders(InputIterator chainStart, InputIterator chainEn
     DotOnBorderPredicate pred(0, m_columns, 0, m_rows);
     std::vector<Dot *> resultPath;
     bool startOnBorder = pred(*chainStart);
-    bool endOnBorder = pred(*chainEnd);;
+    bool endOnBorder = pred(*chainEnd);
 
     if (!startOnBorder) {
         startOnBorder = findPath(chainStart, chainEnd, pred, resultPath);
@@ -896,30 +896,21 @@ bool GameEngine::findPath(InputIterator chainStart, InputIterator chainEnd,
 
 void GameEngine::clearTurnData()
 {
-    std::list<std::deque<Dot *>*>::iterator it;
-    std::list<std::deque<Dot *>*>::iterator end = m_chains.end();
-
-    for (it = m_chains.begin(); it != end; ++it) {
-        delete *it;
+    for (const std::deque<Dot *> *chain : m_chains) {
+        delete chain;
     }
     m_chains.clear();
 }
 
 void GameEngine::clearGameData()
 {
-    std::deque<Dot *>::iterator dots_it;
-    std::deque<Dot *>::iterator dots_end = m_dots.end();
-
-    for (dots_it = m_dots.begin(); dots_it != dots_end; ++dots_it) {
-        delete *dots_it;
+    for (const Dot *dot : m_dots) {
+        delete dot;
     }
     m_dots.clear();
 
-    std::deque<Line *>::iterator lines_it;
-    std::deque<Line *>::iterator lines_end = m_lines.end();
-
-    for (lines_it = m_lines.begin(); lines_it != lines_end; ++lines_it) {
-        delete *lines_it;
+    for (const Line *line : m_lines) {
+        delete line;
     }
     m_lines.clear();
 }
