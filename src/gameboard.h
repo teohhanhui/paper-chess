@@ -2,10 +2,16 @@
 #define GAMEBOARD_H
 
 #include <QQuickItem>
+#include <QVector>
 #include <QVarLengthArray>
 #include <QSvgRenderer>
 #include <QImage>
 #include <QList>
+#include <QSGNode>
+#include <QSGGeometryNode>
+#include <QSGOpacityNode>
+#include <QSGTexture>
+#include <QSGMaterial>
 #include <deque>
 #include "dot.h"
 
@@ -37,8 +43,6 @@ public:
 
     bool hasPendingMoves() const;
 
-    void paint(QPainter *painter);
-
 public slots:
     void markPosition(QPoint pos);
     void acceptMove(bool accepted = true);
@@ -56,10 +60,52 @@ protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
 
 private:
+    class QSGGameBoardNode : public QSGNode
+    {
+        public:
+            explicit QSGGameBoardNode();
+            ~QSGGameBoardNode();
+
+            QSGGeometryNode *gridNode() const;
+            QSGNode *dotContainerNode() const;
+            QSGNode *lineContainerNode() const;
+            QSGNode *chainContainerNode() const;
+            QSGOpacityNode *provisionalDotContainerNode() const;
+            QSGOpacityNode *provisionalChainContainerNode() const;
+
+            QVector<QSGTexture *> dotTextures() const;
+            void setDotTextures(QVector<QSGTexture *> dotTextures);
+
+            QVector<QSGMaterial *> lineMaterials() const;
+            void setLineMaterials(QVector<QSGMaterial *> lineMaterials);
+
+        private:
+            QSGGeometryNode *m_gridNode;
+            QSGNode *m_dotContainerNode;
+            QSGNode *m_lineContainerNode;
+            QSGNode *m_chainContainerNode;
+            QSGOpacityNode *m_provisionalDotContainerNode;
+            QSGOpacityNode *m_provisionalChainContainerNode;
+            QVector<QSGTexture *> m_dotTextures;
+            QVector<QSGMaterial *> m_lineMaterials;
+    };
+
     void makeGrid();
     void makeDotImages();
     void tryAddToChain(const Dot &dot);
     QPointF findIntersection(int x, int y) const;
+
+    void updateGridNode(QSGGameBoardNode *node);
+    void updateDotContainerNode(QSGGameBoardNode *node);
+    void updateLineContainerNode(QSGGameBoardNode *node);
+    void updateChainContainerNode(QSGGameBoardNode *node);
+    void updateProvisionalDotContainerNode(QSGGameBoardNode *node);
+    void updateProvisionalChainContainerNode(QSGGameBoardNode *node);
+
+    void prepareDotTextures(QSGGameBoardNode *node);
+    void prepareLineMaterials(QSGGameBoardNode *node);
+
+    QTransform gridDisplayTransform() const;
 
     static const int DEFAULT_NUM_PLAYERS = 2;
 
@@ -78,6 +124,12 @@ private:
     QVarLengthArray<QImage, DEFAULT_NUM_PLAYERS> m_dotImages;
     Dot m_provisionalDot;
     std::deque<Dot> m_provisionalChain;
+    bool m_gridDirty;
+    bool m_dotsDirty;
+    bool m_dotImagesDirty;
+    bool m_linesDirty;
+    bool m_lineMaterialsDirty;
+    QTransform m_gridDisplayTransform;
 };
 
 #endif // GAMEBOARD_H
