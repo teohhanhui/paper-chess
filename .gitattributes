@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+*.cpp text eol=lf
+*.h text eol=lf
+*.pro text eol=lf
+*.qml text eol=lf
+*.qrc text eol=lf
+*.svg text eol=lf
+
+*.jpg binary
+*.png binary
+*.ttf binary
