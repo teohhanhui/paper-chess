@@ -169,7 +169,27 @@ void GameBoard::setDotSources(QVariantList &list)
 
 QQmlListProperty<Stroke> GameBoard::markStrokes()
 {
-    return QQmlListProperty<Stroke>(this, m_markStrokes);
+    return QQmlListProperty<Stroke>(this, nullptr, &GameBoard::appendMarkStroke, &GameBoard::markStrokeCount, &GameBoard::markStroke, &GameBoard::clearMarkStrokes);
+}
+
+void GameBoard::appendMarkStroke(Stroke *markStroke)
+{
+    m_markStrokes.append(markStroke);
+}
+
+int GameBoard::markStrokeCount() const
+{
+    return m_markStrokes.count();
+}
+
+Stroke* GameBoard::markStroke(int index) const
+{
+    return m_markStrokes.at(index);
+}
+
+void GameBoard::clearMarkStrokes()
+{
+    m_markStrokes.clear();
 }
 
 Stroke *GameBoard::gridStroke() const
@@ -390,6 +410,26 @@ QSGNode *GameBoard::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     return node;
 }
 
+void GameBoard::appendMarkStroke(QQmlListProperty<Stroke> *property, Stroke *value)
+{
+    static_cast<GameBoard *>(property->object)->appendMarkStroke(value);
+}
+
+int GameBoard::markStrokeCount(QQmlListProperty<Stroke> *property)
+{
+    return static_cast<GameBoard *>(property->object)->markStrokeCount();
+}
+
+Stroke* GameBoard::markStroke(QQmlListProperty<Stroke> *property, int index)
+{
+    return static_cast<GameBoard *>(property->object)->markStroke(index);
+}
+
+void GameBoard::clearMarkStrokes(QQmlListProperty<Stroke> *property)
+{
+    static_cast<GameBoard *>(property->object)->clearMarkStrokes();
+}
+
 void GameBoard::makeGrid()
 {
     QRectF rect = boundingRect();
@@ -553,8 +593,8 @@ void GameBoard::updateDotContainerNode(GameBoard::QSGGameBoardNode *node)
     QVector<QSGTexture *> dotTextures = node->dotTextures();
     const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
 
-    for (const Dot *pdot : dots) {
-        const Dot &dot = *pdot;
+    for (const Dot *pDot : dots) {
+        const Dot &dot = *pDot;
         const QImage &dotImage = m_dotImages[dot.player()];
         const QPointF intersection = gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
         const QRectF dotRect = QRectF((intersection - QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)), (intersection + QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)));
@@ -598,8 +638,8 @@ void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
         QSGGeometry::Point2D *vertices = linesGeometry->vertexDataAsPoint2D();
         size_t i = 0;
 
-        for (const Line *pline : lines) {
-            const Line &line = *pline;
+        for (const Line *pLine : lines) {
+            const Line &line = *pLine;
 
             for (const Dot &dot : {line.endpoint1(), line.endpoint2()}) {
                 QPointF point = gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
@@ -636,8 +676,8 @@ void GameBoard::updateChainContainerNode(GameBoard::QSGGameBoardNode *node)
         QSGGeometry::Point2D *vertices = chainGeometry->vertexDataAsPoint2D();
         size_t i = 0;
 
-        for (const Dot *pdot : chain) {
-            const Dot dot = *pdot;
+        for (const Dot *pDot : chain) {
+            const Dot dot = *pDot;
             const QPointF point = gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
 
             vertices[i++].set(static_cast<float>(point.x()), static_cast<float>(point.y()));

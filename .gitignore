@@ -36,6 +36,7 @@ Thumbs.db
 /.qmake.cache
 /.qmake.stash
 PaperChess
+/build/
 
 # qtcreator generated files
 *.pro.user*
@@ -62,7 +63,7 @@ PaperChess
 *vcxproj.*
 
 # Visual Studio Code generated files
-/.vscode
+/.vscode/
 
 # MinGW generated files
 *.Debug
@@ -75,4 +76,3 @@ PaperChess
 # --------
 *.dll
 *.exe
-

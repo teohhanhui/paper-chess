@@ -16,6 +16,7 @@ GameEngine::GameEngine(QObject *parent)
     , m_turnLimit(0)
     , m_turnsLeft(0)
     , m_currentPlayer(0)
+    , m_stage(PlaceDotStage)
 {
     m_playerNames.resize(m_numPlayers);
 
@@ -115,11 +116,9 @@ std::vector<const Dot *> GameEngine::getDots() const
 {
     std::vector<const Dot *> outDots;
     const std::deque<Dot *> &dots = m_dots;
-    std::deque<Dot *>::const_iterator it;
-    std::deque<Dot *>::const_iterator end = dots.end();
 
-    for (it = dots.begin(); it != end; ++it) {
-        outDots.push_back(*it);
+    for (const Dot *dot : dots) {
+        outDots.push_back(dot);
     }
 
     return outDots;
@@ -129,13 +128,8 @@ std::vector<const Line *> GameEngine::getLines(int player) const
 {
     std::vector<const Line *> outLines;
     const std::deque<Line *> &lines = m_lines;
-    std::deque<Line *>::const_iterator it;
-    std::deque<Line *>::const_iterator end = lines.end();
-    Line *line;
 
-    for (it = lines.begin(); it != end; ++it) {
-        line = *it;
-
+    for (const Line *line : lines) {
         if (line->endpoint1().player() == player) {
             outLines.push_back(line);
         }
@@ -148,18 +142,13 @@ std::vector<std::vector<const Dot *> > GameEngine::getChains() const
 {
     std::vector<std::vector<const Dot *> > outChains;
     const std::list<std::deque<Dot *>*> &chains = m_chains;
-    std::list<std::deque<Dot *>*>::const_iterator chains_it;
-    std::list<std::deque<Dot *>*>::const_iterator chains_end = chains.end();
-    std::deque<Dot *>::const_iterator it;
-    std::deque<Dot *>::const_iterator end;
 
-    for (chains_it = chains.begin(); chains_it != chains_end; ++chains_it) {
+    for (const std::deque<Dot *> *pChain : chains) {
         std::vector<const Dot *> outChain;
-        const std::deque<Dot *> &chain = **chains_it;
-        end = chain.end();
+        const std::deque<Dot *> &chain = *pChain;
 
-        for (it = chain.begin(); it != end; ++it) {
-            outChain.push_back(*it);
+        for (const Dot *dot : chain) {
+            outChain.push_back(dot);
         }
 
         outChains.push_back(outChain);
@@ -739,7 +728,7 @@ std::deque<Line *> GameEngine::findLines(const Dot &endpoint) const
 
         if (it != end) {
             matches.push_back(*it);
-            it++; // start checking from next element
+            ++it; // start checking from next element
         }
     }
 
@@ -749,13 +738,8 @@ std::deque<Line *> GameEngine::findLines(const Dot &endpoint) const
 std::deque<Dot *> *GameEngine::findChain(const Dot &dot1, const Dot &dot2) const
 {
     const std::list<std::deque<Dot *>*> &chains = m_chains;
-    std::list<std::deque<Dot *>*>::const_iterator chains_it;
-    std::list<std::deque<Dot *>*>::const_iterator chains_end = chains.end();
-    std::deque<Dot *> *chain;
 
-    for (chains_it = chains.begin(); chains_it != chains_end; ++chains_it) {
-        chain = *chains_it;
-
+    for (std::deque<Dot *> *chain : chains) {
         if (neighborsInChain(chain->begin(), chain->end() - 1, dot1, dot2)) {
             return chain;
         }
@@ -771,11 +755,9 @@ std::deque<Dot *> GameEngine::findConnectedDots(const Dot &dot) const
     // find connected dots in the existing lines
     {
         const std::deque<Line *> &lines = findLines(dot);
-        std::deque<Line *>::const_iterator lines_it;
-        std::deque<Line *>::const_iterator lines_end = lines.end();
 
-        for (lines_it = lines.begin(); lines_it != lines_end; ++lines_it) {
-            const Line &line = **lines_it;
+        for (const Line *pLine : lines) {
+            const Line &line = *pLine;
 
             if (&line.endpoint1() != &dot) {
                 connectedDots.push_back(&line.endpoint1());
@@ -789,21 +771,13 @@ std::deque<Dot *> GameEngine::findConnectedDots(const Dot &dot) const
     // find connected dots in all chains
     {
         const std::list<std::deque<Dot *>*> &chains = m_chains;
-        std::list<std::deque<Dot *>*>::const_iterator chains_it;
-        std::list<std::deque<Dot *>*>::const_iterator chains_end = chains.end();
-        std::deque<Dot *> *chain;
-        std::deque<Dot *>::const_iterator it;
-        std::deque<Dot *>::const_iterator begin;
-        std::deque<Dot *>::const_iterator end;
-        bool found;
 
-        for (chains_it = chains.begin(); chains_it != chains_end; ++chains_it) {
-            chain = *chains_it;
-            begin = chain->begin();
-            end = chain->end();
-            found = false;
+        for (const std::deque<Dot *> *chain : chains) {
+            std::deque<Dot *>::const_iterator begin = chain->begin();
+            std::deque<Dot *>::const_iterator end = chain->end();
+            bool found = false;
 
-            for (it = begin; !found && it != end; ++it) {
+            for (std::deque<Dot *>::const_iterator it = begin; !found && it != end; ++it) {
                 if (*it == &dot) {
                     if (it - 1 != begin - 1) {
                         connectedDots.push_back(*(it - 1));
@@ -851,22 +825,20 @@ bool GameEngine::findPath(InputIterator chainStart, InputIterator chainEnd,
 
         // find all dots connected to the current dot
         const std::deque<Dot *> &connectedDots = findConnectedDots(*currentDot);
-        std::deque<Dot *>::const_iterator it;
-        std::deque<Dot *>::const_iterator end = connectedDots.end();
 
         nextDot = nullptr;
 
         // find the next dot to visit
-        for (it = connectedDots.begin(); it != end; ++it) {
+        for (Dot *dot : connectedDots) {
             // check terminating condition
-            if (pred(*it) && !neighborsInChain(chainStart, chainEnd, *currentDot, **it)) {
-                resultPath.push_back(*it);
+            if (pred(dot) && !neighborsInChain(chainStart, chainEnd, *currentDot, *dot)) {
+                resultPath.push_back(dot);
                 return true;
             }
 
             // check for a dot that has not been visited
-            if (visited.find(*it) == visited.end()) {
-                nextDot = *it;
+            if (visited.find(dot) == visited.end()) {
+                nextDot = dot;
                 break;
             }
         }

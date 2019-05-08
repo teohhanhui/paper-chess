@@ -148,7 +148,6 @@ Page {
             id: gameBoard
 
             anchors.fill: parent
-            smooth: true
 
             engine: gameEngine
             dotSources: [
@@ -478,7 +477,6 @@ Page {
             width: 60 * baseFontSize
             height: 55 * baseFontSize
             anchors.centerIn: parent
-            smooth: true
 
             radius: 10
             border {
@@ -524,7 +522,6 @@ Page {
             width: 100 * baseFontSize
             height: 60 * baseFontSize
             anchors.centerIn: parent
-            smooth: true
             state: "hidden"
 
             radius:10

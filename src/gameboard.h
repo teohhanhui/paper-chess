@@ -38,6 +38,10 @@ public:
     void setDotSources(QVariantList &list);
 
     QQmlListProperty<Stroke> markStrokes();
+    void appendMarkStroke(Stroke *markStroke);
+    int markStrokeCount() const;
+    Stroke* markStroke(int index) const;
+    void clearMarkStrokes();
 
     Stroke *gridStroke() const;
 
@@ -90,6 +94,11 @@ private:
             QVector<QSGTexture *> m_dotTextures;
             QVector<QSGMaterial *> m_lineMaterials;
     };
+
+    static void appendMarkStroke(QQmlListProperty<Stroke> *property, Stroke *value);
+    static int markStrokeCount(QQmlListProperty<Stroke> *property);
+    static Stroke* markStroke(QQmlListProperty<Stroke> *property, int index);
+    static void clearMarkStrokes(QQmlListProperty<Stroke> *property);
 
     void makeGrid();
     void makeDotImages();

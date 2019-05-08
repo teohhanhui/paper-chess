@@ -33,7 +33,6 @@ Rectangle {
             id: playerMarkerImage
 
             anchors.centerIn: parent
-            smooth: true
 
             sourceSize.height: font.pixelSize
         }
