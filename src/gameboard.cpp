@@ -400,12 +400,19 @@ QSGNode *GameBoard::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     prepareDotTextures(node);
     prepareLineMaterials(node);
 
+    m_dotImagesDirty = false;
+    m_lineMaterialsDirty = false;
+
     updateGridNode(node);
     updateDotContainerNode(node);
     updateLineContainerNode(node);
     updateChainContainerNode(node);
     updateProvisionalDotContainerNode(node);
     updateProvisionalChainContainerNode(node);
+
+    m_gridDirty = false;
+    m_dotsDirty = false;
+    m_linesDirty = false;
 
     return node;
 }
@@ -576,8 +583,6 @@ void GameBoard::updateGridNode(GameBoard::QSGGameBoardNode *node)
     }
 
     gridNode->markDirty(QSGNode::DirtyGeometry);
-
-    m_gridDirty = false;
 }
 
 void GameBoard::updateDotContainerNode(GameBoard::QSGGameBoardNode *node)
@@ -587,14 +592,22 @@ void GameBoard::updateDotContainerNode(GameBoard::QSGGameBoardNode *node)
     }
 
     QSGNode *dotContainerNode = node->dotContainerNode();
-    dotContainerNode->removeAllChildNodes();
+    if (m_gridDirty) {
+        dotContainerNode->removeAllChildNodes();
+    }
 
     const std::vector<const Dot *> &dots = m_engine->getDots();
+    if (dots.empty()) {
+        return;
+    }
+
+    std::vector<const Dot *>::const_iterator dots_it = m_gridDirty ? dots.cbegin() : dots.cend() - 1;
+    const std::vector<const Dot *>::const_iterator dots_end = dots.end();
     QVector<QSGTexture *> dotTextures = node->dotTextures();
     const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
 
-    for (const Dot *pDot : dots) {
-        const Dot &dot = *pDot;
+    for (; dots_it != dots_end; ++dots_it) {
+        const Dot &dot = **dots_it;
         const QImage &dotImage = m_dotImages[dot.player()];
         const QPointF intersection = gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
         const QRectF dotRect = QRectF((intersection - QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)), (intersection + QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)));
@@ -605,8 +618,6 @@ void GameBoard::updateDotContainerNode(GameBoard::QSGGameBoardNode *node)
         dotNode->setTexture(dotTexture);
         dotContainerNode->appendChildNode(dotNode);
     }
-
-    m_dotsDirty = false;
 }
 
 void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
@@ -647,8 +658,6 @@ void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
             }
         }
     }
-
-    m_linesDirty = false;
 }
 
 void GameBoard::updateChainContainerNode(GameBoard::QSGGameBoardNode *node)
@@ -759,8 +768,6 @@ void GameBoard::prepareDotTextures(GameBoard::QSGGameBoardNode *node)
     }
 
     node->setDotTextures(dotTextures);
-
-    m_dotImagesDirty = false;
 }
 
 void GameBoard::prepareLineMaterials(GameBoard::QSGGameBoardNode *node)
@@ -783,8 +790,6 @@ void GameBoard::prepareLineMaterials(GameBoard::QSGGameBoardNode *node)
     }
 
     node->setLineMaterials(lineMaterials);
-
-    m_lineMaterialsDirty = false;
 }
 
 QTransform GameBoard::gridDisplayTransform() const
