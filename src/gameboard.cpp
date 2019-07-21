@@ -627,24 +627,38 @@ void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
     }
 
     QSGNode *lineContainerNode = node->lineContainerNode();
-    lineContainerNode->removeAllChildNodes();
+    if (m_gridDirty) {
+        lineContainerNode->removeAllChildNodes();
+    }
 
     QVector<QSGMaterial *> lineMaterials = node->lineMaterials();
     const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
 
     for (int player = 0; player < m_numPlayers; ++player) {
         const std::vector<const Line *> &lines = m_engine->getLines(player);
-        const Stroke *stroke = m_markStrokes[player];
-        QSGMaterial *lineMaterial = lineMaterials[player];
+        QSGGeometryNode *linesNode = static_cast<QSGGeometryNode *>(lineContainerNode->childAtIndex(player));
+        QSGGeometry *linesGeometry = nullptr;
+        const int vertexCount = static_cast<int>(lines.size() * 2);
 
-        QSGGeometryNode *linesNode = new QSGGeometryNode();
-        QSGGeometry *linesGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), static_cast<int>(lines.size() * 2));
-        linesGeometry->setLineWidth(static_cast<float>(stroke->width()));
-        linesGeometry->setDrawingMode(QSGGeometry::DrawLines);
-        linesNode->setGeometry(linesGeometry);
-        linesNode->setFlag(QSGNode::OwnsGeometry);
-        linesNode->setMaterial(lineMaterial);
-        lineContainerNode->appendChildNode(linesNode);
+        if (linesNode == nullptr) {
+            const Stroke *stroke = m_markStrokes[player];
+            QSGMaterial *lineMaterial = lineMaterials[player];
+
+            linesNode = new QSGGeometryNode();
+            linesGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), vertexCount);
+            linesGeometry->setLineWidth(static_cast<float>(stroke->width()));
+            linesGeometry->setDrawingMode(QSGGeometry::DrawLines);
+            linesNode->setGeometry(linesGeometry);
+            linesNode->setFlag(QSGNode::OwnsGeometry);
+            linesNode->setMaterial(lineMaterial);
+            lineContainerNode->appendChildNode(linesNode);
+        } else {
+            linesGeometry = linesNode->geometry();
+            if (linesGeometry->vertexCount() == vertexCount) {
+                continue;
+            }
+            linesGeometry->allocate(vertexCount);
+        }
 
         QSGGeometry::Point2D *vertices = linesGeometry->vertexDataAsPoint2D();
         size_t i = 0;
@@ -657,6 +671,8 @@ void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
                 vertices[i++].set(static_cast<float>(point.x()), static_cast<float>(point.y()));
             }
         }
+
+        linesNode->markDirty(QSGNode::DirtyGeometry);
     }
 }
 
