@@ -1,13 +1,13 @@
 #include "gameboard.h"
+#include "gameengine.h"
+#include "line.h"
+#include "stroke.h"
 #include <QPainter>
-#include <QSGFlatColorMaterial>
 #include <QQuickWindow>
+#include <QSGFlatColorMaterial>
 #include <QSGImageNode>
 #include <algorithm>
 #include <limits>
-#include "gameengine.h"
-#include "stroke.h"
-#include "line.h"
 
 GameBoard::QSGGameBoardNode::QSGGameBoardNode()
     : QSGNode()
@@ -64,7 +64,8 @@ QSGOpacityNode *GameBoard::QSGGameBoardNode::provisionalDotContainerNode() const
     return m_provisionalDotContainerNode;
 }
 
-QSGOpacityNode *GameBoard::QSGGameBoardNode::provisionalChainContainerNode() const
+QSGOpacityNode *GameBoard::QSGGameBoardNode::provisionalChainContainerNode()
+    const
 {
     return m_provisionalChainContainerNode;
 }
@@ -74,7 +75,8 @@ QVector<QSGTexture *> GameBoard::QSGGameBoardNode::dotTextures() const
     return m_dotTextures;
 }
 
-void GameBoard::QSGGameBoardNode::setDotTextures(QVector<QSGTexture *> dotTextures)
+void GameBoard::QSGGameBoardNode::setDotTextures(
+    QVector<QSGTexture *> dotTextures)
 {
     m_dotTextures = dotTextures;
 }
@@ -84,7 +86,8 @@ QVector<QSGMaterial *> GameBoard::QSGGameBoardNode::lineMaterials() const
     return m_lineMaterials;
 }
 
-void GameBoard::QSGGameBoardNode::setLineMaterials(QVector<QSGMaterial *> lineMaterials)
+void GameBoard::QSGGameBoardNode::setLineMaterials(
+    QVector<QSGMaterial *> lineMaterials)
 {
     m_lineMaterials = lineMaterials;
 }
@@ -104,7 +107,8 @@ GameBoard::GameBoard(QQuickItem *parent)
     setFlag(ItemHasContents, true);
     connect(this, &GameBoard::widthChanged, this, &GameBoard::resizeBoard);
     connect(this, &GameBoard::heightChanged, this, &GameBoard::resizeBoard);
-    connect(this, &GameBoard::hasPendingMovesChanged, this, &GameBoard::drawBoard);
+    connect(
+        this, &GameBoard::hasPendingMovesChanged, this, &GameBoard::drawBoard);
 }
 
 GameBoard::~GameBoard()
@@ -135,9 +139,15 @@ void GameBoard::setEngine(GameEngine *engine)
         m_engine = engine;
         m_numPlayers = engine->numPlayers();
 
-        connect(m_engine, &GameEngine::gameStarted, this, &GameBoard::setUpBoard);
-        connect(m_engine, &GameEngine::chainsChanged, this, &GameBoard::drawBoard);
-        connect(m_engine, &GameEngine::turnEnded, this, &GameBoard::clearProvisional);
+        connect(
+            m_engine, &GameEngine::gameStarted, this, &GameBoard::setUpBoard);
+        connect(
+            m_engine, &GameEngine::chainsChanged, this, &GameBoard::drawBoard);
+        connect(
+            m_engine,
+            &GameEngine::turnEnded,
+            this,
+            &GameBoard::clearProvisional);
 
         setUpBoard();
     }
@@ -169,7 +179,13 @@ void GameBoard::setDotSources(QVariantList &list)
 
 QQmlListProperty<Stroke> GameBoard::markStrokes()
 {
-    return QQmlListProperty<Stroke>(this, nullptr, &GameBoard::appendMarkStroke, &GameBoard::markStrokeCount, &GameBoard::markStroke, &GameBoard::clearMarkStrokes);
+    return QQmlListProperty<Stroke>(
+        this,
+        nullptr,
+        &GameBoard::appendMarkStroke,
+        &GameBoard::markStrokeCount,
+        &GameBoard::markStroke,
+        &GameBoard::clearMarkStrokes);
 }
 
 void GameBoard::appendMarkStroke(Stroke *markStroke)
@@ -182,7 +198,7 @@ int GameBoard::markStrokeCount() const
     return m_markStrokes.count();
 }
 
-Stroke* GameBoard::markStroke(int index) const
+Stroke *GameBoard::markStroke(int index) const
 {
     return m_markStrokes.at(index);
 }
@@ -204,12 +220,12 @@ bool GameBoard::hasPendingMoves() const
     }
 
     switch (m_engine->stage()) {
-    case GameEngine::PlaceDotStage:
-        return m_provisionalDot.isValid();
-    case GameEngine::ConnectDotsStage:
-        return (m_provisionalChain.size() > 1);
-    default:
-        return false;
+        case GameEngine::PlaceDotStage:
+            return m_provisionalDot.isValid();
+        case GameEngine::ConnectDotsStage:
+            return (m_provisionalChain.size() > 1);
+        default:
+            return false;
     }
 }
 
@@ -220,7 +236,8 @@ void GameBoard::markPosition(QPoint point)
     }
 
     // check if the point is around the grid
-    if (!(m_gridRect.adjusted(-m_gridSize, -m_gridSize, m_gridSize, m_gridSize)).contains(point)) {
+    if (!(m_gridRect.adjusted(-m_gridSize, -m_gridSize, m_gridSize, m_gridSize))
+             .contains(point)) {
         return;
     }
 
@@ -246,7 +263,8 @@ void GameBoard::markPosition(QPoint point)
     // check the distance of the point from each intersection
     for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
-            const qreal distance = (intersections[i][j] - point).manhattanLength();
+            const qreal distance =
+                (intersections[i][j] - point).manhattanLength();
 
             if (nearestIntersection == nullptr || distance < shortestDistance) {
                 dot = Dot(m_engine->currentPlayer(), col + j, row + i);
@@ -257,17 +275,20 @@ void GameBoard::markPosition(QPoint point)
     }
 
     switch (m_engine->stage()) {
-    case GameEngine::PlaceDotStage:
-        if (m_engine->canPlaceDot(dot.x(), dot.y())) {
-            m_provisionalDot = dot;
-            emit hasPendingMovesChanged();
-        }
-        break;
-    case GameEngine::ConnectDotsStage:
-        tryAddToChain(dot);
-        break;
-    default:
-        break;
+        case GameEngine::PlaceDotStage:
+            if (m_engine->canPlaceDot(dot.x(), dot.y())) {
+                m_provisionalDot = dot;
+
+                emit hasPendingMovesChanged();
+            }
+
+            break;
+        case GameEngine::ConnectDotsStage:
+            tryAddToChain(dot);
+
+            break;
+        default:
+            break;
     }
 }
 
@@ -282,34 +303,38 @@ void GameBoard::acceptMove(bool accepted)
     }
 
     switch (m_engine->stage()) {
-    case GameEngine::PlaceDotStage:
-        if (accepted) {
-            m_engine->placeDot(m_provisionalDot.x(), m_provisionalDot.y());
+        case GameEngine::PlaceDotStage:
+            if (accepted) {
+                m_engine->placeDot(m_provisionalDot.x(), m_provisionalDot.y());
 
-            m_dotsDirty = true;
-        }
-
-        m_provisionalDot = Dot();
-        break;
-    case GameEngine::ConnectDotsStage:
-        if (accepted) {
-            std::deque<Dot>::const_iterator it;
-            std::deque<Dot>::const_iterator last = m_provisionalChain.end() - 1;
-
-            for (it = m_provisionalChain.begin(); it != last; ++it) {
-                const Dot dot1 = *it;
-                const Dot dot2 = *(it + 1);
-
-                m_engine->connectDots(dot1.x(), dot1.y(), dot2.x(), dot2.y());
+                m_dotsDirty = true;
             }
 
-            m_linesDirty = true;
-        }
+            m_provisionalDot = Dot();
 
-        m_provisionalChain.clear();
-        break;
-    default:
-        break;
+            break;
+        case GameEngine::ConnectDotsStage:
+            if (accepted) {
+                std::deque<Dot>::const_iterator it;
+                std::deque<Dot>::const_iterator last =
+                    m_provisionalChain.end() - 1;
+
+                for (it = m_provisionalChain.begin(); it != last; ++it) {
+                    const Dot dot1 = *it;
+                    const Dot dot2 = *(it + 1);
+
+                    m_engine->connectDots(
+                        dot1.x(), dot1.y(), dot2.x(), dot2.y());
+                }
+
+                m_linesDirty = true;
+            }
+
+            m_provisionalChain.clear();
+
+            break;
+        default:
+            break;
     }
 
     emit hasPendingMovesChanged();
@@ -343,8 +368,7 @@ void GameBoard::resizeBoard()
         m_gridColumns = shorter;
 
         m_gridRotation = rows == taller ? 0 : 90;
-    }
-    else {
+    } else {
         m_gridRows = shorter;
         m_gridColumns = taller;
 
@@ -417,7 +441,9 @@ QSGNode *GameBoard::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     return node;
 }
 
-void GameBoard::appendMarkStroke(QQmlListProperty<Stroke> *property, Stroke *value)
+void GameBoard::appendMarkStroke(
+    QQmlListProperty<Stroke> *property,
+    Stroke *value)
 {
     static_cast<GameBoard *>(property->object)->appendMarkStroke(value);
 }
@@ -427,7 +453,7 @@ int GameBoard::markStrokeCount(QQmlListProperty<Stroke> *property)
     return static_cast<GameBoard *>(property->object)->markStrokeCount();
 }
 
-Stroke* GameBoard::markStroke(QQmlListProperty<Stroke> *property, int index)
+Stroke *GameBoard::markStroke(QQmlListProperty<Stroke> *property, int index)
 {
     return static_cast<GameBoard *>(property->object)->markStroke(index);
 }
@@ -445,7 +471,8 @@ void GameBoard::makeGrid()
         return;
     }
 
-    m_gridSize = qMin(rect.width() / (m_gridColumns + 2), rect.height() / (m_gridRows + 2));
+    m_gridSize = qMin(
+        rect.width() / (m_gridColumns + 2), rect.height() / (m_gridRows + 2));
 
     qreal width = m_gridColumns * m_gridSize;
     qreal height = m_gridRows * m_gridSize;
@@ -474,7 +501,11 @@ void GameBoard::makeDotImages()
 
     for (int i = 0; i < m_numPlayers; ++i) {
         QImage &dotImage = m_dotImages[i];
-        dotImage = QImage(QSize(static_cast<int>(m_gridSize * 0.5), static_cast<int>(m_gridSize * 0.5)), QImage::Format_ARGB32_Premultiplied);
+        dotImage = QImage(
+            QSize(
+                static_cast<int>(m_gridSize * 0.5),
+                static_cast<int>(m_gridSize * 0.5)),
+            QImage::Format_ARGB32_Premultiplied);
         dotImage.fill(qRgba(0, 0, 0, 0));
         dotPainter.begin(&dotImage);
         dotPainter.setRenderHint(QPainter::Antialiasing, true);
@@ -488,13 +519,15 @@ void GameBoard::tryAddToChain(const Dot &dot)
     const Dot *existingDot = m_engine->getDotAt(dot.x(), dot.y());
 
     // check if the dot exists, is active and belongs to the current player
-    if (existingDot == nullptr || !existingDot->isActive() || existingDot->player() != dot.player()) {
+    if (existingDot == nullptr || !existingDot->isActive()
+        || existingDot->player() != dot.player()) {
         return;
     }
 
     // check if there is already a chain
     if (m_provisionalChain.empty()) {
         m_provisionalChain.push_back(dot);
+
         return;
     }
 
@@ -504,14 +537,14 @@ void GameBoard::tryAddToChain(const Dot &dot)
 
     if (dot.isNeighbor(first)) {
         previousDot = &first;
-    }
-    else if (dot.isNeighbor(last)) {
+    } else if (dot.isNeighbor(last)) {
         previousDot = &last;
-    }
-    else {
+    } else {
         m_provisionalChain.clear();
         m_provisionalChain.push_back(dot);
+
         emit hasPendingMovesChanged();
+
         return;
     }
 
@@ -523,12 +556,12 @@ void GameBoard::tryAddToChain(const Dot &dot)
         chain.push_back(&*it);
     }
 
-    if (!m_engine->neighborsInChain(chain.begin(), chain.end() - 1, *previousDot, dot)
-            && m_engine->canConnectDots(*previousDot, dot)) {
+    if (!m_engine->neighborsInChain(
+            chain.begin(), chain.end() - 1, *previousDot, dot)
+        && m_engine->canConnectDots(*previousDot, dot)) {
         if (previousDot == &first) {
             m_provisionalChain.push_front(dot);
-        }
-        else if (previousDot == &last) {
+        } else if (previousDot == &last) {
             m_provisionalChain.push_back(dot);
         }
 
@@ -546,7 +579,8 @@ QPointF GameBoard::findIntersection(int x, int y) const
 
 bool GameBoard::isReady() const
 {
-    return m_engine != nullptr && isComponentComplete() && width() > 0 && height() > 0;
+    return m_engine != nullptr && isComponentComplete() && width() > 0
+        && height() > 0;
 }
 
 void GameBoard::updateGridNode(GameBoard::QSGGameBoardNode *node)
@@ -559,7 +593,8 @@ void GameBoard::updateGridNode(GameBoard::QSGGameBoardNode *node)
     QSGGeometry *gridGeometry = gridNode->geometry();
 
     if (gridGeometry == nullptr) {
-        gridGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), m_gridLines.size() * 2);
+        gridGeometry = new QSGGeometry(
+            QSGGeometry::defaultAttributes_Point2D(), m_gridLines.size() * 2);
         gridGeometry->setLineWidth(static_cast<float>(m_gridStroke->width()));
         gridGeometry->setDrawingMode(QSGGeometry::DrawLines);
         gridNode->setGeometry(gridGeometry);
@@ -569,8 +604,7 @@ void GameBoard::updateGridNode(GameBoard::QSGGameBoardNode *node)
         gridMaterial->setColor(m_gridStroke->color());
         gridNode->setMaterial(gridMaterial);
         gridNode->setFlag(QSGNode::OwnsMaterial);
-    }
-    else {
+    } else {
         gridGeometry->allocate(m_gridLines.size() * 2);
     }
 
@@ -578,8 +612,10 @@ void GameBoard::updateGridNode(GameBoard::QSGGameBoardNode *node)
     size_t i = 0;
 
     for (const QLineF &line : m_gridLines) {
-        vertices[i++].set(static_cast<float>(line.x1()), static_cast<float>(line.y1()));
-        vertices[i++].set(static_cast<float>(line.x2()), static_cast<float>(line.y2()));
+        vertices[i++].set(
+            static_cast<float>(line.x1()), static_cast<float>(line.y1()));
+        vertices[i++].set(
+            static_cast<float>(line.x2()), static_cast<float>(line.y2()));
     }
 
     gridNode->markDirty(QSGNode::DirtyGeometry);
@@ -601,7 +637,8 @@ void GameBoard::updateDotContainerNode(GameBoard::QSGGameBoardNode *node)
         return;
     }
 
-    std::vector<const Dot *>::const_iterator dots_it = m_gridDirty ? dots.cbegin() : dots.cend() - 1;
+    std::vector<const Dot *>::const_iterator dots_it =
+        m_gridDirty ? dots.cbegin() : dots.cend() - 1;
     const std::vector<const Dot *>::const_iterator dots_end = dots.end();
     QVector<QSGTexture *> dotTextures = node->dotTextures();
     const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
@@ -609,8 +646,13 @@ void GameBoard::updateDotContainerNode(GameBoard::QSGGameBoardNode *node)
     for (; dots_it != dots_end; ++dots_it) {
         const Dot &dot = **dots_it;
         const QImage &dotImage = m_dotImages[dot.player()];
-        const QPointF intersection = gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
-        const QRectF dotRect = QRectF((intersection - QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)), (intersection + QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)));
+        const QPointF intersection =
+            gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
+        const QRectF dotRect = QRectF(
+            (intersection
+             - QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)),
+            (intersection
+             + QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)));
 
         QSGImageNode *dotNode = window()->createImageNode();
         dotNode->setRect(dotRect);
@@ -636,7 +678,8 @@ void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
 
     for (int player = 0; player < m_numPlayers; ++player) {
         const std::vector<const Line *> &lines = m_engine->getLines(player);
-        QSGGeometryNode *linesNode = static_cast<QSGGeometryNode *>(lineContainerNode->childAtIndex(player));
+        QSGGeometryNode *linesNode = static_cast<QSGGeometryNode *>(
+            lineContainerNode->childAtIndex(player));
         QSGGeometry *linesGeometry = nullptr;
         const int vertexCount = static_cast<int>(lines.size() * 2);
 
@@ -645,7 +688,8 @@ void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
             QSGMaterial *lineMaterial = lineMaterials[player];
 
             linesNode = new QSGGeometryNode();
-            linesGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), vertexCount);
+            linesGeometry = new QSGGeometry(
+                QSGGeometry::defaultAttributes_Point2D(), vertexCount);
             linesGeometry->setLineWidth(static_cast<float>(stroke->width()));
             linesGeometry->setDrawingMode(QSGGeometry::DrawLines);
             linesNode->setGeometry(linesGeometry);
@@ -667,8 +711,11 @@ void GameBoard::updateLineContainerNode(GameBoard::QSGGameBoardNode *node)
             const Line &line = *pLine;
 
             for (const Dot &dot : {line.endpoint1(), line.endpoint2()}) {
-                QPointF point = gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
-                vertices[i++].set(static_cast<float>(point.x()), static_cast<float>(point.y()));
+                QPointF point = gridDisplayTransform.map(
+                    findIntersection(dot.x(), dot.y()));
+                vertices[i++].set(
+                    static_cast<float>(point.x()),
+                    static_cast<float>(point.y()));
             }
         }
 
@@ -681,7 +728,7 @@ void GameBoard::updateChainContainerNode(GameBoard::QSGGameBoardNode *node)
     QSGNode *chainContainerNode = node->chainContainerNode();
     chainContainerNode->removeAllChildNodes();
 
-    const std::vector<std::vector<const Dot *> > &chains = m_engine->getChains();
+    const std::vector<std::vector<const Dot *>> &chains = m_engine->getChains();
     Stroke *stroke = m_markStrokes[m_engine->currentPlayer()];
     QVector<QSGMaterial *> lineMaterials = node->lineMaterials();
     QSGMaterial *chainMaterial = lineMaterials[m_engine->currentPlayer()];
@@ -689,12 +736,15 @@ void GameBoard::updateChainContainerNode(GameBoard::QSGGameBoardNode *node)
 
     for (const std::vector<const Dot *> &chain : chains) {
         QSGGeometryNode *chainNode = new QSGGeometryNode();
-        QSGGeometry *chainGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), static_cast<int>(chain.size()));
+        QSGGeometry *chainGeometry = new QSGGeometry(
+            QSGGeometry::defaultAttributes_Point2D(),
+            static_cast<int>(chain.size()));
         chainGeometry->setLineWidth(static_cast<float>(stroke->width()));
         chainGeometry->setDrawingMode(QSGGeometry::DrawLineStrip);
         chainNode->setGeometry(chainGeometry);
         chainNode->setFlag(QSGNode::OwnsGeometry);
-        // painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DashLine, Qt::FlatCap));
+        // painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DashLine,
+        // Qt::FlatCap));
         chainNode->setMaterial(chainMaterial);
         chainContainerNode->appendChildNode(chainNode);
 
@@ -703,65 +753,85 @@ void GameBoard::updateChainContainerNode(GameBoard::QSGGameBoardNode *node)
 
         for (const Dot *pDot : chain) {
             const Dot dot = *pDot;
-            const QPointF point = gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
+            const QPointF point =
+                gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
 
-            vertices[i++].set(static_cast<float>(point.x()), static_cast<float>(point.y()));
+            vertices[i++].set(
+                static_cast<float>(point.x()), static_cast<float>(point.y()));
         }
     }
 }
 
-void GameBoard::updateProvisionalDotContainerNode(GameBoard::QSGGameBoardNode *node)
+void GameBoard::updateProvisionalDotContainerNode(
+    GameBoard::QSGGameBoardNode *node)
 {
-    QSGOpacityNode *provisionalDotContainerNode = node->provisionalDotContainerNode();
+    QSGOpacityNode *provisionalDotContainerNode =
+        node->provisionalDotContainerNode();
     provisionalDotContainerNode->setOpacity(0.5);
     provisionalDotContainerNode->removeAllChildNodes();
 
-    if (m_provisionalDot.isValid()) {
-        const QImage &dotImage = m_dotImages[m_engine->currentPlayer()];
-        QVector<QSGTexture *> dotTextures = node->dotTextures();
-        const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
-        const QPointF intersection = gridDisplayTransform.map(findIntersection(m_provisionalDot.x(), m_provisionalDot.y()));
-        const QRectF dotRect = QRectF((intersection - QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)), (intersection + QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)));
-
-        QSGImageNode *dotNode = window()->createImageNode();
-        dotNode->setRect(dotRect);
-        QSGTexture *dotTexture = dotTextures[m_engine->currentPlayer()];
-        dotNode->setTexture(dotTexture);
-        provisionalDotContainerNode->appendChildNode(dotNode);
+    if (!m_provisionalDot.isValid()) {
+        return;
     }
+
+    const QImage &dotImage = m_dotImages[m_engine->currentPlayer()];
+    QVector<QSGTexture *> dotTextures = node->dotTextures();
+    const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
+    const QPointF intersection = gridDisplayTransform.map(
+        findIntersection(m_provisionalDot.x(), m_provisionalDot.y()));
+    const QRectF dotRect = QRectF(
+        (intersection
+         - QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)),
+        (intersection
+         + QPointF(dotImage.width() * 0.5, dotImage.height() * 0.5)));
+
+    QSGImageNode *dotNode = window()->createImageNode();
+    dotNode->setRect(dotRect);
+    QSGTexture *dotTexture = dotTextures[m_engine->currentPlayer()];
+    dotNode->setTexture(dotTexture);
+    provisionalDotContainerNode->appendChildNode(dotNode);
 }
 
-void GameBoard::updateProvisionalChainContainerNode(GameBoard::QSGGameBoardNode *node)
+void GameBoard::updateProvisionalChainContainerNode(
+    GameBoard::QSGGameBoardNode *node)
 {
-    QSGOpacityNode *provisionalChainContainerNode = node->provisionalChainContainerNode();
+    QSGOpacityNode *provisionalChainContainerNode =
+        node->provisionalChainContainerNode();
     provisionalChainContainerNode->setOpacity(0.5);
     provisionalChainContainerNode->removeAllChildNodes();
 
-    if (m_provisionalChain.size() > 1) {
-        const std::deque<Dot> &chain = m_provisionalChain;
-        Stroke *stroke = m_markStrokes[m_engine->currentPlayer()];
-        QVector<QSGMaterial *> lineMaterials = node->lineMaterials();
-        QSGMaterial *chainMaterial = lineMaterials[m_engine->currentPlayer()];
-        const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
+    if (m_provisionalChain.size() <= 1) {
+        return;
+    }
 
-        QSGGeometryNode *chainNode = new QSGGeometryNode();
-        QSGGeometry *chainGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), static_cast<int>(chain.size()));
-        chainGeometry->setLineWidth(static_cast<float>(stroke->width()));
-        chainGeometry->setDrawingMode(QSGGeometry::DrawLineStrip);
-        chainNode->setGeometry(chainGeometry);
-        chainNode->setFlag(QSGNode::OwnsGeometry);
-        // painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DashLine, Qt::FlatCap));
-        chainNode->setMaterial(chainMaterial);
-        provisionalChainContainerNode->appendChildNode(chainNode);
+    const std::deque<Dot> &chain = m_provisionalChain;
+    Stroke *stroke = m_markStrokes[m_engine->currentPlayer()];
+    QVector<QSGMaterial *> lineMaterials = node->lineMaterials();
+    QSGMaterial *chainMaterial = lineMaterials[m_engine->currentPlayer()];
+    const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
 
-        QSGGeometry::Point2D *vertices = chainGeometry->vertexDataAsPoint2D();
-        size_t i = 0;
+    QSGGeometryNode *chainNode = new QSGGeometryNode();
+    QSGGeometry *chainGeometry = new QSGGeometry(
+        QSGGeometry::defaultAttributes_Point2D(),
+        static_cast<int>(chain.size()));
+    chainGeometry->setLineWidth(static_cast<float>(stroke->width()));
+    chainGeometry->setDrawingMode(QSGGeometry::DrawLineStrip);
+    chainNode->setGeometry(chainGeometry);
+    chainNode->setFlag(QSGNode::OwnsGeometry);
+    // painter->setPen(QPen(stroke->color(), stroke->width(), Qt::DashLine,
+    // Qt::FlatCap));
+    chainNode->setMaterial(chainMaterial);
+    provisionalChainContainerNode->appendChildNode(chainNode);
 
-        for (const Dot &dot : chain) {
-            const QPointF point = gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
+    QSGGeometry::Point2D *vertices = chainGeometry->vertexDataAsPoint2D();
+    size_t i = 0;
 
-            vertices[i++].set(static_cast<float>(point.x()), static_cast<float>(point.y()));
-        }
+    for (const Dot &dot : chain) {
+        const QPointF point =
+            gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
+
+        vertices[i++].set(
+            static_cast<float>(point.x()), static_cast<float>(point.y()));
     }
 }
 

@@ -207,11 +207,13 @@ Page {
             onPinchUpdated: {
                 var newScale = initialScale * pinch.scale
 
-                if (newScale < pinchy.pinch.minimumScale)
+                if (newScale < pinchy.pinch.minimumScale) {
                     newScale = pinchy.pinch.minimumScale
+                }
 
-                if (newScale > pinchy.pinch.maximumScale)
+                if (newScale > pinchy.pinch.maximumScale) {
                     newScale = pinchy.pinch.maximumScale
+                }
 
                 flicky.scaleContent(newScale, pinch.center)
             }

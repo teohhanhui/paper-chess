@@ -1,7 +1,11 @@
 #include "dotonborderpredicate.h"
 #include "dot.h"
 
-DotOnBorderPredicate::DotOnBorderPredicate(int left, int right, int top, int bottom)
+DotOnBorderPredicate::DotOnBorderPredicate(
+    int left,
+    int right,
+    int top,
+    int bottom)
     : m_left(left)
     , m_right(right)
     , m_top(top)
@@ -11,8 +15,7 @@ DotOnBorderPredicate::DotOnBorderPredicate(int left, int right, int top, int bot
 
 bool DotOnBorderPredicate::operator()(const Dot *dot) const
 {
-    return (dot->x() == m_left
-            || dot->x() == m_right
-            || dot->y() == m_top
-            || dot->y() == m_bottom);
+    return (
+        dot->x() == m_left || dot->x() == m_right || dot->y() == m_top
+        || dot->y() == m_bottom);
 }

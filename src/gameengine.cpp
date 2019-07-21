@@ -1,12 +1,12 @@
 #include "gameengine.h"
-#include <algorithm>
-#include <stack>
-#include <set>
 #include "dot.h"
-#include "line.h"
 #include "dotcoordinatespredicate.h"
-#include "lineendpointspredicate.h"
 #include "dotonborderpredicate.h"
+#include "line.h"
+#include "lineendpointspredicate.h"
+#include <algorithm>
+#include <set>
+#include <stack>
 
 GameEngine::GameEngine(QObject *parent)
     : QObject(parent)
@@ -138,10 +138,10 @@ std::vector<const Line *> GameEngine::getLines(int player) const
     return outLines;
 }
 
-std::vector<std::vector<const Dot *> > GameEngine::getChains() const
+std::vector<std::vector<const Dot *>> GameEngine::getChains() const
 {
-    std::vector<std::vector<const Dot *> > outChains;
-    const std::list<std::deque<Dot *>*> &chains = m_chains;
+    std::vector<std::vector<const Dot *>> outChains;
+    const std::list<std::deque<Dot *> *> &chains = m_chains;
 
     for (const std::deque<Dot *> *pChain : chains) {
         std::vector<const Dot *> outChain;
@@ -180,19 +180,16 @@ bool GameEngine::canConnectDots(const Dot &dot1, const Dot &dot2) const
     }
 
     // check if the dots are neighbours and are not yet connected
-    if (!dot1.isNeighbor(dot2)
-            || findLine(&dot1, &dot2) != nullptr
-            || connectedInChain(dot1, dot2)) {
+    if (!dot1.isNeighbor(dot2) || findLine(&dot1, &dot2) != nullptr
+        || connectedInChain(dot1, dot2)) {
         return false;
     }
 
     if (dot1.x() == dot2.x() || dot1.y() == dot2.y()) {
         // horizontal or vertical line
-
         return true;
-    }
-    else {
-        //diagonal line
+    } else {
+        // diagonal line
 
         const Dot *blockingDot1 = findDot(m_dots, dot1.x(), dot2.y());
         const Dot *blockingDot2 = findDot(m_dots, dot2.x(), dot1.y());
@@ -212,8 +209,11 @@ bool GameEngine::canConnectDots(const Dot &dot1, const Dot &dot2) const
 }
 
 template <typename InputIterator>
-bool GameEngine::neighborsInChain(InputIterator chainStart, InputIterator chainEnd,
-                                  const Dot &dot1, const Dot &dot2) const
+bool GameEngine::neighborsInChain(
+    InputIterator chainStart,
+    InputIterator chainEnd,
+    const Dot &dot1,
+    const Dot &dot2) const
 {
     InputIterator it;
     Dot *currentDot;
@@ -224,7 +224,7 @@ bool GameEngine::neighborsInChain(InputIterator chainStart, InputIterator chainE
         nextDot = *(it + 1);
 
         if ((*currentDot == dot1 && *nextDot == dot2)
-                || (*currentDot == dot2 && *nextDot == dot1)) {
+            || (*currentDot == dot2 && *nextDot == dot1)) {
             return true;
         }
     }
@@ -240,21 +240,26 @@ void GameEngine::newGame(int rows, int columns, int turnLimit)
 
     m_rows = rows;
     m_columns = columns;
+
     emit gameStarted();
 
     m_turnLimit = turnLimit;
     m_turnsLeft = turnLimit;
+
     emit turnsLeftChanged();
 
     m_currentPlayer = 0;
+
     emit currentPlayerChanged();
 
     m_stage = PlaceDotStage;
+
     emit stageChanged();
 
     for (int i = 0; i < m_numPlayers; ++i) {
         m_playerScores[i] = 0;
     }
+
     emit playerScoresChanged();
 }
 
@@ -272,7 +277,9 @@ bool GameEngine::placeDot(int x, int y)
     m_dots.push_back(dot);
 
     m_stage = ConnectDotsStage;
+
     emit stageChanged();
+
     return true;
 }
 
@@ -318,22 +325,27 @@ void GameEngine::endTurn()
     }
 
     clearTurnData();
+
     emit turnEnded();
 
     if (m_currentPlayer == m_numPlayers - 1) {
         --m_turnsLeft;
+
         emit turnsLeftChanged();
     }
 
     if (m_turnsLeft > 0) {
-        m_currentPlayer = ++m_currentPlayer == m_numPlayers ? 0 : m_currentPlayer;
+        m_currentPlayer =
+            ++m_currentPlayer == m_numPlayers ? 0 : m_currentPlayer;
+
         emit currentPlayerChanged();
 
         m_stage = PlaceDotStage;
+
         emit stageChanged();
-    }
-    else {
+    } else {
         m_stage = EndStage;
+
         emit stageChanged();
     }
 }
@@ -355,8 +367,8 @@ bool GameEngine::connectedInChain(const Dot &dot1, const Dot &dot2) const
 
 std::deque<Dot *> &GameEngine::addToChains(Dot &dot1, Dot &dot2)
 {
-    std::list<std::deque<Dot *>*>::iterator it;
-    std::list<std::deque<Dot *>*>::iterator end = m_chains.end();
+    std::list<std::deque<Dot *> *>::iterator it;
+    std::list<std::deque<Dot *> *>::iterator end = m_chains.end();
     std::deque<Dot *> *chain;
     bool inserted = false;
 
@@ -366,16 +378,13 @@ std::deque<Dot *> &GameEngine::addToChains(Dot &dot1, Dot &dot2)
         if (chain->front() == &dot1) {
             chain->push_front(&dot2);
             inserted = true;
-        }
-        else if (chain->front() == &dot2) {
+        } else if (chain->front() == &dot2) {
             chain->push_front(&dot1);
             inserted = true;
-        }
-        else if (chain->back() == &dot1) {
+        } else if (chain->back() == &dot1) {
             chain->push_back(&dot2);
             inserted = true;
-        }
-        else if (chain->back() == &dot2) {
+        } else if (chain->back() == &dot2) {
             chain->push_back(&dot1);
             inserted = true;
         }
@@ -390,6 +399,7 @@ std::deque<Dot *> &GameEngine::addToChains(Dot &dot1, Dot &dot2)
     newChain->push_back(&dot2);
 
     m_chains.push_back(newChain);
+
     return *m_chains.back();
 }
 
@@ -413,14 +423,13 @@ void GameEngine::cutChain(std::deque<Dot *> *&chain, Dot &dot1, Dot &dot2)
             nextDot = *next;
 
             if ((currentDot == &dot1 && nextDot == &dot2)
-                    || (currentDot == &dot2 && nextDot == &dot1)) {
+                || (currentDot == &dot2 && nextDot == &dot1)) {
                 // break the chain at the current segment
                 if (currentDot != firstDot && nextDot != lastDot) {
                     newChain = new std::deque<Dot *>(next, end);
                     m_chains.push_back(newChain);
                     chain->erase(next, end);
-                }
-                else {
+                } else {
                     if (currentDot == firstDot) {
                         chain->pop_front();
                     }
@@ -452,16 +461,14 @@ void GameEngine::completeChain(InputIterator chainStart, InputIterator chainEnd)
     if (*chainStart == *chainEnd) {
         completed = true;
         surrounded = true;
-    }
-    else {
+    } else {
         // try closing the chain
         if (closeChain(chainStart, chainEnd, closedChain)) {
             chainStart = closedChain.begin();
             chainEnd = closedChain.end() - 1;
             completed = true;
             surrounded = true;
-        }
-        else {
+        } else {
             // try forming a barricade
             if (formBarricade(chainStart, chainEnd)) {
                 completed = true;
@@ -479,7 +486,10 @@ void GameEngine::completeChain(InputIterator chainStart, InputIterator chainEnd)
 }
 
 template <typename InputIterator>
-bool GameEngine::closeChain(InputIterator chainStart, InputIterator chainEnd, std::deque<Dot *> &outChain) const
+bool GameEngine::closeChain(
+    InputIterator chainStart,
+    InputIterator chainEnd,
+    std::deque<Dot *> &outChain) const
 {
     // initialize the output chain to contain all dots from the input chain
     outChain.clear();
@@ -493,26 +503,33 @@ bool GameEngine::closeChain(InputIterator chainStart, InputIterator chainEnd, st
     Dot *startDot = *chainStart;
     Dot *endDot = *chainEnd;
 
-    // check that the start and end dots are actually connected to something else
-    if (findConnectedDots(*startDot).size() < 2 || findConnectedDots(*endDot).size() < 2) {
+    // check that the start and end dots are actually connected to something
+    // else
+    if (findConnectedDots(*startDot).size() < 2
+        || findConnectedDots(*endDot).size() < 2) {
         return false;
     }
 
     bool pathFound;
     std::vector<Dot *> resultPath;
-    pathFound = findPath(chainStart, chainEnd,
-                         DotCoordinatesPredicate(endDot->x(), endDot->y()), resultPath);
+    pathFound = findPath(
+        chainStart,
+        chainEnd,
+        DotCoordinatesPredicate(endDot->x(), endDot->y()),
+        resultPath);
 
     if (pathFound) {
         // add dots from the result path to close the chain
-        outChain.insert(outChain.end(), resultPath.rbegin() + 1, resultPath.rend());
+        outChain.insert(
+            outChain.end(), resultPath.rbegin() + 1, resultPath.rend());
     }
 
     return pathFound;
 }
 
 template <typename InputIterator>
-bool GameEngine::formBarricade(InputIterator chainStart, InputIterator chainEnd) const
+bool GameEngine::formBarricade(InputIterator chainStart, InputIterator chainEnd)
+    const
 {
     std::deque<Dot *> extendedChain;
 
@@ -554,16 +571,15 @@ bool GameEngine::formBarricade(InputIterator chainStart, InputIterator chainEnd)
     // seal off some space
     if ((maxX - minX) > 0 && (maxY - minY) > 0) {
         return true;
-    }
-    else { // OR
+    } else { // OR
         const Dot &startDot = *extendedChain.front();
         const Dot &endDot = *extendedChain.back();
 
         // cut across the entire horizontal or vertical span
         if ((startDot.x() == 0 && endDot.x() == m_columns)
-             || (startDot.x() == m_columns && endDot.x() == 0)
-             || (startDot.y() == 0 && endDot.y() == m_rows)
-             || (startDot.y() == m_rows && endDot.y() == 0)) {
+            || (startDot.x() == m_columns && endDot.x() == 0)
+            || (startDot.y() == 0 && endDot.y() == m_rows)
+            || (startDot.y() == m_rows && endDot.y() == 0)) {
             return true;
         }
     }
@@ -572,7 +588,10 @@ bool GameEngine::formBarricade(InputIterator chainStart, InputIterator chainEnd)
 }
 
 template <typename InputIterator>
-bool GameEngine::extendToBorders(InputIterator chainStart, InputIterator chainEnd, std::deque<Dot *> &outChain) const
+bool GameEngine::extendToBorders(
+    InputIterator chainStart,
+    InputIterator chainEnd,
+    std::deque<Dot *> &outChain) const
 {
     DotOnBorderPredicate pred(0, m_columns, 0, m_rows);
     std::vector<Dot *> resultPath;
@@ -584,7 +603,8 @@ bool GameEngine::extendToBorders(InputIterator chainStart, InputIterator chainEn
 
         // prepend dots before the start dot
         if (startOnBorder) {
-            outChain.insert(outChain.end(), resultPath.rbegin(), resultPath.rend() - 1);
+            outChain.insert(
+                outChain.end(), resultPath.rbegin(), resultPath.rend() - 1);
         }
     }
 
@@ -595,11 +615,13 @@ bool GameEngine::extendToBorders(InputIterator chainStart, InputIterator chainEn
         std::vector<Dot *> inChain;
         inChain.insert(inChain.end(), chainStart, chainEnd + 1);
 
-        endOnBorder = findPath(inChain.rbegin(), inChain.rend() - 1, pred, resultPath);
+        endOnBorder =
+            findPath(inChain.rbegin(), inChain.rend() - 1, pred, resultPath);
 
         // append dots after the end dot
         if (endOnBorder) {
-            outChain.insert(outChain.end(), resultPath.begin() + 1, resultPath.end());
+            outChain.insert(
+                outChain.end(), resultPath.begin() + 1, resultPath.end());
         }
     }
 
@@ -691,12 +713,12 @@ void GameEngine::captureArea(InputIterator chainStart, InputIterator chainEnd)
 Dot *GameEngine::findDot(const std::deque<Dot *> &dots, int x, int y) const
 {
     DotCoordinatesPredicate pred(x, y);
-    std::deque<Dot *>::const_iterator it = std::find_if(dots.begin(), dots.end(), pred);
+    std::deque<Dot *>::const_iterator it =
+        std::find_if(dots.begin(), dots.end(), pred);
 
     if (it != dots.end()) {
         return *it;
-    }
-    else {
+    } else {
         return nullptr;
     }
 }
@@ -705,12 +727,12 @@ Line *GameEngine::findLine(const Dot *endpoint1, const Dot *endpoint2) const
 {
     const std::deque<Line *> &lines = m_lines;
     LineEndpointsPredicate pred(endpoint1, endpoint2);
-    std::deque<Line *>::const_iterator it = std::find_if(lines.begin(), lines.end(), pred);
+    std::deque<Line *>::const_iterator it =
+        std::find_if(lines.begin(), lines.end(), pred);
 
     if (it != lines.end()) {
         return *it;
-    }
-    else {
+    } else {
         return nullptr;
     }
 }
@@ -737,7 +759,7 @@ std::deque<Line *> GameEngine::findLines(const Dot &endpoint) const
 
 std::deque<Dot *> *GameEngine::findChain(const Dot &dot1, const Dot &dot2) const
 {
-    const std::list<std::deque<Dot *>*> &chains = m_chains;
+    const std::list<std::deque<Dot *> *> &chains = m_chains;
 
     for (std::deque<Dot *> *chain : chains) {
         if (neighborsInChain(chain->begin(), chain->end() - 1, dot1, dot2)) {
@@ -761,8 +783,7 @@ std::deque<Dot *> GameEngine::findConnectedDots(const Dot &dot) const
 
             if (&line.endpoint1() != &dot) {
                 connectedDots.push_back(&line.endpoint1());
-            }
-            else {
+            } else {
                 connectedDots.push_back(&line.endpoint2());
             }
         }
@@ -770,14 +791,16 @@ std::deque<Dot *> GameEngine::findConnectedDots(const Dot &dot) const
 
     // find connected dots in all chains
     {
-        const std::list<std::deque<Dot *>*> &chains = m_chains;
+        const std::list<std::deque<Dot *> *> &chains = m_chains;
 
         for (const std::deque<Dot *> *chain : chains) {
             std::deque<Dot *>::const_iterator begin = chain->begin();
             std::deque<Dot *>::const_iterator end = chain->end();
             bool found = false;
 
-            for (std::deque<Dot *>::const_iterator it = begin; !found && it != end; ++it) {
+            for (std::deque<Dot *>::const_iterator it = begin;
+                 !found && it != end;
+                 ++it) {
                 if (*it == &dot) {
                     if (it - 1 != begin - 1) {
                         connectedDots.push_back(*(it - 1));
@@ -795,12 +818,13 @@ std::deque<Dot *> GameEngine::findConnectedDots(const Dot &dot) const
 }
 
 template <typename InputIterator, typename Predicate, typename Container>
-bool GameEngine::findPath(InputIterator chainStart, InputIterator chainEnd,
-                          Predicate pred, Container &resultPath) const
+bool GameEngine::findPath(
+    InputIterator chainStart,
+    InputIterator chainEnd,
+    Predicate pred,
+    Container &resultPath) const
 {
-    /*
-     * Implementation note: Iterative DFS algorithm
-     */
+    // Implementation note: Iterative DFS algorithm
 
     std::stack<Dot *> unvisited;
     std::set<Dot *> visited;
@@ -831,14 +855,17 @@ bool GameEngine::findPath(InputIterator chainStart, InputIterator chainEnd,
         // find the next dot to visit
         for (Dot *dot : connectedDots) {
             // check terminating condition
-            if (pred(dot) && !neighborsInChain(chainStart, chainEnd, *currentDot, *dot)) {
+            if (pred(dot)
+                && !neighborsInChain(chainStart, chainEnd, *currentDot, *dot)) {
                 resultPath.push_back(dot);
+
                 return true;
             }
 
             // check for a dot that has not been visited
             if (visited.find(dot) == visited.end()) {
                 nextDot = dot;
+
                 break;
             }
         }
@@ -850,8 +877,7 @@ bool GameEngine::findPath(InputIterator chainStart, InputIterator chainEnd,
 
             // remove the current dot from the result path
             resultPath.pop_back();
-        }
-        else {
+        } else {
             // push the dot onto unvisited stack
             unvisited.push(nextDot);
 

@@ -1,8 +1,8 @@
 #ifndef STROKE_H
 #define STROKE_H
 
-#include <QObject>
 #include <QColor>
+#include <QObject>
 
 class Stroke : public QObject
 {

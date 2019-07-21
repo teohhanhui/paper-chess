@@ -1,9 +1,9 @@
+#include "gameboard.h"
+#include "gameengine.h"
+#include "stroke.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include "gameengine.h"
-#include "gameboard.h"
-#include "stroke.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,8 +21,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("gameEngine", &gameEngine);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
-    if (engine.rootObjects().isEmpty())
+    if (engine.rootObjects().isEmpty()) {
         return -1;
+    }
 
     return app.exec();
 }

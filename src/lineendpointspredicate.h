@@ -7,8 +7,11 @@ class Line;
 class LineEndpointsPredicate
 {
 public:
-    LineEndpointsPredicate(const Dot *endpoint1, const Dot *endpoint2 = nullptr);
+    LineEndpointsPredicate(
+        const Dot *endpoint1,
+        const Dot *endpoint2 = nullptr);
     bool operator()(const Line *line);
+
 private:
     const Dot *m_endpoint1;
     const Dot *m_endpoint2;

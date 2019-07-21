@@ -16,6 +16,7 @@ void Stroke::setColor(const QColor &color)
 {
     if (color != m_color) {
         m_color = color;
+
         emit colorChanged();
     }
 }
@@ -29,6 +30,7 @@ void Stroke::setWidth(const qreal width)
 {
     if (width < m_width || width > m_width) {
         m_width = width;
+
         emit widthChanged();
     }
 }

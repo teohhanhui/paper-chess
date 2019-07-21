@@ -1,19 +1,19 @@
 #ifndef GAMEBOARD_H
 #define GAMEBOARD_H
 
-#include <QQuickItem>
-#include <QVector>
-#include <QVarLengthArray>
-#include <QSvgRenderer>
+#include "dot.h"
 #include <QImage>
 #include <QList>
-#include <QSGNode>
+#include <QQuickItem>
 #include <QSGGeometryNode>
+#include <QSGMaterial>
+#include <QSGNode>
 #include <QSGOpacityNode>
 #include <QSGTexture>
-#include <QSGMaterial>
+#include <QSvgRenderer>
+#include <QVarLengthArray>
+#include <QVector>
 #include <deque>
-#include "dot.h"
 
 class Stroke;
 class GameEngine;
@@ -25,7 +25,8 @@ class GameBoard : public QQuickItem
     Q_PROPERTY(QVariantList dotSources READ dotSources WRITE setDotSources)
     Q_PROPERTY(QQmlListProperty<Stroke> markStrokes READ markStrokes)
     Q_PROPERTY(Stroke *gridStroke READ gridStroke)
-    Q_PROPERTY(bool hasPendingMoves READ hasPendingMoves NOTIFY hasPendingMovesChanged)
+    Q_PROPERTY(
+        bool hasPendingMoves READ hasPendingMoves NOTIFY hasPendingMovesChanged)
 
 public:
     explicit GameBoard(QQuickItem *parent = nullptr);
@@ -40,7 +41,7 @@ public:
     QQmlListProperty<Stroke> markStrokes();
     void appendMarkStroke(Stroke *markStroke);
     int markStrokeCount() const;
-    Stroke* markStroke(int index) const;
+    Stroke *markStroke(int index) const;
     void clearMarkStrokes();
 
     Stroke *gridStroke() const;
@@ -67,37 +68,39 @@ protected:
 private:
     class QSGGameBoardNode : public QSGNode
     {
-        public:
-            explicit QSGGameBoardNode();
-            ~QSGGameBoardNode();
+    public:
+        explicit QSGGameBoardNode();
+        ~QSGGameBoardNode();
 
-            QSGGeometryNode *gridNode() const;
-            QSGNode *dotContainerNode() const;
-            QSGNode *lineContainerNode() const;
-            QSGNode *chainContainerNode() const;
-            QSGOpacityNode *provisionalDotContainerNode() const;
-            QSGOpacityNode *provisionalChainContainerNode() const;
+        QSGGeometryNode *gridNode() const;
+        QSGNode *dotContainerNode() const;
+        QSGNode *lineContainerNode() const;
+        QSGNode *chainContainerNode() const;
+        QSGOpacityNode *provisionalDotContainerNode() const;
+        QSGOpacityNode *provisionalChainContainerNode() const;
 
-            QVector<QSGTexture *> dotTextures() const;
-            void setDotTextures(QVector<QSGTexture *> dotTextures);
+        QVector<QSGTexture *> dotTextures() const;
+        void setDotTextures(QVector<QSGTexture *> dotTextures);
 
-            QVector<QSGMaterial *> lineMaterials() const;
-            void setLineMaterials(QVector<QSGMaterial *> lineMaterials);
+        QVector<QSGMaterial *> lineMaterials() const;
+        void setLineMaterials(QVector<QSGMaterial *> lineMaterials);
 
-        private:
-            QSGGeometryNode *m_gridNode;
-            QSGNode *m_dotContainerNode;
-            QSGNode *m_lineContainerNode;
-            QSGNode *m_chainContainerNode;
-            QSGOpacityNode *m_provisionalDotContainerNode;
-            QSGOpacityNode *m_provisionalChainContainerNode;
-            QVector<QSGTexture *> m_dotTextures;
-            QVector<QSGMaterial *> m_lineMaterials;
+    private:
+        QSGGeometryNode *m_gridNode;
+        QSGNode *m_dotContainerNode;
+        QSGNode *m_lineContainerNode;
+        QSGNode *m_chainContainerNode;
+        QSGOpacityNode *m_provisionalDotContainerNode;
+        QSGOpacityNode *m_provisionalChainContainerNode;
+        QVector<QSGTexture *> m_dotTextures;
+        QVector<QSGMaterial *> m_lineMaterials;
     };
 
-    static void appendMarkStroke(QQmlListProperty<Stroke> *property, Stroke *value);
+    static void appendMarkStroke(
+        QQmlListProperty<Stroke> *property,
+        Stroke *value);
     static int markStrokeCount(QQmlListProperty<Stroke> *property);
-    static Stroke* markStroke(QQmlListProperty<Stroke> *property, int index);
+    static Stroke *markStroke(QQmlListProperty<Stroke> *property, int index);
     static void clearMarkStrokes(QQmlListProperty<Stroke> *property);
 
     void makeGrid();
