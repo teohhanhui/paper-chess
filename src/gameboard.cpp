@@ -637,14 +637,16 @@ void GameBoard::updateDotContainerNode(GameBoard::QSGGameBoardNode *node)
         return;
     }
 
-    std::vector<const Dot *>::const_iterator dots_it =
-        m_gridDirty ? dots.cbegin() : dots.cend() - 1;
-    const std::vector<const Dot *>::const_iterator dots_end = dots.end();
     QVector<QSGTexture *> dotTextures = node->dotTextures();
     const QTransform gridDisplayTransform = GameBoard::gridDisplayTransform();
+    int i = 0;
 
-    for (; dots_it != dots_end; ++dots_it) {
-        const Dot &dot = **dots_it;
+    for (const Dot *pDot : dots) {
+        if (++i <= dotContainerNode->childCount()) {
+            continue;
+        }
+
+        const Dot &dot = *pDot;
         const QImage &dotImage = m_dotImages[dot.player()];
         const QPointF intersection =
             gridDisplayTransform.map(findIntersection(dot.x(), dot.y()));
