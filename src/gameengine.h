@@ -102,6 +102,7 @@ public slots:
     void newGame(int rows, int columns, int turnLimit);
     bool placeDot(int x, int y);
     bool connectDots(int x1, int y1, int x2, int y2);
+    void connectAllDots();
     void endTurn();
 
 signals:
@@ -110,7 +111,9 @@ signals:
     void turnsLeftChanged();
     void currentPlayerChanged();
     void stageChanged();
+    void dotsChanged();
     void chainsChanged();
+    void linesChanged();
     void playerScoresChanged();
     void turnEnded();
 

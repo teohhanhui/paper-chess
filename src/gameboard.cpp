@@ -141,8 +141,18 @@ void GameBoard::setEngine(GameEngine *engine)
 
         connect(
             m_engine, &GameEngine::gameStarted, this, &GameBoard::setUpBoard);
+        connect(m_engine, &GameEngine::dotsChanged, [&] {
+            m_dotsDirty = true;
+
+            drawBoard();
+        });
         connect(
             m_engine, &GameEngine::chainsChanged, this, &GameBoard::drawBoard);
+        connect(m_engine, &GameEngine::linesChanged, [&] {
+            m_linesDirty = true;
+
+            drawBoard();
+        });
         connect(
             m_engine,
             &GameEngine::turnEnded,
@@ -223,7 +233,7 @@ bool GameBoard::hasPendingMoves() const
         case GameEngine::PlaceDotStage:
             return m_provisionalDot.isValid();
         case GameEngine::ConnectDotsStage:
-            return (m_provisionalChain.size() > 1);
+            return m_provisionalChain.size() > 1;
         default:
             return false;
     }
@@ -235,8 +245,8 @@ void GameBoard::markPosition(QPoint point)
         return;
     }
 
-    // check if the point is around the grid
-    if (!(m_gridRect.adjusted(-m_gridSize, -m_gridSize, m_gridSize, m_gridSize))
+    // check if point is within the grid (or within 1 grid square from border)
+    if (!m_gridRect.adjusted(-m_gridSize, -m_gridSize, m_gridSize, m_gridSize)
              .contains(point)) {
         return;
     }
@@ -306,8 +316,6 @@ void GameBoard::acceptMove(bool accepted)
         case GameEngine::PlaceDotStage:
             if (accepted) {
                 m_engine->placeDot(m_provisionalDot.x(), m_provisionalDot.y());
-
-                m_dotsDirty = true;
             }
 
             m_provisionalDot = Dot();
@@ -326,8 +334,6 @@ void GameBoard::acceptMove(bool accepted)
                     m_engine->connectDots(
                         dot1.x(), dot1.y(), dot2.x(), dot2.y());
                 }
-
-                m_linesDirty = true;
             }
 
             m_provisionalChain.clear();

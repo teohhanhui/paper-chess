@@ -18,14 +18,13 @@ bool LineEndpointsPredicate::operator()(const Line *line)
 
     if (m_endpoint2 == nullptr) {
         // only match a single endpoint
-        return (
-            &line->endpoint1() == m_endpoint1
-            || &line->endpoint2() == m_endpoint1);
+        return &line->endpoint1() == m_endpoint1
+            || &line->endpoint2() == m_endpoint1;
     }
 
     // match both endpoints in any order
-    return (
-        (&line->endpoint1() == m_endpoint1 && &line->endpoint2() == m_endpoint2)
+    return (&line->endpoint1() == m_endpoint1
+            && &line->endpoint2() == m_endpoint2)
         || (&line->endpoint1() == m_endpoint2
-            && &line->endpoint2() == m_endpoint1));
+            && &line->endpoint2() == m_endpoint1);
 }

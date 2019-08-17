@@ -60,7 +60,7 @@ int Dot::y() const
 
 bool Dot::isValid() const
 {
-    return (m_x >= 0 && m_y >= 0);
+    return m_x >= 0 && m_y >= 0;
 }
 
 bool Dot::isActive() const
@@ -77,5 +77,5 @@ void Dot::deactivate()
 
 bool Dot::isNeighbor(const Dot &other) const
 {
-    return (std::abs(m_x - other.x()) < 2 && std::abs(m_y - other.y()) < 2);
+    return std::abs(m_x - other.x()) < 2 && std::abs(m_y - other.y()) < 2;
 }

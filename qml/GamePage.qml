@@ -49,7 +49,6 @@ Page {
                 PropertyChanges {
                     target: confirmActionButton
                     visible: false
-                    text: qsTr("Place")
                 }
                 PropertyChanges {
                     target: cancelActionButton
@@ -62,6 +61,7 @@ Page {
                 PropertyChanges {
                     target: confirmActionButton
                     visible: true
+                    text: qsTr("Place")
                 }
             },
             State {
@@ -75,6 +75,11 @@ Page {
                     target: confirmActionButton
                     text: qsTr("End Turn")
                 }
+                PropertyChanges {
+                    target: cancelActionButton
+                    visible: true
+                    text: qsTr("Auto Connect")
+                }
             },
             State {
                 name: "connectDotsPending"
@@ -86,6 +91,7 @@ Page {
                 PropertyChanges {
                     target: cancelActionButton
                     visible: true
+                    text: qsTr("Cancel")
                 }
             },
             State {
@@ -426,7 +432,14 @@ Page {
                     pixelSize: 8 * baseFontSize
                 }
 
-                onClicked: gameBoard.acceptMove(false)
+                onClicked: {
+                    if (gameTracker.state === "connectDotsWaiting") {
+                        gameEngine.connectAllDots()
+                    }
+                    else if (gameTracker.state !== "endStage") {
+                        gameBoard.acceptMove(false)
+                    }
+                }
             }
 
             Button {
@@ -439,7 +452,7 @@ Page {
                     bottomMargin: 2 * baseFontSize
                 }
 
-                text: "End Turn"
+                text: qsTr("End Turn")
                 font {
                     family: boldFont.name
                     pixelSize: 10 * baseFontSize

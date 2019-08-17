@@ -15,7 +15,6 @@ DotOnBorderPredicate::DotOnBorderPredicate(
 
 bool DotOnBorderPredicate::operator()(const Dot *dot) const
 {
-    return (
-        dot->x() == m_left || dot->x() == m_right || dot->y() == m_top
-        || dot->y() == m_bottom);
+    return dot->x() == m_left || dot->x() == m_right || dot->y() == m_top
+        || dot->y() == m_bottom;
 }
