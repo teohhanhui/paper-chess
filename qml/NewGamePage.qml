@@ -95,8 +95,15 @@ CoverPage {
             }
 
             onClicked: {
+                var player1Name = player1TextField.text !== ""
+                    ? player1TextField.text
+                    : player1TextField.defaultText
+                var player2Name = player2TextField.text !== ""
+                    ? player2TextField.text
+                    : player2TextField.defaultText
+
                 gameEngine.newGame(40, 25, 200)
-                gameEngine.playerNames = [player1TextField.text, player2TextField.text]
+                gameEngine.playerNames = [player1Name, player2Name]
 
                 pageRequested("gamePage")
             }
